@@ -1,0 +1,88 @@
+{% include "Admin/header.html" %}
+{% load static %}
+
+<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+
+<script>
+$(document).ready(function() {
+
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+
+    
+    $('#department_id').change(function () {
+        var department_id = $(this).val();
+
+        $.ajax({
+            type: "POST",
+            url: '{% url "fillcourse" %}',  
+            data: { did: department_id },
+            dataType: "json",
+            success: function (data) {
+                $('#courses').empty();
+                let s = 1;
+
+                $.each(data, function (key, val) {
+
+                    var id = val.course_id;
+                    var deleteurl = '{% url "delete_course" 0 %}'.replace('0', id);
+                    var editurl   = '{% url "edit_course" 0 %}'.replace('0', id);
+
+                    var row = '<tr>' +
+                                '<td>' + s++ + '</td>' +
+                                '<td>' + val.course_name + '</td>' +
+                                '<td class="text-danger"><a href="' + deleteurl + '">Delete</a></td>' +
+                                '<td><a href="' + editurl + '">Edit</a></td>' +
+                              '</tr>';
+
+                    $('#courses').append(row);
+                });
+            }
+        });
+    });
+
+});
+</script>
+
+<br><br><br>
+
+<div class="col-md-6" style="margin-left:400px;">
+    <div class="white_shd full margin_bottom_30">
+        <div class="full graph_head">
+            <div class="heading1 margin_0">
+                <h2>Courses</h2>
+            </div>
+        </div>
+
+        <!-- Department Dropdown -->
+        <select name="department_id" id="department_id" class="form-control">
+            <option value="">Select Department</option>
+            {% for d in dept %}
+            <option value="{{d.department_id}}">{{d.department_name}}</option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <div class="table_section padding_infor_info">
+            <div class="table-responsive-sm">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Course Name</th>
+                            <th>Delete</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="courses">
+                      
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% include "Admin/footer.html" %}

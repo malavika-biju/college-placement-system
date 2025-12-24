@@ -1,0 +1,83 @@
+{% include "Admin/header.html" %}
+{% load static %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+       
+
+<script>
+   
+   $(document).ready(function () {
+       // alert('districtid');
+      $.ajaxSetup({
+         headers: { "X-CSRFToken": '{{csrf_token}}' }
+      });
+      $('#districtid').change(function () {
+         var district_id = $(this).val();
+         //alert(districtid);
+         $.ajax({
+            type: "POST",
+            url: '{% url "filllocation" %}',
+            data: { did: district_id },
+            dataType: "json",
+            success: function (data) {
+               $('#locations').empty();
+               // alert("test");
+               s = 1;
+               $.each(data, function (key, val) {
+                  var id = val.location_id;
+var deleteUrl = '{% url "delete_location" 0 %}'.replace('0', id);
+var editUrl   = '{% url "edit_location" 0 %}'.replace('0', id);
+
+var row = '<tr>' +
+    '<td>' + s++ + '</td>' +
+    '<td>' + val.location_name + '</td>' +
+    '<td><a href="' + deleteUrl + '" class="btn btn-danger btn-sm">Delete</a></td>' +
+    '<td><a href="' + editUrl + '" class="btn btn-primary btn-sm">Edit</a></td>' +
+    '</tr>';
+
+                  $('#locations').append(row);
+               });
+            }
+         });
+      });
+   });
+</script>
+
+<br><br>
+
+<div class="col-md-6">
+   <div class="white_shd full margin_bottom_30" style="margin-left:400px;">
+      <div class="full graph_head">
+         <div class="heading1 margin_0">
+            <h2>Locations</h2>
+         </div>
+      </div>
+      <select name="districtid" id="districtid" class="form-control">
+         <option value="">Select District</option>
+         {% for d in dis %}
+         <option value="{{d.district_id}}">{{d.district_name}}</option>
+         {% endfor %}
+      </select><br>
+      <div class="table_section padding_infor_info">
+         <div class="table-responsive-sm">
+            <table class="table table-hover">
+               <thead>
+                  <tr>
+                     <th>#</th>
+                     <th>Locationname</th>
+                     <th>Delete</th>
+                     <th>Edit</th>
+                  </tr>
+               </thead>
+               <tbody id="locations">
+
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+</div>
+</div>
+</div>
+</div>
+
+{% include "admin/footer.html" %}

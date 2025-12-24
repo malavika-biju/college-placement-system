@@ -1,0 +1,222 @@
+{% load static %}
+{% include 'guest/header.html' %}
+
+    <!-- HOME -->
+    <section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'guest/assets/images/hero_1.jpg' %}');" id="home-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-7">
+            <h1 class="text-white font-weight-bold">Login</h1>
+            <div class="custom-breadcrumbs">
+              <a href="{% url 'guest_home' %}">Home</a> <span class="mx-2 slash">/</span>
+              <span class="text-white"><strong>Login</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="card shadow-lg border-0">
+              <div class="card-header bg-primary text-white py-4">
+                <h2 class="mb-0 text-center"><i class="fas fa-sign-in-alt me-2"></i>Login to Your Account</h2>
+              </div>
+              <div class="card-body p-5">
+                {% if messages %}
+                <div class="alert alert-danger">
+                  {% for message in messages %}
+                    {{ message }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+                
+                <form action="{% url 'login' %}" method="POST" class="login-form">
+                  {% csrf_token %}
+                  
+                  <div class="mb-4">
+                    <label class="form-label fw-bold" for="login_username">Username</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fas fa-user"></i></span>
+                      <input type="text" name="username" id="login_username" class="form-control form-control-lg" placeholder="Enter your username" required>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label class="form-label fw-bold" for="login_password">Password</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                      <input type="password" name="password" id="login_password" class="form-control form-control-lg" placeholder="Enter your password" required>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                      <label class="form-check-label" for="remember_me">
+                        Remember me
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg py-3">
+                      <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                  </div>
+                  
+                  <div class="text-center mt-4">
+                    <a href="#" class="text-primary d-block mb-2">Forgot Password?</a>
+                    <p class="mb-0">
+                      Don't have an account? 
+                      <a href="{% url 'register' %}" class="text-primary fw-bold">Register here</a>
+                    </p>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCRIPTS -->
+    <script src="{% static 'guest/assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/stickyfill.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/jquery.fancybox.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/jquery.easing.1.3.js' %}"></script>
+    
+    <script src="{% static 'guest/assets/js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/jquery.animateNumber.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/quill.min.js' %}"></script>
+    
+    <script src="{% static 'guest/assets/js/bootstrap-select.min.js' %}"></script>
+    
+    <script src="{% static 'guest/assets/js/custom.js' %}"></script>
+    
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    
+    <!-- Custom styling for better form appearance -->
+    <style>
+      .form-control-lg {
+        padding: 0.85rem 1.2rem;
+        font-size: 1.2rem;
+        border-radius: 0.6rem;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+        height: auto;
+      }
+      
+      .form-control-lg:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.3rem rgba(78, 115, 223, 0.25);
+        transform: translateY(-2px);
+      }
+      
+      .input-group-text {
+        background-color: #f8f9fa;
+        border: 2px solid #e0e0e0;
+        border-right: none;
+        padding: 0.85rem 1.2rem;
+        font-size: 1.1rem;
+      }
+      
+      .input-group .form-control-lg {
+        border-left: none;
+      }
+      
+      .card {
+        border-radius: 1.2rem;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      
+      .card-header {
+        border-radius: 1.2rem 1.2rem 0 0 !important;
+        font-size: 1.3rem;
+      }
+      
+      .btn-lg {
+        font-size: 1.2rem;
+        font-weight: 600;
+        border-radius: 0.8rem;
+        padding: 1rem 2.5rem;
+        letter-spacing: 0.5px;
+      }
+      
+      .form-label {
+        font-size: 1.1rem;
+        margin-bottom: 0.7rem;
+        display: block;
+        color: #333;
+      }
+      
+      .card-body {
+        padding: 3rem !important;
+      }
+      
+      .alert {
+        border-radius: 0.6rem;
+        margin-bottom: 2rem;
+        font-size: 1rem;
+      }
+      
+      .input-group {
+        margin-bottom: 1rem;
+      }
+      
+      /* Make textboxes extra wide */
+      .form-control-lg {
+        width: 100%;
+        min-height: 60px;
+      }
+      
+      /* Container adjustments */
+      .container {
+        max-width: 900px;
+      }
+      
+      .col-lg-6 {
+        width: 100%;
+        max-width: 600px;
+      }
+      
+      /* Hover effects */
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
+      }
+      
+      .btn-primary {
+        transition: all 0.3s ease;
+      }
+    </style>
+    
+    <!-- Form validation script -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.querySelector('.login-form');
+        if (loginForm) {
+          loginForm.addEventListener('submit', function(e) {
+            const username = document.getElementById('login_username');
+            const password = document.getElementById('login_password');
+            
+            if (!username.value.trim() || !password.value.trim()) {
+              e.preventDefault();
+              alert('Please fill in all required fields');
+              username.focus();
+              return false;
+            }
+          });
+        }
+      });
+    </script>
+   
+  </body>
+</html>

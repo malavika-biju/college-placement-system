@@ -1,0 +1,95 @@
+
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Edit District</h3>
+                    <p class="text-subtitle text-muted">Update district information</p>
+                </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'view_districts' %}">Districts</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Edit District</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <section class="section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Edit District: {{ district.district_name }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="{% url 'edit_district' district.district_id %}" method="POST">
+                                {% csrf_token %}
+                                
+                                {% if messages %}
+                                <div class="mb-4">
+                                    {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="district_name">District Name</label>
+                                    <div class="col-sm-10">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="district_name"
+                                            name="district"
+                                            value="{{ district.district_name }}"
+                                            placeholder="Enter district name"
+                                            required
+                                        />
+                                        {% if form.district.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.district.errors %}
+                                            {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row justify-content-end">
+                                    <div class="col-sm-10">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-1"></i> Update District
+                                        </button>
+                                        <a href="{% url 'view_districts' %}" class="btn btn-light-secondary">
+                                            <i class="bi bi-x-circle me-1"></i> Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End Form Section -->
+    </div>
+
+{% include 'Admin/footer.html' %}

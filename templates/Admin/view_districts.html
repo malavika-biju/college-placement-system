@@ -1,0 +1,57 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<!-- Content wrapper -->
+<div class="content-wrapper">
+  <!-- Content -->
+  <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold py-3 mb-0"><span class="text-muted fw-light">Districts /</span> District Management</h4>
+      <a href="javascript:void(0);" class="btn btn-primary">
+        <i class="bx bx-plus me-1"></i> Add New District
+      </a>
+    </div>
+
+    <!-- District Table -->
+    <div class="card" style="margin-left:400px;width:800px;">
+      <h5 class="card-header">Districts</h5>
+      <div class="table-responsive text-nowrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>District Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="table-border-bottom-0">
+            {% for d in districts %}
+            <tr>
+              <td><strong>{{ d.district_name }}</strong></td>
+              <td>
+                <a href="{% url 'edit_district' d.district_id %}" class="btn btn-sm btn-outline-primary">
+                  <i class="bx bx-edit-alt me-1"></i> Edit
+                </a>
+                <a href="{% url 'delete_district' d.district_id %}" class="btn btn-sm btn-outline-danger">
+                  <i class="bx bx-trash me-1"></i> Delete
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-center text-muted py-4">No districts found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <!-- / Content -->
+  <div class="content-backdrop fade"></div>
+</div>
+<!-- Content wrapper -->
+
+{% include 'Admin/footer.html' %}
+</body>
+</html>

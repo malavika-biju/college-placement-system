@@ -1,0 +1,173 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Edit Training Class</h3>
+                    <p class="text-subtitle text-muted">Update training class information</p>
+                </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'view_trainingclass' %}">Training Classes</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Edit Training Class</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <section class="section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Edit Training Class: {{ trainingclass.trainingclass_name }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="{% url 'edit_training' trainingclass.trainingclass_id %}" method="POST">
+                                {% csrf_token %}
+                                
+                                {% if messages %}
+                                <div class="mb-4">
+                                    {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="trainingclass_name">Class Name</label>
+                                    <div class="col-sm-10">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="trainingclass_name"
+                                            name="trainingclass_name"
+                                            value="{{ trainingclass.trainingclass_name }}"
+                                            placeholder="Enter class name"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="start_time">Start Time</label>
+                                    <div class="col-sm-10">
+                                        <input
+                                            type="time"
+                                            class="form-control"
+                                            id="start_time"
+                                            name="start_time"
+                                            value="{{ trainingclass.start_time|time:'H:i' }}"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="date">Date</label>
+                                    <div class="col-sm-10">
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            id="date"
+                                            name="date"
+                                            value="{{ trainingclass.date|date:'Y-m-d' }}"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="course_id">Course</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select" id="course_id" name="course_id" required>
+                                            <option value="">Select Course</option>
+                                            {% for course in courses %}
+                                            <option value="{{ course.course_id }}" 
+                                                {% if course.course_id == trainingclass.course_id.course_id %}selected{% endif %}>
+                                                {{ course.course_name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="classtype_id">Class Type</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select" id="classtype_id" name="classtype_id" required>
+                                            <option value="">Select Class Type</option>
+                                            {% for classtype in classtypes %}
+                                            <option value="{{ classtype.classtype_id }}"
+                                                {% if classtype.classtype_id == trainingclass.classtype_id.classtype_id %}selected{% endif %}>
+                                                {{ classtype.classtype_name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="batch_id">Batch</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select" id="batch_id" name="batch_id" required>
+                                            <option value="">Select Batch</option>
+                                            {% for batch in batches %}
+                                            <option value="{{ batch.batch_id }}"
+                                                {% if batch.batch_id == trainingclass.batch_id.batch_id %}selected{% endif %}>
+                                                {{ batch.batch_year }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label" for="description">Description</label>
+                                    <div class="col-sm-10">
+                                        <textarea
+                                            class="form-control"
+                                            id="description"
+                                            name="description"
+                                            rows="3"
+                                            placeholder="Enter description"
+                                        >{{ trainingclass.description }}</textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="row justify-content-end">
+                                    <div class="col-sm-10">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-1"></i> Update Training Class
+                                        </button>
+                                        <a href="{% url 'view_trainingclass' %}" class="btn btn-light-secondary">
+                                            <i class="bi bi-x-circle me-1"></i> Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{% include 'Admin/footer.html' %}

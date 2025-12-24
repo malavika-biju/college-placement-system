@@ -1,0 +1,116 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+<br><br>
+<br><br>
+<div class="container" style="margin-left:300px;">
+  <div class="table_section padding_infor_info">
+      <h3>Training Classes</h3>
+    <div class="table-responsive-sm">
+      <select name="department" id="department" class="form-control">
+        <option value="">Select Department</option>
+        {% for d in departments %}
+        <option value="{{d.department_id}}">{{d.department_name}}</option>
+        {% endfor %}
+    </select><br>
+    <select name="course" id="course" class="form-control">
+      <option value="">Select Course</option>
+    </select><br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sl No</th>
+                    <th>Class Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Course</th>
+                    <th>Class Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="classes">
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table_section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      width: 1200px;
+      text-align: center;
+  }
+  
+  .btn-primary {
+      width: 100%;
+  }
+</style>
+
+  <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+        <script>
+            $(document).ready(function() {
+                //alert('haii');
+             $.ajaxSetup({
+                headers: { "X-CSRFToken": '{{csrf_token}}' }
+              });
+              $('#department').change(function () {
+                var department = $(this).val();
+                 // alert(categoryid);
+                $.ajax({
+                  type: "POST",
+                  url: '{% url "fillcourse" %}',
+                  data: { did: department },
+                  dataType: "json",
+                  success: function (data) {
+                    $('#course').empty();
+                      //alert("test");
+                      s = 1;
+                      var row = '<option value="">Select course</option>';
+                      $('#course').append(row);
+                      $.each(data, function (key, val) {
+                      var id=val.course_id;
+                     
+                      var row = '<option value="'+val.course_id+'">'+val.course_name+'</option>';
+                      $('#course').append(row);
+                  });
+                  }
+                });
+              });
+
+              $('#course').change(function () {
+                var courseid = $(this).val();
+                 // alert(courseid);
+                $.ajax({
+                  type: "POST",
+                  url: '{% url "filltraining" %}',
+                  data: { cid: courseid },
+                  dataType: "json",
+                  success: function (data) {
+                    $('#classes').empty();
+                      //alert("test");
+                      s = 1;
+                      $.each(data, function (key, val) {
+                      var id=val.trainingclass_id;
+                      var editurl='{% url "edit_training" 0 %}'.replace('0', id);
+                      var deleteurl='{% url "delete_training" 0 %}'.replace('0', id);
+                      var row = '<tr> <td>' + s++ + '</td>' +
+                                      '<td>' + val.trainingclass_name + '</td>'+
+                                      '<td>' + val.start_time + '</td>'+
+                                      '<td>' + val.date + '</td>'+
+                                      '<td>' + val.description + '</td>'+
+                                      '<td>' + val.classtype_id__classtype_name + '</td>'+
+   '<td class="text-danger"><a href=" ' + editurl +'">Edit</a></td>'+
+                                      '<td class="text-danger"><a href=" ' + deleteurl +'">Delete</a></td>'+                                
+
+                                '</tr>';
+                      $('#classes').append(row);
+                  });
+                  }
+                });
+              });
+            });
+            </script>
+{% include 'Admin/footer.html' %}

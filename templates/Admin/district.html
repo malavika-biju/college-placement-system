@@ -1,0 +1,60 @@
+
+{% load static %}
+{% include 'Admin/header.html'  %}
+
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y" style="margin-left:400px;width:800px;">
+              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Forms/</span> Horizontal Layouts</h4>
+              <a href="{% url 'view_districts' %}" class="btn btn-info" style="margin-bottom:20px;">View Districts</a>
+
+
+              <!-- Basic Layout & Basic with Icons -->
+              <div class="row">
+                <!-- Basic Layout -->
+                <div class="col-xxl">
+                  <div class="card mb-4">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                      
+                <!-- Basic with Icons -->
+                <div class="col-xxl">
+                  <div class="card mb-4">
+                   
+                    <div class="card-body">
+                     <form action="{% url 'district_insert' %}" method="POST" class="pt-3">
+
+
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                          <label class="col-sm-2 col-form-label" for="basic-icon-default-company">District Name</label>
+                          <div class="col-sm-10">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="basic-icon-default-fullname"
+                                placeholder="enter district"
+                                 name="district_name"  
+                                aria-label="John Doe"
+                                aria-describedby="basic-icon-default-fullname2"
+                             
+                              />
+                          </div>
+                        </div>
+                        <div class="row justify-content-end">
+                          <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary">REGISTER</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / Content -->
+
+      {% include 'Admin/footer.html'  %}
+   
