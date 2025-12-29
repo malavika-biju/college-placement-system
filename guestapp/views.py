@@ -1,18 +1,17 @@
-from datetime import date
-from django.shortcuts import render, redirect
+from datetime import date 
+from django.shortcuts import render, redirect 
 from django.http import HttpResponse, JsonResponse
 from .models import tbl_login, tbl_company
-from adminapp.models import tbl_location 
+from adminapp.models import tbl_location, tbl_district
 
 
 def guest_home(request):
     return render(request, 'guest/index.html')
+
 def login(request):
     return render(request, 'guest/login.html')
-def register(request):
-    
-    return render(request, 'guest/register.html', {'locations': tbl_location.objects.all()})
 
+# Removed duplicate register() function from here
 
 def login_insert(request):
     if request.method == "POST":
@@ -20,7 +19,7 @@ def login_insert(request):
         lob = tbl_login()
         lob.username = request.POST.get("username")
         lob.password = request.POST.get("password")
-        lob.role = "company"  # Changed from "member" to "company"
+        lob.role = "company" 
         lob.status = "requested"
         
         # Check if username already exists
@@ -61,3 +60,34 @@ def login_insert(request):
                 com.save()
 
                 return HttpResponse("<script>alert('Successfully Registered');window.location='/companyregistration';</script>")
+    else:
+        return HttpResponse("<script>alert('Invalid Request Method');window.location='/companyregistration';</script>")
+    
+# Removed duplicate companyregistration() function from here
+
+def register(request):
+    """Render registration page with districts"""
+    districts = tbl_district.objects.all()  # Get all districts
+    return render(request, 'guest/register.html', {'districts': districts})
+
+def company_registration(request):
+    """Render company registration page"""
+    districts = tbl_district.objects.all()  # Get all districts
+    return render(request, 'guest/register.html', {'districts': districts})
+
+def get_locations_by_district(request):
+    """AJAX view to get locations by district"""
+    if request.method == 'GET':
+        district_id = request.GET.get('district_id')
+        
+        if district_id:
+            locations = tbl_location.objects.filter(district_id=district_id).values('location_id', 'location_name')
+            locations_list = list(locations)
+            
+            return JsonResponse({
+                'success': True,
+                'locations': locations_list
+            })
+    
+    return JsonResponse({'success': False, 'locations': []})
+

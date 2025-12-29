@@ -25,7 +25,7 @@
                 <h2 class="mb-0 text-center"><i class="fas fa-building me-2"></i>Register Your Company</h2>
               </div>
               <div class="card-body p-5">
-                <form action="{% url 'login_insert' %}" method="POST" enctype="multipart/form-data">
+                <form action="{% url 'login_insert' %}" method="POST" enctype="multipart/form-data" id="registrationForm">
                   {% csrf_token %}
                   
                   <!-- Company Information -->
@@ -58,17 +58,32 @@
                     </div>
                   </div>
                   
+                  <!-- District and Location Selection -->
                   <div class="row mb-4">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="district_id">District *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map"></i></span>
+                        <select name="district_id" id="district_id" class="form-select form-select-lg" required>
+                          <option value="">Select District</option>
+                          {% for district in districts %}
+                            <option value="{{ district.district_id }}">{{ district.district_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
                       <label class="form-label fw-bold" for="location_id">Location *</label>
                       <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                        <select name="location_id" id="location_id" class="form-select form-select-lg" required>
-                          <option value="">Select your company location</option>
-                          {% for location in locations %}
-                            <option value="{{ location.location_id }}">{{ location.location_name }}</option>
-                          {% endfor %}
+                        <select name="location_id" id="location_id" class="form-select form-select-lg" required disabled>
+                          <option value="">First select District</option>
                         </select>
+                        <div class="input-group-text bg-transparent border-0 p-0">
+                          <div id="locationLoading" class="spinner-border spinner-border-sm text-primary d-none ms-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -175,6 +190,76 @@
     <!-- Font Awesome for icons -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     
+    <!-- AJAX for District-Location Cascading -->
+    <script>
+
+      $(document).ready(function() {
+        // When district changes
+        $('#district_id').change(function() {
+          var districtId = $(this).val();
+          var locationSelect = $('#location_id');
+          var loadingSpinner = $('#locationLoading');
+          
+          if (districtId) {
+            // Show loading spinner
+            loadingSpinner.removeClass('d-none');
+            locationSelect.prop('disabled', true);
+            locationSelect.html('<option value="">Loading locations...</option>');
+            
+            // Make AJAX call
+            $.ajax({
+              url: '{% url "get_locations_by_district" %}',
+              type: 'GET',
+              data: {
+                'district_id': districtId
+              },
+              dataType: 'json',
+              success: function(data) {
+                if (data.success) {
+                  locationSelect.html('<option value="">Select Location</option>');
+                  $.each(data.locations, function(index, location) {
+                    locationSelect.append(
+                      $('<option></option>').val(location.location_id).text(location.location_name)
+                    );
+                  });
+                  locationSelect.prop('disabled', false);
+                } else {
+                  locationSelect.html('<option value="">No locations found</option>');
+                }
+              },
+              error: function() {
+                locationSelect.html('<option value="">Error loading locations</option>');
+              },
+              complete: function() {
+                loadingSpinner.addClass('d-none');
+              }
+            });
+          } else {
+            locationSelect.html('<option value="">First select District</option>');
+            locationSelect.prop('disabled', true);
+          }
+        });
+        
+        // Form validation to ensure location is selected
+        $('#registrationForm').submit(function(e) {
+          var locationId = $('#location_id').val();
+          var districtId = $('#district_id').val();
+          
+          if (!districtId) {
+            alert('Please select a district');
+            e.preventDefault();
+            return false;
+          }
+          
+          if (!locationId) {
+            alert('Please select a location');
+            e.preventDefault();
+            return false;
+          }
+        });
+      });
+    </script>
+    
     <!-- Custom styling for better form appearance -->
     <style>
       .form-control-lg, .form-select-lg {
@@ -229,6 +314,11 @@
       
       .border-bottom {
         border-bottom: 2px solid #e0e0e0 !important;
+      }
+      
+      .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
       }
     </style>
    
