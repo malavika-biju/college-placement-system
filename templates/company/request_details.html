@@ -1,0 +1,123 @@
+{% load static %}
+{% include 'Company/header.html' %}
+<br><br><br><br>
+
+<div class="container" style="margin-left:300px;">
+  <div class="table_section padding_infor_info">
+    <h3>Request Details #{{ request.request_id }}</h3>
+    
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Request Information</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <tr>
+            <th width="200">Request ID</th>
+            <td>#{{ request.request_id }}</td>
+          </tr>
+          <tr>
+            <th>Request Date</th>
+            <td>{{ request.request_date }}</td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td>
+              {% if request.status == 'pending' %}
+              <span class="badge bg-warning">Pending</span>
+              {% elif request.status == 'bulk_pending' %}
+              <span class="badge bg-info">Bulk Pending</span>
+              {% elif request.status == 'approved' %}
+              <span class="badge bg-success">Approved</span>
+              {% elif request.status == 'rejected' %}
+              <span class="badge bg-danger">Rejected</span>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Job Information</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <tr>
+            <th width="200">Position</th>
+            <td>{{ jobpost.position }}</td>
+          </tr>
+          <tr>
+            <th>Company</th>
+            <td>{{ company.company_name }}</td>
+          </tr>
+          <tr>
+            <tr>
+            <th>Location</th>
+           <td>Not specified</td>
+          </tr>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Student Information</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <tr>
+            <th width="200">Number of Students</th>
+            <td>{{ request.student_count }} students</td>
+          </tr>
+          <tr>
+            <th>Batch</th>
+            <td>{{ request.batch_id.batch_year }}</td>
+          </tr>
+          <tr>
+            <th>Course</th>
+            <td>{{ request.course_id.course_name }}</td>
+          </tr>
+          <tr>
+            <th>Department</th>
+            <td>{{ request.course_id.department_id.department_name }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <div class="text-center">
+      <a href="{% url 'company_requests' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Requests
+      </a>
+      
+      {% if request.status == 'pending' or request.status == 'bulk_pending' %}
+      <a href="{% url 'approve_request' request.request_id %}" class="btn btn-success">
+        <i class="fas fa-check"></i> Approve Request
+      </a>
+      <a href="{% url 'reject_request' request.request_id %}" class="btn btn-danger">
+        <i class="fas fa-times"></i> Reject Request
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .table_section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 1000px;
+  }
+  
+  .badge {
+    font-size: 0.9em;
+    padding: 5px 10px;
+  }
+</style>
+
+{% include 'Company/footer.html' %}

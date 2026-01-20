@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from adminapp import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 def home(request):
@@ -29,8 +31,9 @@ urlpatterns = [
     path('adminapp/', include('adminapp.adminurls')),
     path('guestapp/', include('guestapp.guesturls')),
     path('companyapp/', include('companyapp.companyurls')),
+    path('studentapp/', include('studentapp.studenturls')),
 
     
 
 
-]
+]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

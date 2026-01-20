@@ -1,0 +1,292 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+<br><br>
+<br><br>
+
+<div class="container" style="margin-left:300px;">
+  <div class="table_section padding_infor_info">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0">Student Selection for: {{ jobpost.position }}</h3>
+      <div>
+        <a href="{% url 'view_job_posts' %}" class="btn btn-secondary btn-sm">
+          <i class="fas fa-arrow-left mr-1"></i> Back to Jobs
+        </a>
+      </div>
+    </div>
+
+    <!-- Job Information -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Job Information</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <tr>
+            <th width="200">Position</th>
+            <td>{{ jobpost.position }}</td>
+          </tr>
+          <tr>
+            <th>Company</th>
+            <td>{{ company.company_name }}</td>
+          </tr>
+          <tr>
+            <th>Cutoff Mark</th>
+            <td>{{ jobpost.cutoff_mark }}%</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Form Section for Student Applications -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Filter & Select Students</h5>
+      </div>
+      <div class="card-body">
+        <form method="GET" action="">
+          <input type="hidden" name="jobpost_id" value="{{ jobpost.jobpost_id }}">
+          <div class="row">
+            <!-- Students Count -->
+            <div class="col-md-6 mb-3">
+              <label for="student_count" class="form-label fw-bold">Students Count</label>
+              <input type="text" class="form-control" name="student_count" id="student_count" 
+                     value="{{ meets_cutoff_count }}" readonly>
+            </div>
+
+            <!-- Batch Dropdown -->
+            <div class="col-md-6 mb-3">
+              <label for="batch" class="form-label fw-bold">Batch</label>
+              <select class="form-control" name="batch" id="batch">
+                <option value="">--All Batches--</option>
+                {% for b in batch %}
+                <option value="{{ b.batch_id }}" {% if selected_batch == b.batch_id|stringformat:"i" %}selected{% endif %}>
+                  {{ b.batch_year }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Department Dropdown -->
+            <div class="col-md-6 mb-3">
+              <label for="department" class="form-label fw-bold">Department</label>
+              <select class="form-control" name="department" id="department">
+                <option value="">--All Departments--</option>
+                {% for d in department %}
+                <option value="{{ d.department_id }}" {% if selected_department == d.department_id|stringformat:"i" %}selected{% endif %}>
+                  {{ d.department_name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Course Dropdown -->
+            <div class="col-md-6 mb-3">
+              <label for="course" class="form-label fw-bold">Course</label>
+              <select name="course" id="course" class="form-control">
+                <option value="">--All Courses--</option>
+                {% for c in courses %}
+                <option value="{{ c.course_id }}" {% if selected_course == c.course_id|stringformat:"i" %}selected{% endif %}>
+                  {{ c.course_name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 text-center">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-filter"></i> Apply Filters
+              </button>
+              <a href="{% url 'view_students_for_job' jobpost.jobpost_id %}" class="btn btn-secondary px-4">
+                <i class="fas fa-redo"></i> Reset
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body text-center">
+            <h6 class="card-title">Total Students</h6>
+            <p class="card-text display-6">{{ total_students }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-success">
+          <div class="card-body text-center">
+            <h6 class="card-title">Meets Cutoff</h6>
+            <p class="card-text display-6">{{ meets_cutoff_count }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-warning">
+          <div class="card-body text-center">
+            <h6 class="card-title">Below Cutoff</h6>
+            <p class="card-text display-6">{{ below_cutoff_count }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simple Send Form - No student table -->
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">Send to Company</h5>
+      </div>
+      <div class="card-body text-center">
+        <form id="studentForm" method="POST" action="{% url 'request_company' %}">
+          {% csrf_token %}
+          <input type="hidden" name="jobpost_id" value="{{ jobpost.jobpost_id }}">
+          <input type="hidden" name="batch_id" value="{% if selected_batch %}{{ selected_batch }}{% else %}{% firstof batch.0.batch_id '' %}{% endif %}">
+          <input type="hidden" name="course_id" value="{% if selected_course %}{{ selected_course }}{% else %}{% firstof courses.0.course_id '' %}{% endif %}">
+          <input type="hidden" name="student_count" value="{{ meets_cutoff_count }}">
+          <input type="hidden" name="send_all" value="true">
+          
+          <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle"></i> 
+            <strong>{{ meets_cutoff_count }} student(s)</strong> meet the cutoff criteria and will be sent to the company.
+          </div>
+          
+          <button type="submit" id="submitBtn" class="btn btn-success btn-lg px-5" {% if meets_cutoff_count == 0 %}disabled{% endif %}>
+            <i class="fas fa-paper-plane mr-2"></i> Send to Company for Approval
+          </button>
+          
+          <p class="text-muted mt-3">
+            This will create a request to {{ company.company_name }} for {{ meets_cutoff_count }} eligible student(s).
+          </p>
+          
+          {% if meets_cutoff_count == 0 %}
+          <div class="alert alert-warning mt-3">
+            <i class="fas fa-exclamation-triangle"></i> No eligible students to send. Try adjusting your filters.
+          </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table_section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 1200px;
+  }
+  
+  .card {
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+  }
+  
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+  }
+  
+  .display-6 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+</style>
+
+<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    console.log("DEBUG: Page loaded");
+    
+    // Setup CSRF token for AJAX
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": '{{ csrf_token }}' }
+    });
+
+    // ===== COURSE LOADING =====
+    $("#department").change(function() {
+        var departmentId = $(this).val();
+        
+        if (!departmentId) {
+            // If no department selected, show all courses
+            $.ajax({
+                type: "POST",
+                url: "{% url 'get_all_courses' %}",
+                data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+                dataType: "json",
+                success: function(data) {
+                    updateCourseDropdown(data);
+                }
+            });
+            return;
+        }
+        
+        // Load courses for selected department
+        $.ajax({
+            type: "POST",
+            url: "{% url 'get_courses_by_department' %}",
+            data: { 
+                did: departmentId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            dataType: "json",
+            success: function(data) {
+                updateCourseDropdown(data);
+            }
+        });
+    });
+    
+    function updateCourseDropdown(data) {
+        $("#course").empty();
+        $("#course").append("<option value=''>--All Courses--</option>");
+        
+        $.each(data, function(key, val) {
+            var value = val.course_id || val.id;
+            var name = val.course_name || val.name;
+            
+            if (value && name) {
+                var row = "<option value='" + value + "'>" + name + "</option>";
+                $("#course").append(row);
+            }
+        });
+        
+        // Preselect if previously selected
+        {% if selected_course %}
+        $("#course").val("{{ selected_course }}");
+        {% endif %}
+    }
+    
+    // Initialize courses if department is selected
+    {% if selected_department %}
+    $("#department").trigger('change');
+    {% endif %}
+    
+    // ===== FORM SUBMISSION =====
+    $("#studentForm").submit(function(e) {
+        var eligibleCount = {{ meets_cutoff_count }};
+        
+        if (eligibleCount === 0) {
+            e.preventDefault();
+            alert("No eligible students to send. Please adjust your filters.");
+            return false;
+        }
+        
+        var companyName = "{{ company.company_name }}";
+        if (!confirm("Send " + eligibleCount + " eligible student(s) to " + companyName + " for approval?")) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        $("#submitBtn").prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+    });
+});
+</script>
+
+{% include 'Admin/footer.html' %}

@@ -7,11 +7,11 @@ urlpatterns = [
     path('district/view/', views.view_districts, name='view_districts'),
    
    
-    path('batch/', views.batch, name='batch'),
+   path('batch/', views.batch, name='batch'),
    path('batch_insert/', views.batch_insert, name='batch_insert'),
    path('delete_district/<int:district_id>/', views.delete_district, name='delete_district'),
-  path('edit_district/<int:district_id>/', views.edit_district, name='edit_district'),
-   path('view_batch/ ', views.view_batch, name='view_batch'),
+   path('edit_district/<int:district_id>/', views.edit_district, name='edit_district'),
+   path('view_batch/', views.view_batch, name='view_batch'),
    path('delete_batch/<int:batch_id>/', views.delete_batch, name='delete_batch'),
    path('edit_batch/<int:batch_id>/', views.edit_batch, name='edit_batch'),
    path('department/', views.department, name='department'),
@@ -42,10 +42,24 @@ urlpatterns = [
    path('filltraining', views.filltraining, name='filltraining'),
    path('delete_training/<int:trainingclass_id>/', views.delete_training, name='delete_training'),
    path('edit_training/<int:trainingclass_id>/', views.edit_training, name='edit_training'),
+   path('view_company/', views.view_company, name='view_company'),
+   path('accept_company/<int:loginid>/', views.accept_company, name='accept_company'),
+   path('reject_company/<int:loginid>/', views.reject_company, name='reject_company'),
+   path('view_student/', views.view_student, name='view_student'),
+   path('accept_student/<int:loginid>/', views.accept_student, name='accept_student'),
+   path('reject_student/<int:loginid>/', views.reject_student, name='reject_student'),
 
-
-
-
-   
+   path('job_posts/', views.view_job_posts, name='view_job_posts'),
+   path('job_details/<int:jobpost_id>/', views.job_details, name='job_details'),
+   path('view_students_for_job/<int:jobpost_id>/', views.view_students_for_job, name='view_students_for_job'),
+   path('get_courses_by_department/',  views.get_courses_by_department, name='get_courses_by_department'),
+   path('get_all_courses/',views.get_all_courses,name='get_all_courses'),
+   path('request_company_approval/<int:jobpost_id>/',  views.request_company_approval, name='request_company_approval'),
+   path('request_company/', views.request_company, name='request_company'),
+    
+  
+   path('company_accepted_students/', views.view_company_accepted_students, name='company_accepted_students'),
+   path('interview_schedule/<int:id>/', views.interview_schedule, name='interview_schedule'),
+   path('assign_students/', views.assign_students, name='assign_students'),
   
 ]

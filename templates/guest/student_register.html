@@ -1,0 +1,456 @@
+{% load static %}
+{% include 'guest/header.html' %}
+
+    <!-- HOME -->
+    <section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'guest/assets/images/hero_1.jpg' %}');" id="home-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-7">
+            <h1 class="text-white font-weight-bold">Student Registration</h1>
+            <div class="custom-breadcrumbs">
+              <a href="{% url 'guest_home' %}">Home</a> <span class="mx-2 slash">/</span>
+              <span class="text-white"><strong>Student Registration</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+              <div class="card-header bg-success text-white py-3">
+                <h2 class="mb-0 text-center"><i class="fas fa-user-graduate me-2"></i>Register as Student</h2>
+              </div>
+              <div class="card-body p-5">
+                <form action="{% url 'login_insert' %}" method="POST" enctype="multipart/form-data" id="studentRegistrationForm">
+                  {% csrf_token %}
+                  <input type="hidden" name="role" value="student">
+                  
+                  <!-- Personal Information -->
+                  <h4 class="mb-4 text-success border-bottom pb-2"><i class="fas fa-user-circle me-2"></i>Personal Information</h4>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="student_name">Student Name *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" name="student_name" id="student_name" class="form-control form-control-lg" placeholder="Enter your full name" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="gender">Gender</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                        <select name="gender" id="gender" class="form-select form-select-lg">
+                          <option value="">Select Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="email">Email Address *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="student@example.com" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="contact_number">Contact Number *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input type="tel" name="contact_number" id="contact_number" class="form-control form-control-lg" placeholder="+1234567890" required>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Academic Information -->
+                  <h4 class="mb-4 text-success border-bottom pb-2 mt-5"><i class="fas fa-graduation-cap me-2"></i>Academic Information</h4>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="course_id">Course *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-book"></i></span>
+                        <select name="course_id" id="course_id" class="form-select form-select-lg" required>
+                          <option value="">Select Course</option>
+                          {% for course in courses %}
+                            <option value="{{ course.course_id }}">{{ course.course_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="batch_id">Batch *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-users"></i></span>
+                        <select name="batch_id" id="batch_id" class="form-select form-select-lg" required>
+                          <option value="">Select Batch</option>
+                          {% for batch in batches %}
+                            <option value="{{ batch.batch_id }}">{{ batch.batch_year }}</option>
+                          {% endfor %}
+                        </select>
+                        <div class="input-group-text bg-transparent border-0 p-0">
+                          <div id="batchLoading" class="spinner-border spinner-border-sm text-success d-none ms-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="mark">Mark</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-chart-line"></i></span>
+                        <input type="number" step="0.01" name="mark" id="mark" class="form-control form-control-lg" placeholder="Enter marks">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="percentage">Percentage</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-percentage"></i></span>
+                        <input type="number" step="0.01" name="percentage" id="percentage" class="form-control form-control-lg" placeholder="Enter percentage" max="100">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Login Credentials -->
+                  <h4 class="mb-4 text-success border-bottom pb-2 mt-5"><i class="fas fa-key me-2"></i>Login Credentials</h4>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="username">Username *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Choose a username" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold" for="password">Password *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="Create a strong password" required>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- File Uploads -->
+                  <h4 class="mb-4 text-success border-bottom pb-2 mt-5"><i class="fas fa-file-upload me-2"></i>Documents & Photos</h4>
+                  
+                  <div class="row mb-4">
+                    <div class="col-md-4">
+                      <label class="form-label fw-bold" for="resume">Resume</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-file-pdf"></i></span>
+                        <input type="file" name="resume" id="resume" class="form-control form-control-lg" accept=".pdf,.doc,.docx">
+                      </div>
+                      <small class="form-text text-muted">PDF or DOC, max 5MB</small>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-bold" for="id_proof">ID Proof *</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                        <input type="file" name="id_proof" id="id_proof" class="form-control form-control-lg" accept="image/*" required>
+                      </div>
+                      <small class="form-text text-muted">Aadhar, Passport, etc.</small>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label fw-bold" for="photo">Photo</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-camera"></i></span>
+                        <input type="file" name="photo" id="photo" class="form-control form-control-lg" accept="image/*">
+                      </div>
+                      <small class="form-text text-muted">Passport size photo</small>
+                    </div>
+                  </div>
+                  
+                  <!-- Terms and Conditions -->
+                  <div class="row mb-4">
+                    <div class="col-md-12">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                          I agree to the <a href="#" class="text-success">Terms and Conditions</a> and <a href="#" class="text-success">Privacy Policy</a> *
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Submit Button -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg py-3">
+                          <i class="fas fa-user-plus me-2"></i>Register as Student
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Login and Other Registration Links -->
+                  <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                      <p class="mb-1">
+                        Already have an account? 
+                        <a href="{% url 'login' %}" class="text-success fw-bold">Login here</a>
+                      </p>
+                      <p class="mb-0">
+                        Register as <a href="{% url 'register' %}" class="text-success fw-bold">Company</a>
+                      </p>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCRIPTS -->
+    <script src="{% static 'guest/assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/stickyfill.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/jquery.fancybox.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/jquery.easing.1.3.js' %}"></script>
+    
+    <script src="{% static 'guest/assets/js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/jquery.animateNumber.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'guest/assets/js/quill.min.js' %}"></script>
+    
+    <script src="{% static 'guest/assets/js/bootstrap-select.min.js' %}"></script>
+    
+    <script src="{% static 'guest/assets/js/custom.js' %}"></script>
+    
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    
+    <!-- AJAX for Course-Batch Cascading (Optional) -->
+    <script>
+      $(document).ready(function() {
+        // Optional: When course changes, load batches dynamically
+        $('#course_id').change(function() {
+          var courseId = $(this).val();
+          var batchSelect = $('#batch_id');
+          var loadingSpinner = $('#batchLoading');
+          
+          if (courseId) {
+            // Show loading spinner
+            loadingSpinner.removeClass('d-none');
+            batchSelect.prop('disabled', true);
+            batchSelect.html('<option value="">Loading batches...</option>');
+            
+            // Make AJAX call to get batches for this course
+            $.ajax({
+              url: '{% url "get_batches_by_course" %}',  // Make sure to add this URL in urls.py
+              type: 'GET',
+              data: {
+                'course_id': courseId
+              },
+              dataType: 'json',
+              success: function(data) {
+                if (data.success) {
+                  batchSelect.html('<option value="">Select Batch</option>');
+                  $.each(data.batches, function(index, batch) {
+                    batchSelect.append(
+                      $('<option></option>').val(batch.batch_id).text(batch.batch_year)
+                    );
+                  });
+                  batchSelect.prop('disabled', false);
+                } else {
+                  // Keep the original batches if AJAX fails
+                  batchSelect.html('<option value="">Select Batch</option>');
+                  {% for batch in batches %}
+                    batchSelect.append($('<option></option>').val('{{ batch.batch_id }}').text('{{ batch.batch_year }}'));
+                  {% endfor %}
+                }
+              },
+              error: function() {
+                // Keep the original batches if AJAX fails
+                batchSelect.html('<option value="">Select Batch</option>');
+                {% for batch in batches %}
+                  batchSelect.append($('<option></option>').val('{{ batch.batch_id }}').text('{{ batch.batch_year }}'));
+                {% endfor %}
+              },
+              complete: function() {
+                loadingSpinner.addClass('d-none');
+                batchSelect.prop('disabled', false);
+              }
+            });
+          }
+        });
+        
+        // Form validation
+        $('#studentRegistrationForm').submit(function(e) {
+          var courseId = $('#course_id').val();
+          var batchId = $('#batch_id').val();
+          
+          if (!courseId) {
+            alert('Please select a course');
+            e.preventDefault();
+            return false;
+          }
+          
+          if (!batchId) {
+            alert('Please select a batch');
+            e.preventDefault();
+            return false;
+          }
+          
+          // Validate percentage range
+          var percentage = $('#percentage').val();
+          if (percentage && (percentage < 0 || percentage > 100)) {
+            alert('Percentage must be between 0 and 100');
+            e.preventDefault();
+            return false;
+          }
+        });
+      });
+    </script>
+    
+    <!-- Custom styling for better form appearance -->
+    <style>
+      .form-control-lg, .form-select-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+      }
+      
+      .form-control-lg:focus, .form-select-lg:focus {
+        border-color: #1cc88a;
+        box-shadow: 0 0 0 0.25rem rgba(28, 200, 138, 0.25);
+      }
+      
+      .input-group-text {
+        background-color: #f8f9fa;
+        border: 2px solid #e0e0e0;
+        border-right: none;
+        padding: 0.75rem 1rem;
+      }
+      
+      .input-group .form-control-lg {
+        border-left: none;
+      }
+      
+      .card {
+        border-radius: 1rem;
+        overflow: hidden;
+      }
+      
+      .card-header {
+        border-radius: 1rem 1rem 0 0 !important;
+        background: linear-gradient(45deg, #1cc88a, #17a673);
+      }
+      
+      .btn-lg {
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        padding: 0.75rem 2rem;
+        background: linear-gradient(45deg, #1cc88a, #17a673);
+        border: none;
+      }
+      
+      .btn-lg:hover {
+        background: linear-gradient(45deg, #17a673, #138d5e);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(28, 200, 138, 0.3);
+      }
+      
+      .form-label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      h4 {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+      
+      .border-bottom {
+        border-bottom: 2px solid #e0e0e0 !important;
+      }
+      
+      .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+      
+      .text-success {
+        color: #1cc88a !important;
+      }
+      
+      .progress-bar {
+        background-color: #1cc88a;
+      }
+      
+      /* Password strength indicator */
+      .password-strength {
+        height: 5px;
+        margin-top: 5px;
+        border-radius: 2px;
+        background-color: #e9ecef;
+        overflow: hidden;
+      }
+      
+      .strength-indicator {
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s, background-color 0.3s;
+      }
+    </style>
+    
+    <!-- Password strength checker -->
+    <script>
+      $(document).ready(function() {
+        $('#password').on('input', function() {
+          var password = $(this).val();
+          var strength = 0;
+          
+          // Length check
+          if (password.length >= 8) strength += 25;
+          
+          // Contains lowercase
+          if (/[a-z]/.test(password)) strength += 25;
+          
+          // Contains uppercase
+          if (/[A-Z]/.test(password)) strength += 25;
+          
+          // Contains numbers or symbols
+          if (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password)) strength += 25;
+          
+          // Update strength indicator
+          var indicator = $('#strengthIndicator');
+          if (!indicator.length) {
+            $('<div class="password-strength"><div id="strengthIndicator" class="strength-indicator"></div></div>').insertAfter('#password');
+            indicator = $('#strengthIndicator');
+          }
+          
+          indicator.css('width', strength + '%');
+          
+          // Color based on strength
+          if (strength < 50) {
+            indicator.css('background-color', '#e74a3b'); // Red
+          } else if (strength < 75) {
+            indicator.css('background-color', '#f6c23e'); // Yellow
+          } else {
+            indicator.css('background-color', '#1cc88a'); // Green
+          }
+        });
+      });
+    </script>
+
+{% include 'guest/footer.html' %}

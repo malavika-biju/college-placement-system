@@ -1,0 +1,443 @@
+{% include "student/header.html" %}
+{% load static %}
+
+<!-- Page Content -->
+<section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'guest/assets/images/hero_1.jpg' %}'); margin-top: -20px; padding-top: 100px; padding-bottom: 50px;">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="text-white font-weight-bold">My Accepted Jobs</h1>
+        <div class="custom-breadcrumbs">
+          <a href="{% url 'student_home' %}">Dashboard</a> <span class="mx-2 slash">/</span>
+          <span class="text-white"><strong>Accepted Jobs</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="site-section">
+  <div class="container">
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+      <div class="col-md-4 mb-4">
+        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <div class="card-body py-4">
+            <h2 class="display-4 mb-2">{{ accepted_applications|length }}</h2>
+            <h5 class="card-title">Accepted Jobs</h5>
+            <p class="mb-0">Companies accepted you</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%); color: white;">
+          <div class="card-body py-4">
+            <h2 class="display-4 mb-2">{{ upcoming_interviews|length }}</h2>
+            <h5 class="card-title">Upcoming Interviews</h5>
+            <p class="mb-0">Scheduled interviews</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); color: white;">
+          <div class="card-body py-4">
+            <h2 class="display-4 mb-2">{{ student.course_id.course_name|truncatechars:15 }}</h2>
+            <h5 class="card-title">Your Course</h5>
+            <p class="mb-0">Current study</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Student Info -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h4 class="card-title mb-3">
+                  <i class="fas fa-user-graduate text-primary mr-2"></i>
+                  {{ student.student_name }}
+                </h4>
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Course:</strong> {{ student.course_id.course_name }}</p>
+                    <p class="mb-1"><strong>Batch:</strong> {{ student.batch_id.batch_year }}</p>
+                    <p class="mb-1"><strong>Percentage:</strong> 
+                      <span class="badge {% if student.percentage >= 60 %}badge-success{% else %}badge-warning{% endif %}">
+                        {{ student.percentage|default:"0" }}%
+                      </span>
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Email:</strong> {{ student.email }}</p>
+                    <p class="mb-0"><strong>Contact:</strong> {{ student.contact_number }}</p>
+                    <p class="mb-0"><strong>Status:</strong> 
+                      <span class="badge badge-success">
+                        {% if student.login_id.status == 'confirmed' %}
+                          <i class="fas fa-check-circle"></i> Verified Student
+                        {% else %}
+                          {{ student.login_id.status }}
+                        {% endif %}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 text-right">
+                {% if student.photo %}
+                  <img src="{{ student.photo.url }}" alt="Profile" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #2c98f0;">
+                {% else %}
+                  <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border: 3px solid #2c98f0;">
+                    <i class="fas fa-user fa-3x text-muted"></i>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Interviews Section -->
+    {% if upcoming_interviews %}
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card shadow-sm border-success">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-calendar-alt mr-2"></i>
+              Upcoming Interviews
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              {% for interview in upcoming_interviews %}
+              <div class="col-md-4 mb-3">
+                <div class="card border-success shadow-sm h-100">
+                  <div class="card-body">
+                    <h6 class="card-title text-success">
+                      <i class="fas fa-briefcase mr-2"></i>
+                      {{ interview.request_id.jobpost_id.position|truncatechars:25 }}
+                    </h6>
+                    <div class="mb-2">
+                      <strong><i class="fas fa-building text-muted mr-2"></i>Company:</strong>
+                      {{ interview.request_id.jobpost_id.company_id.company_name }}
+                    </div>
+                    <div class="mb-2">
+                      <strong><i class="fas fa-calendar text-muted mr-2"></i>Date:</strong>
+                      {{ interview.schedule_date|date:"d M Y" }}
+                    </div>
+                    <div class="mb-2">
+                      <strong><i class="fas fa-clock text-muted mr-2"></i>Stage:</strong>
+                      <span class="badge badge-info">{{ interview.stage }}</span>
+                    </div>
+                    {% if interview.status %}
+                    <div class="mb-2">
+                      <strong><i class="fas fa-info-circle text-muted mr-2"></i>Status:</strong>
+                      <span class="badge {% if interview.status == 'scheduled' %}badge-success{% else %}badge-warning{% endif %}">
+                        {{ interview.status }}
+                      </span>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="card-footer bg-white">
+                    <button class="btn btn-success btn-sm btn-block" data-toggle="modal" data-target="#interviewModal{{ interview.schedule_id }}">
+                      <i class="fas fa-eye mr-1"></i> View Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interview Modal -->
+              <div class="modal fade" id="interviewModal{{ interview.schedule_id }}" tabindex="-1">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                      <h5 class="modal-title">Interview Details</h5>
+                      <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <h6><i class="fas fa-briefcase mr-2"></i>Position</h6>
+                        <p class="ml-4">{{ interview.request_id.jobpost_id.position }}</p>
+                      </div>
+                      <div class="mb-3">
+                        <h6><i class="fas fa-building mr-2"></i>Company</h6>
+                        <p class="ml-4">{{ interview.request_id.jobpost_id.company_id.company_name }}</p>
+                      </div>
+                      <div class="mb-3">
+                        <h6><i class="fas fa-calendar mr-2"></i>Interview Date</h6>
+                        <p class="ml-4">{{ interview.schedule_date|date:"F d, Y" }}</p>
+                      </div>
+                      <div class="mb-3">
+                        <h6><i class="fas fa-layer-group mr-2"></i>Stage</h6>
+                        <p class="ml-4"><span class="badge badge-info">{{ interview.stage }}</span></p>
+                      </div>
+                      {% if interview.status %}
+                      <div class="mb-3">
+                        <h6><i class="fas fa-info-circle mr-2"></i>Status</h6>
+                        <p class="ml-4">
+                          <span class="badge {% if interview.status == 'scheduled' %}badge-success{% else %}badge-warning{% endif %}">
+                            {{ interview.status }}
+                          </span>
+                        </p>
+                      </div>
+                      {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Accepted Applications Section -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm border-primary">
+          <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <i class="fas fa-briefcase mr-2"></i>
+                Accepted Job Applications
+              </h5>
+              <span class="badge badge-light">
+                <i class="fas fa-clock mr-1"></i> Updated: {% now "h:i A" %}
+              </span>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            {% if accepted_applications %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="bg-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Company & Position</th>
+                    <th>Application Date</th>
+                    <th>Batch</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for app in accepted_applications %}
+                  <tr>
+                    <td class="fw-bold">{{ forloop.counter }}</td>
+                    <td>
+                      <div class="d-flex align-items-start">
+                        <div class="mr-3">
+                          {% if app.request_id.jobpost_id.company_id.logo %}
+                          <img src="{{ app.request_id.jobpost_id.company_id.logo.url }}" 
+                               alt="{{ app.request_id.jobpost_id.company_id.company_name }}"
+                               width="40" height="40"
+                               class="rounded">
+                          {% else %}
+                          <div class="rounded bg-secondary d-flex align-items-center justify-content-center"
+                               style="width:40px; height:40px;">
+                            <i class="fas fa-building text-white"></i>
+                          </div>
+                          {% endif %}
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{ app.request_id.jobpost_id.company_id.company_name }}</h6>
+                          <small class="text-muted">{{ app.request_id.jobpost_id.position }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>{{ app.request_id.request_date|date:"d M Y" }}</div>
+                      <small class="text-muted">{{ app.request_id.request_date|timesince }} ago</small>
+                    </td>
+                    <td>
+                      <span class="badge badge-info">{{ app.request_id.batch_id.batch_year }}</span>
+                    </td>
+                    <td>
+                      <span class="badge badge-success">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Accepted
+                      </span>
+                      {% if app.schedule_id %}
+                      <br>
+                      <small class="text-success">
+                        <i class="fas fa-calendar-check mr-1"></i>
+                        Interview Scheduled
+                      </small>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary" 
+                                data-toggle="modal" 
+                                data-target="#detailsModal{{ app.id }}">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Details Modal -->
+                  <div class="modal fade" id="detailsModal{{ app.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                          <h5 class="modal-title">Application Details</h5>
+                          <button type="button" class="close text-white" data-dismiss="modal">
+                            <span>&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="row mb-4">
+                            <div class="col-md-6">
+                              <div class="card border-primary mb-3">
+                                <div class="card-header bg-primary text-white">
+                                  <h6 class="mb-0"><i class="fas fa-briefcase mr-2"></i>Job Details</h6>
+                                </div>
+                                <div class="card-body">
+                                  <p><strong>Position:</strong> {{ app.request_id.jobpost_id.position }}</p>
+                                  <p><strong>Company:</strong> {{ app.request_id.jobpost_id.company_id.company_name }}</p>
+                                  <p><strong>Location:</strong> {{ app.request_id.jobpost_id.location|default:"Not specified" }}</p>
+                                  <p><strong>Package:</strong> {{ app.request_id.jobpost_id.salary_package|default:"Not specified" }}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white">
+                                  <h6 class="mb-0"><i class="fas fa-file-contract mr-2"></i>Application Details</h6>
+                                </div>
+                                <div class="card-body">
+                                  <p><strong>Applied Date:</strong> {{ app.request_id.request_date|date:"F d, Y" }}</p>
+                                  <p><strong>Batch:</strong> {{ app.request_id.batch_id.batch_year }}</p>
+                                  <p><strong>Course:</strong> {{ app.request_id.course_id.course_name }}</p>
+                                  <p><strong>Status:</strong> 
+                                    <span class="badge badge-success">
+                                      <i class="fas fa-check-circle"></i> Accepted by Company
+                                    </span>
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {% if app.request_id.jobpost_id.description %}
+                          <div class="mb-4">
+                            <h6><i class="fas fa-align-left mr-2"></i>Job Description</h6>
+                            <div class="p-3 bg-light rounded">
+                              {{ app.request_id.jobpost_id.description|linebreaks }}
+                            </div>
+                          </div>
+                          {% endif %}
+                          
+                          {% if app.schedule_id %}
+                          <div class="alert alert-success">
+                            <h6><i class="fas fa-calendar-alt mr-2"></i>Interview Scheduled</h6>
+                            <p class="mb-0">
+                              Interview is scheduled for {{ app.schedule_id.schedule_date|date:"F d, Y" }}.
+                              {% if app.schedule_id.stage %}
+                              (Stage: {{ app.schedule_id.stage }})
+                              {% endif %}
+                            </p>
+                          </div>
+                          {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+              <div class="mb-4">
+                <i class="fas fa-briefcase fa-4x text-muted"></i>
+              </div>
+              <h4 class="text-muted mb-3">No Accepted Applications Yet</h4>
+              <p class="text-muted mb-4">
+                Your applications are still under review by companies. 
+                Check back later or apply for more positions.
+              </p>
+              <a href="#" class="btn btn-primary">
+                <i class="fas fa-search mr-2"></i>Browse Available Jobs
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .card {
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: none;
+  }
+  
+  .badge {
+    font-weight: 500;
+    padding: 5px 10px;
+  }
+  
+  .modal-header {
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .btn-group-sm > .btn {
+    border-radius: 5px;
+  }
+  
+  .class-description {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  .display-4 {
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  // Auto-refresh every 60 seconds for updates
+  setTimeout(function() {
+    window.location.reload();
+  }, 60000);
+  
+  // Initialize tooltips
+  $(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
+
+{% include "student/footer.html" %}

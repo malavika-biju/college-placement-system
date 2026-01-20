@@ -1,0 +1,343 @@
+{% load static %}
+{% include 'company/header.html' %}
+
+ <div class="site-wrap">  
+    
+    <section class="site-section py-5">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-md-12 text-center">
+                    <h2 class="section-title mb-2">Edit Job Posting</h2>
+                    <p class="lead text-muted">Update and manage job details</p>
+                </div>
+            </div>
+
+
+        <!-- Form Section -->
+        <section class="section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="card-title mb-0">
+                                    <i class="bi bi-file-earmark-text me-2"></i>
+                                    Editing: <span class="text-warning">{{ jobpost.position }}</span>
+                                </h4>
+                                <span class="badge bg-light text-primary fs-6">
+                                    <i class="bi bi-clock-history me-1"></i>Last Updated: {{ jobpost.post_date|date:"M d, Y" }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <div class="alert alert-info border-start border-info border-4">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-info-circle-fill text-info fs-5"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="alert-heading mb-2">Update Job Information</h6>
+                                        <p class="mb-0">Make changes to the job posting. All fields are required unless marked optional.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form action="{% url 'edit_job' jobpost.jobpost_id %}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                {% csrf_token %}
+
+                                <div class="row g-4">
+                                    <!-- Position -->
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">
+                                                <i class="bi bi-card-heading me-2 text-primary"></i>
+                                                Job Position
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-briefcase text-muted"></i>
+                                                </span>
+                                                <input 
+                                                    type="text"
+                                                    class="form-control form-control-lg"
+                                                    name="position"
+                                                    value="{{ jobpost.position }}"
+                                                    placeholder="e.g., Senior Software Developer"
+                                                    required
+                                                >
+                                                <div class="invalid-feedback">
+                                                    Please enter a job position.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Requirements -->
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">
+                                                <i class="bi bi-list-check me-2 text-primary"></i>
+                                                Requirements & Qualifications
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light align-items-start pt-3">
+                                                    <i class="bi bi-card-checklist text-muted"></i>
+                                                </span>
+                                                <textarea
+                                                    class="form-control"
+                                                    name="requirement"
+                                                    placeholder="List the required skills, experience, and qualifications..."
+                                                    rows="4"
+                                                    required
+                                                >{{ jobpost.requirement }}</textarea>
+                                                <div class="invalid-feedback">
+                                                    Please enter job requirements.
+                                                </div>
+                                            </div>
+                                            <small class="text-muted mt-1 d-block">
+                                                <i class="bi bi-lightbulb me-1"></i>
+                                                Be specific about required skills and experience
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Cutoff Mark & Deadline -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">
+                                                <i class="bi bi-bar-chart me-2 text-primary"></i>
+                                                Cutoff Mark
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-percent text-muted"></i>
+                                                </span>
+                                                <input 
+                                                    type="number"
+                                                    step="0.1"
+                                                    min="0"
+                                                    max="100"
+                                                    class="form-control"
+                                                    name="cutoff_mark"
+                                                    value="{{ jobpost.cutoff_mark }}"
+                                                    placeholder="e.g., 75.5"
+                                                    required
+                                                >
+                                                <span class="input-group-text">%</span>
+                                                <div class="invalid-feedback">
+                                                    Please enter a valid cutoff mark (0-100).
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">
+                                                <i class="bi bi-calendar-event me-2 text-primary"></i>
+                                                Application Deadline
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="bi bi-calendar text-muted"></i>
+                                                </span>
+                                                <input 
+                                                    type="date"
+                                                    class="form-control"
+                                                    name="application_end_date"
+                                                    value="{{ jobpost.application_end_date|date:'Y-m-d' }}"
+                                                    required
+                                                >
+                                                <div class="invalid-feedback">
+                                                    Please select an application deadline.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Photo Upload -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">
+                                                <i class="bi bi-image me-2 text-primary"></i>
+                                                Job Photo
+                                            </label>
+                                            <div class="card border-dashed">
+                                                <div class="card-body text-center p-4">
+                                                    <div class="mb-3">
+                                                        <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+                                                    </div>
+                                                    <input 
+                                                        type="file"
+                                                        class="form-control"
+                                                        name="photo"
+                                                        accept="image/*"
+                                                        id="photoUpload"
+                                                        onchange="previewImage(event)"
+                                                    >
+                                                    <label for="photoUpload" class="btn btn-outline-primary mt-3">
+                                                        <i class="bi bi-upload me-2"></i>Choose File
+                                                    </label>
+                                                    <div class="mt-2" id="imagePreview">
+                                                        {% if jobpost.photo %}
+                                                            <div class="alert alert-light mt-2">
+                                                                <i class="bi bi-check-circle text-success me-2"></i>
+                                                                <small>Current: {{ jobpost.photo.name }}</small>
+                                                            </div>
+                                                        {% else %}
+                                                            <small class="text-muted">No photo uploaded</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">
+                                                <i class="bi bi-toggle-on me-2 text-primary"></i>
+                                                Job Status
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <select class="form-select form-select-lg" name="status" required>
+                                                        <option value="">-- Select Status --</option>
+                                                        <option value="open" {% if jobpost.status == 'open' %}selected{% endif %}>
+                                                            <i class="bi bi-unlock me-2 text-success"></i>Open
+                                                        </option>
+                                                        <option value="closed" {% if jobpost.status == 'closed' %}selected{% endif %}>
+                                                            <i class="bi bi-lock me-2 text-danger"></i>Closed
+                                                        </option>
+                                                    </select>
+                                                    <div class="mt-3">
+                                                        {% if jobpost.status == 'open' %}
+                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 p-2">
+                                                                <i class="bi bi-check-circle me-1"></i>Currently accepting applications
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 p-2">
+                                                                <i class="bi bi-x-circle me-1"></i>Applications are closed
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="row mt-5 pt-4 border-top">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <a href="{% url 'view_jobpost' %}" class="btn btn-outline-secondary">
+                                                    <i class="bi bi-arrow-left me-2"></i>Back to Jobs
+                                                </a>
+                                            </div>
+                                            <div>
+                                                <button type="reset" class="btn btn-light me-3">
+                                                    <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                                </button>
+                                                <button type="submit" class="btn btn-primary btn-lg px-4">
+                                                    <i class="bi bi-check-circle me-2"></i>Update Job Posting
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    
+{% include 'company/footer.html' %}
+
+<!-- Image Preview Script -->
+<script>
+function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('imagePreview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <div class="alert alert-success mt-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <div>
+                            <strong>New Image Selected</strong><br>
+                            <small>${input.files[0].name}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+
+<!-- Add this CSS for better styling -->
+<style>
+.border-dashed {
+    border: 2px dashed #dee2e6 !important;
+    border-radius: 10px;
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+.input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+.input-group .form-control {
+    border-left: none;
+}
+.input-group .form-control:focus {
+    border-left: 1px solid #667eea;
+    border-color: #667eea;
+}
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+}
+.form-label {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+</style>

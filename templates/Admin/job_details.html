@@ -1,0 +1,116 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+<br><br>
+<br><br>
+
+<div class="container" style="margin-left:300px;">
+  <div class="table_section padding_infor_info">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0">Job Details</h3>
+      <div>
+        <a href="{% url 'view_job_posts' %}" class="btn btn-secondary btn-sm">
+          <i class="fas fa-arrow-left mr-1"></i> Back to List
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Job Information -->
+      <div class="col-md-8">
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Job Information</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <tr>
+                <th width="200">Position</th>
+                <td>{{ jobpost.position }}</td>
+              </tr>
+              <tr>
+                <th>Company</th>
+                <td>{{ company.company_name }}</td>
+              </tr>
+              <tr>
+                <th>Requirements</th>
+                <td>{{ jobpost.requirement|linebreaks }}</td>
+              </tr>
+              <tr>
+                <th>Cutoff Mark</th>
+                <td>{{ jobpost.cutoff_mark }}</td>
+              </tr>
+              <tr>
+                <th>Posted Date</th>
+                <td>{{ jobpost.post_date|date:"d/m/Y" }}</td>
+              </tr>
+              <tr>
+                <th>Application Deadline</th>
+                <td class="{% if is_expired %}text-danger font-weight-bold{% endif %}">
+                  {{ jobpost.application_end_date|date:"d/m/Y" }}
+                  {% if is_expired %}
+                    <span class="badge badge-danger ml-2">Expired</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th>Status</th>
+                <td>
+                  <span class="badge {% if jobpost.status == 'open' %}badge-success{% else %}badge-secondary{% endif %}">
+                    {{ jobpost.status|title }}
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Company Information -->
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Company Information</h5>
+          </div>
+          <div class="card-body text-center">
+            {% if company.company_logo %}
+            <img src="{{ company.company_logo.url }}" alt="Company Logo" class="img-fluid mb-3" style="max-height: 100px;">
+            {% endif %}
+            <p><strong>Company Name:</strong> {{ company.company_name }}</p>
+            <p><strong>Email:</strong> {{ company.contact_email }}</p>
+            <p><strong>Phone:</strong> {{ company.contact_number }}</p>
+            {% if company.website %}
+            <p><strong>Website:</strong> {{ company.website }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table_section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 1200px;
+  }
+  
+  .card {
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+  }
+  
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+  }
+  
+  .table th {
+    background-color: #f8f9fa;
+  }
+</style>
+
+{% include 'Admin/footer.html' %}

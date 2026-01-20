@@ -1,0 +1,77 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+<section class="section">
+    <div class="row">
+        <div class="col-12">
+            <div class="card"style="margin-left:350px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">Company List</h4>
+                   
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Company Name</th>
+                                    <th>Logo</th>
+                                    <th>Contact</th>
+                                    <th>Email</th>
+                                    <th>id</th>
+                                    <th>Registration</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                    
+                
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% if companies %}
+                                    {% for company in companies %}
+                                    <tr>
+                                        <td>{{ company.company_name }}</td>
+                                        <td><img src="{{ company.company_logo.url }}" alt="Logo" width="50"></td>
+                                        <td>{{ company.contact_number }}</td>
+                                        <td>{{ company.contact_email }}</td>
+                                        <td>
+                                                    <a href="{{ company.id_proof.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-file-pdf"></i> View
+                                                    </a>
+                                                </td>
+                                
+                                        <td>{{ company.reg_date }}</td>
+                                        <td>{{ company.location_id }}</td>
+
+                                        <td>
+                                            <a href="{% url 'accept_company' loginid=company.login_id_id %}"
+                                               class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil-square"></i> Accept
+                                            </a>
+
+                                            <a href="{% url 'reject_company' loginid=company.login_id_id %}"
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Are you sure you want to reject this company?');">
+                                                <i class="bi bi-trash"></i> Reject
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No batches found</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'Admin/footer.html' %}

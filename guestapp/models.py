@@ -22,3 +22,19 @@ class tbl_company(models.Model):
     login_id = models.ForeignKey(tbl_login, on_delete=models.CASCADE)
     reg_date = models.DateField(auto_now_add=True)
  
+
+class tbl_student(models.Model):
+    student_id = models.AutoField(primary_key=True)
+    student_name = models.CharField(max_length=50)
+    resume = models.FileField()
+    course_id = models.ForeignKey('adminapp.tbl_course', on_delete=models.CASCADE)
+    login_id = models.ForeignKey(tbl_login, on_delete=models.CASCADE)
+    id_proof = models.ImageField()
+    mark = models.FloatField()
+    percentage = models.FloatField()
+    photo = models.ImageField()
+    reg_id = models.DateField(auto_now_add=True)
+    email = models.CharField(max_length=50)
+    batch_id = models.ForeignKey('adminapp.tbl_batch', on_delete=models.CASCADE)
+    gender = models.CharField(max_length=10)
+    contact_number = models.BigIntegerField()

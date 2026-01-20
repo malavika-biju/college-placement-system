@@ -33,7 +33,7 @@
                 </div>
                 {% endif %}
                 
-                <form action="{% url 'login' %}" method="POST" class="login-form">
+                <form action="{% url 'login_process' %}" method="POST" class="login-form">
                   {% csrf_token %}
                   
                   <div class="mb-4">

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class tbl_district(models.Model):
     district_id = models.AutoField(primary_key=True)
@@ -56,11 +57,31 @@ class tbl_trainingclass(models.Model):
 
     def __str__(self):
         return self.trainingclass_name
+    
+class tbl_requests (models.Model):
+    request_id = models.AutoField(primary_key=True)
+    request_date = models.DateField(auto_now_add=True)
+    jobpost_id = models.ForeignKey('companyapp.tbl_jobpost', on_delete=models.CASCADE)
+    batch_id = models.ForeignKey(tbl_batch, on_delete=models.CASCADE)
+    student_count = models.IntegerField()
+    course_id = models.ForeignKey(tbl_course, on_delete=models.CASCADE)
+    status = models.CharField(max_length=50)
 
-
-
-
-
+    def __str__(self):
+        return f"Request {self.request_id} for JobPost {self.jobpost_id}"
     
 
+class tbl_interview_schedule(models.Model):
+    schedule_id = models.AutoField(primary_key=True)
+    schedule_date = models.DateField()
+    stage = models.CharField(max_length=100)
+    status = models.CharField(max_length=100)
+    request_id = models.ForeignKey(tbl_requests, on_delete=models.CASCADE)
 
+class tbl_student_schedule(models.Model):
+    studentschedule_id = models.AutoField(primary_key=True)
+    student_id = models.ForeignKey('guestapp.tbl_student', on_delete=models.CASCADE)
+    request_id = models.ForeignKey(tbl_requests, on_delete=models.CASCADE)
+    schedule_id = models.ForeignKey(tbl_interview_schedule, on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(max_length=100)
+    assigned_date = models.DateField(auto_now_add=True)

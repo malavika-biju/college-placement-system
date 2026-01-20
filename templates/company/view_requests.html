@@ -1,0 +1,281 @@
+{% load static %}
+{% include 'company/header.html' %}
+
+<div class="site-wrap">
+
+    <section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static "company/assets/images/hero_1.jpg" %}');" id="home-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <h1 class="text-white font-weight-bold">Student Requests</h1>
+            <div class="custom-breadcrumbs justify-content-center">
+              <a href="{% url 'company_home' %}" class="text-white">Home</a> 
+              <span class="mx-2 slash text-white">/</span>
+              <span class="text-white"><strong>Student Requests</strong></span>
+            </div>
+            <p class="text-white lead mt-3">Manage and review student applications for your job positions</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section">
+      <div class="container">
+        
+        <div class="row align-items-center mb-5">
+          <div class="col-lg-8 mb-4 mb-lg-0">
+            <div class="d-flex align-items-center">
+              <div>
+                <h2 class="mb-0">Student Requests Dashboard</h2>
+                <p class="text-muted">Review and manage all student applications</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="row">
+              <div class="col-12">
+                <a href="{% url 'company_home' %}" class="btn btn-block btn-outline-white btn-md">
+                  <span class="icon-arrow-left mr-2"></span>Back to Dashboard
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-5">
+          <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body text-center py-4">
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                  <span class="icon-paper-plane display-4 text-primary"></span>
+                </div>
+                <h6 class="card-title text-uppercase text-muted">Total Requests</h6>
+                <h2 class="display-5 font-weight-bold text-dark">{{ total_requests }}</h2>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body text-center py-4">
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                  <span class="icon-hourglass display-4 text-warning"></span>
+                </div>
+                <h6 class="card-title text-uppercase text-muted">Pending</h6>
+                <h2 class="display-5 font-weight-bold text-dark">{{ pending_count }}</h2>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body text-center py-4">
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                  <span class="icon-users display-4 text-info"></span>
+                </div>
+                <h6 class="card-title text-uppercase text-muted">Bulk Pending</h6>
+                <h2 class="display-5 font-weight-bold text-dark">{{ bulk_pending_count }}</h2>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body text-center py-4">
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                  <span class="icon-check display-4 text-success"></span>
+                </div>
+                <h6 class="card-title text-uppercase text-muted">Approved</h6>
+                <h2 class="display-5 font-weight-bold text-dark">{{ approved_count }}</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="border rounded bg-white">
+              
+              <div class="p-4 border-bottom">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <h3 class="text-black mb-0">All Student Requests</h3>
+                    <p class="text-muted mb-0">Manage application requests from students</p>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <div class="d-flex justify-content-end">
+                      <div class="dropdown mr-2">
+                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <span class="icon-filter mr-1"></span>Filter by Status
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="filterDropdown">
+                          <a class="dropdown-item" href="?status=pending">Pending</a>
+                          <a class="dropdown-item" href="?status=bulk_pending">Bulk Pending</a>
+                          <a class="dropdown-item" href="?status=approved">Approved</a>
+                          <a class="dropdown-item" href="?status=students_assigned">Students Assigned</a>
+                          <a class="dropdown-item" href="?status=rejected">Rejected</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{% url 'company_requests' %}">Show All</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-4">
+                {% if requests %}
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="bg-light">
+                      <tr>
+                        <th class="border-0">Request ID</th>
+                        <th class="border-0">Date</th>
+                        <th class="border-0">Job Position</th>
+                        <th class="border-0">Batch</th>
+                        <th class="border-0">Course</th>
+                        <th class="border-0 text-center">Students</th>
+                        <th class="border-0">Status</th>
+                        <th class="border-0 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for req in requests %}
+                      <tr class="border-bottom">
+                        <td class="align-middle">
+                          <span class="badge badge-light border">#{{ req.request_id }}</span>
+                        </td>
+                        <td class="align-middle">
+                          <span class="text-muted">{{ req.request_date|date:"M d, Y" }}</span>
+                        </td>
+                        <td class="align-middle">
+                          <strong>{{ req.jobpost_id.position }}</strong>
+                        </td>
+                        <td class="align-middle">
+                          <span class="badge badge-secondary">{{ req.batch_id.batch_year }}</span>
+                        </td>
+                        <td class="align-middle">
+                          {{ req.course_id.course_name }}
+                        </td>
+                        <td class="align-middle text-center">
+                          <span class="badge badge-primary badge-pill">{{ req.student_count }}</span>
+                        </td>
+                        <td class="align-middle">
+                          {% if req.status == 'pending' %}
+                          <span class="badge badge-warning">
+                            <span class="icon-hourglass mr-1"></span>Pending
+                          </span>
+                          {% elif req.status == 'bulk_pending' %}
+                          <span class="badge badge-info">
+                            <span class="icon-users mr-1"></span>Bulk Pending
+                          </span>
+                          {% elif req.status == 'approved' %}
+                          <span class="badge badge-success">
+                            <span class="icon-check mr-1"></span>Approved
+                          </span>
+                          {% elif req.status == 'rejected' %}
+                          <span class="badge badge-danger">
+                            <span class="icon-close mr-1"></span>Rejected
+                          </span>
+                          {% elif req.status == 'students_assigned' %}
+                          <span class="badge badge-primary">
+                            <span class="icon-user-check mr-1"></span>Students Assigned
+                          </span>
+                          {% else %}
+                          <span class="badge badge-secondary">{{ req.status }}</span>
+                          {% endif %}
+                        </td>
+                        <td class="align-middle text-center">
+                          <div class="btn-group btn-group-sm" role="group">
+                            <a href="{% url 'view_request_details' req.request_id %}" class="btn btn-outline-info" title="View Details">
+                              <span class="icon-eye"></span>
+                            </a>
+                            
+                            {% if req.has_assigned_students or req.status == 'students_assigned' %}
+                            <a href="{% url 'schedule_job' req.request_id %}" class="btn btn-outline-primary" title="Schedule Interview">
+                              <span class="icon-users"></span>
+                            </a>
+                            {% endif %}
+                            
+                            {% if req.status == 'pending' or req.status == 'bulk_pending' %}
+                            <a href="{% url 'approve_request' req.request_id %}" class="btn btn-outline-success" title="Approve">
+                              <span class="icon-check"></span>
+                            </a>
+                            <a href="{% url 'reject_request' req.request_id %}" class="btn btn-outline-danger" title="Reject">
+                              <span class="icon-close"></span>
+                            </a>
+                            {% endif %}
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+
+                {% if requests.has_other_pages %}
+                <div class="row mt-4">
+                  <div class="col-md-12">
+                    <div class="custom-pagination text-center">
+                      {% if requests.has_previous %}
+                        <a href="?page={{ requests.previous_page_number }}" class="prev">Prev</a>
+                      {% endif %}
+                      
+                      <div class="d-inline-block">
+                        {% for num in requests.paginator.page_range %}
+                          {% if requests.number == num %}
+                            <a href="?page={{ num }}" class="active">{{ num }}</a>
+                          {% else %}
+                            <a href="?page={{ num }}">{{ num }}</a>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      
+                      {% if requests.has_next %}
+                        <a href="?page={{ requests.next_page_number }}" class="next">Next</a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="text-center py-5">
+                  <div class="mb-4">
+                    <span class="icon-paper-plane display-1 text-muted"></span>
+                  </div>
+                  <h4 class="text-muted mb-3">No Requests Found</h4>
+                  <p class="text-muted mb-4">You haven't received any student requests yet.</p>
+                  <a href="{% url 'company_home' %}" class="btn btn-primary">
+                    <span class="icon-home mr-2"></span>Back to Dashboard
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-5">
+          <div class="col-md-12">
+            <div class="border rounded bg-light p-4">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <h5 class="mb-0">Need help managing requests?</h5>
+                  <p class="mb-0 text-muted">Check our guide for reviewing student applications</p>
+                </div>
+                <div class="col-md-4 text-right">
+                  <a href="#" class="btn btn-outline-primary">
+                    <span class="icon-help mr-2"></span>View Help Guide
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+{% include 'company/footer.html' %}

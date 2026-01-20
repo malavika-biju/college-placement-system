@@ -1,0 +1,182 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+<br><br>
+<br><br>
+
+<div class="container" style="margin-left:300px;">
+  <div class="table_section padding_infor_info">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0">View Job Posts</h3>
+      <div class="filters">
+        <form method="get" class="form-inline">
+          <div class="form-group mr-2">
+            <input type="text" name="search" class="form-control" 
+                   placeholder="Search job position..." 
+                   value="{{ search_query }}">
+          </div>
+          <div class="form-group mr-2">
+            <select name="status" class="form-control">
+              <option value="">All Status</option>
+              <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+              <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary mr-2">
+            <i class="fas fa-search"></i> Search
+          </button>
+          <a href="{% url 'view_job_posts' %}" class="btn btn-secondary">
+            <i class="fas fa-redo"></i> Reset
+          </a>
+        </form>
+      </div>
+    </div>
+
+    {% if jobposts %}
+    <div class="table-responsive-sm">
+      <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th>Sl No</th>
+            <th>Position</th>
+            <th>Company</th>
+            <th>Requirements</th>
+            <th>Cutoff Mark</th>
+            <th>Posted Date</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobposts %}
+          <tr class="{% if job.application_end_date < today %}table-danger{% endif %}">
+            <td>{{ forloop.counter }}</td>
+            <td>
+              <strong>{{ job.position }}</strong>
+              {% if job.photo %}
+                <br><small class="text-muted"><i class="fas fa-image"></i> Has photo</small>
+              {% endif %}
+            </td>
+            <td>{{ job.company_id.company_name }}</td>
+            <td>{{ job.requirement|truncatewords:10 }}</td>
+            <td>{{ job.cutoff_mark }}</td>
+            <td>{{ job.post_date|date:"d/m/Y" }}</td>
+            <td>
+              {{ job.application_end_date|date:"d/m/Y" }}
+              {% if job.application_end_date < today %}
+                <br><small class="badge badge-danger">Expired</small>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if job.status == 'open' %}
+                <span class="badge badge-success">Open</span>
+              {% else %}
+                <span class="badge badge-secondary">Closed</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'job_details' job.jobpost_id %}" 
+                   class="btn btn-info btn-sm" title="View Details">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'view_students_for_job' job.jobpost_id %}" 
+                   class="btn btn-primary btn-sm" title="View Matching Students">
+                  <i class="fas fa-user-graduate"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if jobposts.has_other_pages %}
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <nav>
+          <ul class="pagination justify-content-center">
+            {% if jobposts.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ jobposts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                Previous
+              </a>
+            </li>
+            {% endif %}
+            
+            {% for num in jobposts.paginator.page_range %}
+              {% if jobposts.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                  {{ num }}
+                </a>
+              </li>
+              {% endif %}
+            {% endfor %}
+            
+            {% if jobposts.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ jobposts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                Next
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center mt-4">
+      <i class="fas fa-info-circle fa-2x mb-3"></i>
+      <h4>No Job Posts Found</h4>
+      <p>There are currently no job posts available.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .table_section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 1200px;
+  }
+  
+  .filters .form-control {
+    height: 38px;
+  }
+  
+  .table th {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .table td {
+    vertical-align: middle;
+  }
+  
+  .badge {
+    font-size: 0.8em;
+    padding: 4px 8px;
+  }
+  
+  .btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+</style>
+
+{% include 'Admin/footer.html' %}

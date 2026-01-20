@@ -1,0 +1,216 @@
+{% load static %}
+{% include 'student/header.html' %}
+
+<body id="top">
+
+<div id="overlayer"></div>
+<div class="loader">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<div class="site-wrap">
+
+    <!-- Resume Section -->
+    <section class="site-section">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-md-12 text-center">
+                    <h2 class="section-title">My Resume</h2>
+                    <p class="lead">Manage and update your professional resume</p>
+                </div>
+            </div>
+
+            <!-- Resume Actions -->
+            <div class="row mb-4">
+                <div class="col-md-12 text-center">
+                    <a href="#" class="btn btn-primary mr-2">
+                        <span class="icon-edit mr-2"></span>Edit Resume
+                    </a>
+                    <a href="#" class="btn btn-success mr-2">
+                        <span class="icon-download mr-2"></span>Download PDF
+                    </a>
+                    <a href="#" class="btn btn-outline-primary">
+                        <span class="icon-eye mr-2"></span>Preview
+                    </a>
+                </div>
+            </div>
+
+            <!-- Resume Content -->
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <!-- Personal Information -->
+                            <div class="resume-section mb-4">
+                                <h3 class="border-bottom pb-2">Personal Information</h3>
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <strong>Full Name:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        John Doe
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <strong>Email:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        john.doe@example.com
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <strong>Phone:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        (123) 456-7890
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <strong>Location:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        New York, NY
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Education -->
+                            <div class="resume-section mb-4">
+                                <h3 class="border-bottom pb-2">Education</h3>
+                                <div class="mt-3">
+                                    <h5>Bachelor of Science in Computer Science</h5>
+                                    <p class="text-muted">University of Technology, 2018 - 2022</p>
+                                    <p>GPA: 3.8/4.0</p>
+                                    <p>Relevant Coursework: Data Structures, Algorithms, Database Systems, Web Development</p>
+                                </div>
+                            </div>
+
+                            <!-- Work Experience -->
+                            <div class="resume-section mb-4">
+                                <h3 class="border-bottom pb-2">Work Experience</h3>
+                                <div class="mt-3">
+                                    <h5>Software Developer Intern</h5>
+                                    <p class="text-muted">Tech Solutions Inc., Summer 2021</p>
+                                    <ul>
+                                        <li>Developed and maintained web applications using React and Node.js</li>
+                                        <li>Collaborated with team members on agile development projects</li>
+                                        <li>Implemented responsive design for mobile compatibility</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Skills -->
+                            <div class="resume-section mb-4">
+                                <h3 class="border-bottom pb-2">Skills</h3>
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <strong>Programming:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        Python, JavaScript, Java, C++
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <strong>Web Development:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        HTML5, CSS3, React, Node.js, Django
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <strong>Databases:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        MySQL, PostgreSQL, MongoDB
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <strong>Tools:</strong>
+                                    </div>
+                                    <div class="col-md-8">
+                                        Git, Docker, AWS, VS Code
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Projects -->
+                            <div class="resume-section mb-4">
+                                <h3 class="border-bottom pb-2">Projects</h3>
+                                <div class="mt-3">
+                                    <h5>E-commerce Website</h5>
+                                    <p class="text-muted">Personal Project, 2022</p>
+                                    <p>Full-stack e-commerce platform with user authentication, product catalog, and shopping cart functionality</p>
+                                    
+                                    <h5 class="mt-3">Task Management App</h5>
+                                    <p class="text-muted">University Project, 2021</p>
+                                    <p>Collaborative task management application with real-time updates</p>
+                                </div>
+                            </div>
+
+                            <!-- Certifications -->
+                            <div class="resume-section">
+                                <h3 class="border-bottom pb-2">Certifications</h3>
+                                <div class="mt-3">
+                                    <ul>
+                                        <li>AWS Certified Developer - Associate (2022)</li>
+                                        <li>Google IT Automation with Python (2021)</li>
+                                        <li>Microsoft Azure Fundamentals (2021)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Resume -->
+            <div class="row mt-5">
+                <div class="col-md-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Upload Resume</h4>
+                            <p>Upload your resume in PDF or DOC format</p>
+                            <form>
+                                <div class="form-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="resumeUpload">
+                                        <label class="custom-file-label" for="resumeUpload">Choose file</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="{% static 'student/assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'student/assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'student/assets/js/custom.js' %}"></script>
+
+<!-- File Input Script -->
+<script>
+    // Update file input label
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = document.getElementById("resumeUpload").files[0].name;
+        var nextSibling = e.target.nextElementSibling;
+        nextSibling.innerText = fileName;
+    });
+</script>
+
+</body>
+
+{% include 'student/footer.html' %}

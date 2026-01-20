@@ -1667,3 +1667,18 @@ h1, h2, h3, h4 {
   -webkit-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%); }
+/* Add these to your CSS file */
+.icon-edit:before,
+.icon-trash:before {
+  font-family: 'icomoon';
+  font-size: 16px;
+  display: inline-block;
+}
+
+.icon-edit:before {
+  content: "\e905"; /* Common edit/pencil icon code */
+}
+
+.icon-trash:before {
+  content: "\e9ac"; /* Common trash icon code */
+}
