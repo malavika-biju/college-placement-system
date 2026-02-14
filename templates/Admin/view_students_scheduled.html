@@ -1,0 +1,330 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<section class="section">
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="margin-left:350px; width: calc(100% - 350px);">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Students Scheduled by Companies
+                        </h4>
+                        <p class="text-muted mb-0">View all students scheduled for interviews by companies</p>
+                    </div>
+                    
+                    <!-- Export Button -->
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download me-2"></i>Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>CSV</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="window.print()"><i class="fas fa-print me-2"></i>Print</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="card-body border-bottom">
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="small-box bg-primary">
+                                <div class="inner">
+                                    <h3>{{ total_scheduled }}</h3>
+                                    <p>Total Scheduled</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>{{ assigned_count }}</h3>
+                                    <p>Assigned</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>{{ selected_count }}</h3>
+                                    <p>Selected</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="small-box bg-danger">
+                                <div class="inner">
+                                    <h3>{{ rejected_count }}</h3>
+                                    <p>Rejected</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="card-body border-bottom">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filter Results</h5>
+                            <form method="GET" class="row g-3">
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Company</label>
+                                    <select name="company" class="form-select">
+                                        <option value="">All Companies</option>
+                                        {% for company in companies %}
+                                        <option value="{{ company.company_id }}" {% if company_filter == company.company_id|stringformat:"s" %}selected{% endif %}>
+                                            {{ company.company_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="">All Status</option>
+                                        <option value="assigned" {% if status_filter == 'assigned' %}selected{% endif %}>Assigned</option>
+                                        <option value="interviewed" {% if status_filter == 'interviewed' %}selected{% endif %}>Interviewed</option>
+                                        <option value="selected" {% if status_filter == 'selected' %}selected{% endif %}>Selected</option>
+                                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Batch</label>
+                                    <select name="batch" class="form-select">
+                                        <option value="">All Batches</option>
+                                        {% for batch in batches %}
+                                        <option value="{{ batch.batch_id }}" {% if batch_filter == batch.batch_id|stringformat:"s" %}selected{% endif %}>
+                                            {{ batch.batch_year }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+                                </div>
+                                
+                                <div class="col-lg-12">
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search me-2"></i>Apply Filters
+                                        </button>
+                                        <a href="{% url 'view_students_scheduled' %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-redo me-2"></i>Reset
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table -->
+                <div class="card-body">
+                    {% if student_schedules %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="scheduledTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student Details</th>
+                                    <th>Company & Job</th>
+                                    <th>Batch & Course</th>
+                                    <th>Schedule Date</th>
+                                    <th>Status</th>
+                                    <th>Assigned Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for schedule in student_schedules %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if schedule.student_id.photo %}
+                                            <img src="{{ schedule.student_id.photo.url }}" 
+                                                 class="rounded-circle me-3" 
+                                                 width="40" height="40" 
+                                                 style="object-fit: cover;">
+                                            {% else %}
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" 
+                                                 style="width:40px; height:40px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ schedule.student_id.student_name }}</strong><br>
+                                                <small class="text-muted">{{ schedule.student_id.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong>{{ schedule.request_id.jobpost_id.company_id.company_name }}</strong><br>
+                                        <small class="text-muted">{{ schedule.request_id.jobpost_id.position }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ schedule.student_id.batch_id.batch_year }}</span><br>
+                                        <small>{{ schedule.student_id.course_id.course_name }}</small>
+                                    </td>
+                                    <td>
+                                        {% if schedule.schedule_id %}
+                                        <span class="badge bg-primary">
+                                            {{ schedule.schedule_id.schedule_date|date:"d M Y" }}
+                                        </span><br>
+                                        <small>{{ schedule.schedule_id.stage }}</small>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Not Scheduled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if schedule.status == 'assigned' %}
+                                        <span class="badge bg-warning">Assigned</span>
+                                        {% elif schedule.status == 'interviewed' %}
+                                        <span class="badge bg-info">Interviewed</span>
+                                        {% elif schedule.status == 'selected' %}
+                                        <span class="badge bg-success">Selected</span>
+                                        {% elif schedule.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ schedule.assigned_date|date:"d M Y" }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                        <h4>No Scheduled Students Found</h4>
+                        <p class="text-muted">No students have been scheduled for interviews yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Details Modals -->
+{% for schedule in student_schedules %}
+<div class="modal fade" id="detailsModal{{ forloop.counter }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Student Schedule Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Student Information</h6>
+                        <p><strong>Name:</strong> {{ schedule.student_id.student_name }}</p>
+                        <p><strong>ID:</strong> {{ schedule.student_id.student_id }}</p>
+                        <p><strong>Email:</strong> {{ schedule.student_id.email }}</p>
+                        <p><strong>Phone:</strong> {{ schedule.student_id.contact_number }}</p>
+                        <p><strong>Percentage:</strong> {{ schedule.student_id.percentage }}%</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Company Information</h6>
+                        <p><strong>Company:</strong> {{ schedule.request_id.jobpost_id.company_id.company_name }}</p>
+                        <p><strong>Job Position:</strong> {{ schedule.request_id.jobpost_id.position }}</p>
+                        <p><strong>Request ID:</strong> #{{ schedule.request_id.request_id }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge {% if schedule.status == 'selected' %}bg-success{% elif schedule.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ schedule.status|title }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Academic Details</h6>
+                        <p><strong>Batch:</strong> {{ schedule.student_id.batch_id.batch_year }}</p>
+                        <p><strong>Course:</strong> {{ schedule.student_id.course_id.course_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Schedule Details</h6>
+                        <p><strong>Assigned Date:</strong> {{ schedule.assigned_date|date:"d M Y" }}</p>
+                        {% if schedule.schedule_id %}
+                        <p><strong>Interview Date:</strong> {{ schedule.schedule_id.schedule_date|date:"d M Y" }}</p>
+                        <p><strong>Interview Stage:</strong> {{ schedule.schedule_id.stage }}</p>
+                        {% else %}
+                        <p><strong>Interview Date:</strong> <span class="text-muted">Not scheduled</span></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .small-box {
+        border-radius: 8px;
+        padding: 15px;
+        color: white;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .small-box .inner h3 {
+        font-size: 28px;
+        margin: 0 0 10px 0;
+    }
+    .small-box .icon {
+        font-size: 70px;
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        opacity: 0.2;
+    }
+</style>
+
+<script>
+function exportToCSV() {
+    let table = document.getElementById('scheduledTable');
+    let rows = table.querySelectorAll('tr');
+    let csv = [];
+    
+    for (let row of rows) {
+        let cols = row.querySelectorAll('td, th');
+        let rowData = [];
+        for (let col of cols) {
+            rowData.push(col.innerText.replace(/,/g, ';'));
+        }
+        csv.push(rowData.join(','));
+    }
+    
+    let csvContent = "data:text/csv;charset=utf-8," + csv.join('\n');
+    let link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", "scheduled_students.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+{% include 'Admin/footer.html' %}

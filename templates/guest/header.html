@@ -1,13 +1,13 @@
- {% load static %}
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Catalyst &mdash; Website Template by Colorlib</title>
+    <title>Catalyst - Campus Placement Portal</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="" />
-    <meta name="keywords" content="" />
-    <meta name="author" content="Free-Template.co" />
+    <meta name="description" content="Catalyst - Campus Placement Portal connecting students with companies" />
+    <meta name="keywords" content="campus placement, jobs, recruitment, students, companies" />
+    <meta name="author" content="Catalyst Team" />
     <link rel="shortcut icon" href="{% static 'guest/assets/ftco-32x32.png' %}">
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800" rel="stylesheet">  
@@ -31,39 +31,9 @@
 
           <nav class="mx-auto site-navigation">
             <ul class="site-menu js-clone-nav d-none d-xl-block ml-0 pl-0">
-              <li><a href="index.html" class="nav-link active">Home</a></li>
-              <li><a href="about.html">About</a></li>
-              <li class="has-children">
-                <a href="job-listings.html">Job Listings</a>
-                <ul class="dropdown">
-                  <li><a href="job-single.html">Job Single</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
+              <li><a href="/" class="nav-link active">Home</a></li>
 
-                </ul>
-              </li>
-              <li class="has-children">
-                <a href="services.html">Pages</a>
-                <ul class="dropdown">
-                  <li><a href="services.html">Services</a></li>
-                  <li><a href="service-single.html">Service Single</a></li>
-                  <li><a href="blog-single.html">Blog Single</a></li>
-                  <li><a href="portfolio.html">Portfolio</a></li>
-                  <li><a href="portfolio-single.html">Portfolio Single</a></li>
-                  <li><a href="testimonials.html">Testimonials</a></li>
-                  <li><a href="faq.html">Frequently Ask Questions</a></li>
-                  <li><a href="gallery.html">Gallery</a></li>
-                </ul>
-              </li>
-              <li><a href="blog.html">Blog</a></li>
-              <li><a href="contact.html">Contact</a></li>  
-             
-              
-              <li class="d-lg-none"><a href="{% url 'register' %}"><span class="mr-2">+</span> Register</a></li>
-              <li class="d-lg-none"><a href="{% url 'login' %}" class="login">Log In</a></li> 
-              <li class="d-lg-none"><a href="{% url 'register' %}" class="register"> Company Register</a></li> 
-              <li class="d-lg-none"><a href="{% url 'student_register' %}" class="register"> Student Register</a></li> 
-              
-
+              <li><a href="contact.html">Contact</a></li>
             </ul>
           </nav>
           
@@ -71,7 +41,7 @@
             <div class="ml-auto">
               <a href="{% url 'register' %}" class="btn btn-outline-white border-width-2 d-none d-lg-inline-block"><span class="mr-2 icon-add"></span> Company Register</a>
               <a href="{% url 'student_register' %}" class="btn btn-outline-white border-width-2 d-none d-lg-inline-block"><span class="mr-2 icon-add"></span>  Student Register</a>
-              <a href="{% url 'login' %}" class="btn btn-primary border-width-2 d-none d-lg-inline-block"><span class="mr-2 icon-lock_outline"></span>Log In</a>
+              <a href="{% url 'login' %}" class="btn btn-primary border-width-2 d-none d-lg-inline-block"><span class="mr-2 icon-lock_outline"></span>Login</a>
             </div>
             <a href="#" class="site-menu-toggle js-menu-toggle d-inline-block d-xl-none mt-lg-2 ml-3"><span class="icon-menu h3 m-0 p-0 mt-2"></span></a>
           </div>

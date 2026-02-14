@@ -1,0 +1,189 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<section class="section">
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="margin-left:350px; width: calc(100% - 350px);">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Student Distribution by Course
+                        </h4>
+                        <p class="text-muted mb-0">Visual representation of students across different courses</p>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Simple Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ total_students }}</h3>
+                                    <p>Total Students</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ total_courses }}</h3>
+                                    <p>Total Courses</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ labels|length }}</h3>
+                                    <p>Active Programs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="chart-container">
+                                <canvas id="studentDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Course Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Course</th>
+                                                <th class="text-end">Students</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for course_name, student_count in course_data %}
+                                            <tr>
+                                                <td>{{ course_name }}</td>
+                                                <td class="text-end">
+                                                    <span class="badge bg-primary">{{ student_count }}</span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="2" class="text-center">No data available</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        width: 100%;
+    }
+    
+    .card {
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+</style>
+
+<!-- Simplified JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Debug: Check if data is loaded
+console.log('Template data check:');
+console.log('Labels:', '{{ labels|default:"[]" }}');
+console.log('Data:', '{{ data|default:"[]" }}');
+
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // Try to parse the JSON data - with fallback
+        const labels = {{ labels_json|default:"[]"|safe }};
+        const data = {{ data_json|default:"[]"|safe }};
+        
+        console.log('Parsed labels:', labels);
+        console.log('Parsed data:', data);
+        
+        // If we have no data, show message
+        if (!labels || !labels.length || !data || !data.length) {
+            document.querySelector('.chart-container').innerHTML = 
+                '<div class="alert alert-warning text-center py-5">' +
+                '<i class="fas fa-exclamation-triangle fa-2x mb-3"></i>' +
+                '<h4>No Data Available</h4>' +
+                '<p>No student data found for pie chart.</p>' +
+                '</div>';
+            return;
+        }
+        
+        // Create colors array
+        const colors = [
+            '#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe',
+            '#00f2fe', '#43e97b', '#38f9d7', '#fa709a', '#fee140'
+        ];
+        
+        // Get canvas context
+        const ctx = document.getElementById('studentDistributionChart').getContext('2d');
+        
+        // Create chart
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error('Chart creation error:', error);
+        document.querySelector('.chart-container').innerHTML = 
+            '<div class="alert alert-danger text-center py-5">' +
+            '<i class="fas fa-bug fa-2x mb-3"></i>' +
+            '<h4>Chart Error</h4>' +
+            '<p>' + error.message + '</p>' +
+            '</div>';
+    }
+});
+</script>
+
+{% include 'Admin/footer.html' %}

@@ -1,0 +1,368 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<section class="section">
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="margin-left:350px; width: calc(100% - 350px);">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Placed Students Report - Course Wise
+                    </h4>
+                    <p class="text-muted mb-0">Visual representation of student placements by course</p>
+                </div>
+
+                <!-- Statistics Summary -->
+                <div class="card-body border-bottom">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="small-box bg-primary">
+                                <div class="inner">
+                                    <h3>{{ total_placed }}</h3>
+                                    <p>Total Placed Students</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>{{ total_students }}</h3>
+                                    <p>Total Students</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>
+                                        {% if total_students > 0 %}
+                                            {{ total_placed|floatformat:2 }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </h3>
+                                    <p>Overall Placement Rate</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>{{ chart_data|length }}</h3>
+                                    <p>Total Courses</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Bar Chart -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Placed Students by Course</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="placementChart" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Percentage Chart -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Placement Percentage</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="percentageChart" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Table -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Course-wise Placement Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Course Name</th>
+                                                    <th>Placed Students</th>
+                                                    <th>Total Students</th>
+                                                    <th>Placement %</th>
+                                                    <th>Progress</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for data in chart_data %}
+                                                <tr>
+                                                    <td><strong>{{ data.course_name }}</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ data.placed }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-secondary">{{ data.total }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge {% if data.percentage >= 70 %}bg-success{% elif data.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                            {{ data.percentage }}%
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="progress" style="height: 20px;">
+                                                            <div class="progress-bar 
+                                                                {% if data.percentage >= 70 %}bg-success
+                                                                {% elif data.percentage >= 50 %}bg-warning
+                                                                {% else %}bg-danger{% endif %}" 
+                                                                role="progressbar" 
+                                                                style="width: {{ data.percentage }}%">
+                                                                {{ data.percentage }}%
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .small-box {
+        border-radius: 8px;
+        position: relative;
+        display: block;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        color: white;
+        padding: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .small-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .small-box .inner {
+        padding: 10px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .small-box .inner h3 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        white-space: nowrap;
+        padding: 0;
+    }
+    
+    .small-box .inner p {
+        font-size: 15px;
+        margin: 0;
+        opacity: 0.9;
+    }
+    
+    .small-box .icon {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 0;
+        font-size: 70px;
+        color: rgba(255,255,255,0.2);
+        transition: transform 0.3s ease;
+    }
+    
+    .small-box:hover .icon {
+        transform: scale(1.1);
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 15px 20px;
+    }
+    
+    .table-dark {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .progress {
+        border-radius: 10px;
+        background-color: #f0f0f0;
+    }
+    
+    .progress-bar {
+        border-radius: 10px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get data from Django template
+    const courseNames = JSON.parse('{{ course_names_json|escapejs }}');
+    const placedCounts = JSON.parse('{{ placed_counts_json|escapejs }}');
+    const percentages = JSON.parse('{{ percentages_json|escapejs }}');
+    
+    // Colors for the chart
+    const colors = [
+        '#667eea', '#764ba2', '#f093fb', '#f5576c', 
+        '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+        '#fa709a', '#fee140', '#ff9a9e', '#a18cd1'
+    ];
+    
+    // Bar Chart - Placed Students
+    const ctx1 = document.getElementById('placementChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: courseNames,
+            datasets: [{
+                label: 'Placed Students',
+                data: placedCounts,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.8', '1')),
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Number of Placed Students by Course',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+    
+    // Bar Chart - Placement Percentage
+    const ctx2 = document.getElementById('percentageChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: courseNames,
+            datasets: [{
+                label: 'Placement Percentage',
+                data: percentages,
+                backgroundColor: percentages.map(p => {
+                    if (p >= 70) return '#10b981';
+                    if (p >= 50) return '#f59e0b';
+                    return '#ef4444';
+                }),
+                borderColor: percentages.map(p => {
+                    if (p >= 70) return '#059669';
+                    if (p >= 50) return '#d97706';
+                    return '#dc2626';
+                }),
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Placement Percentage by Course',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Percentage (%)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+{% include 'Admin/footer.html' %}

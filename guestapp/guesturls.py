@@ -11,5 +11,6 @@ urlpatterns = [
    path('student_register/', views.student_register, name='student_register'),
    path('studentregistration/', views.student_register, name='studentregistration'),
    path('get_batches_by_course/', views.get_batches_by_course, name='get_batches_by_course'),
+   path('logoutfun/', views.logoutfun, name='logoutfun'),
+   path('contact/', views.contact, name='contact'),
 ]
-

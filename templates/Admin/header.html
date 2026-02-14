@@ -143,6 +143,13 @@
 
                         </li>
                         <li class="sidebar-item">
+                            <a href="{% url 'registered_companies' %}" class='sidebar-link'>
+                                <i class="bi bi-building-fill"></i>
+                                <span>Registered Companies</span>
+                            </a>
+
+                        </li>
+                        <li class="sidebar-item">
                             <a href="{% url 'view_student' %}" class='sidebar-link'>
                                 <i class="bi bi-person-fill"></i>
                                 <span>View Students</span>
@@ -161,6 +168,34 @@
                                 <i class="bi bi-check-circle-fill"></i>
                                 <span>Accepted Students</span>
                             </a>
+
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="{% url 'placed_students_barchart' %}" class='sidebar-link'>
+                                <i class="bi bi-bar-chart-fill"></i>
+                                <span>Placed Students Chart</span>
+                            </a>
+
+                        </li>
+                          <li class="sidebar-item">
+                             <a href="{% url 'student_distribution_piechart' %}" class='sidebar-link'>
+                                  <i class="bi bi-pie-chart-fill"></i>
+                                  <span>Student Distribution</span>
+                             </a>
+
+                        </li>
+                       <li class="sidebar-item">
+                          <a href="{% url 'view_students_scheduled' %}" class='sidebar-link'>
+        <i class="bi bi-calendar-check"></i>
+        <span>Scheduled Students</span>
+    </a>
+</li><li class="sidebar-item">
+    <a href="{% url 'logout' %}" class="sidebar-link">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Log Out</span>
+    </a>
+</li>
+
 
 
                     </ul>

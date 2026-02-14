@@ -1,12 +1,136 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
+from django.contrib import messages
+from django.db.models import Q
 from .models import tbl_jobpost              
 from adminapp.models import tbl_requests, tbl_student_schedule, tbl_interview_schedule
 from guestapp.models import tbl_company, tbl_student
+from adminapp.email_utils import send_company_action_email_to_admin  # Added import
+from django.core.mail import send_mail
+from django.conf import settings
+
+def send_interview_email_to_student(student, request, company, stage, schedule_date):
+    """Send interview schedule email to student"""
+    try:
+        subject = f"Interview Scheduled: {company.company_name} - {request.jobpost_id.position}"
+        
+        message = f"""
+        Dear {student.student_name},
+        
+        You have been scheduled for an interview with {company.company_name}.
+        
+        Interview Details:
+        - Position: {request.jobpost_id.position}
+        - Stage: {stage.replace('_', ' ').title()}
+        - Date: {schedule_date}
+        - Company: {company.company_name}
+        
+        Please be prepared and arrive on time.
+        
+        Best regards,
+        Placement Cell
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[student.email],
+            fail_silently=True,
+        )
+        
+        print(f"[EMAIL] Interview schedule sent to {student.email}")
+        return True
+        
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send to {student.email}: {str(e)}")
+        return False
+
+def send_placement_email_to_student(student, request, company):
+    """Send placement congratulation email to student"""
+    try:
+        subject = f"🎉 Congratulations! Placement Offer - {company.company_name}"
+        
+        message = f"""
+        Dear {student.student_name},
+        
+        CONGRATULATIONS!
+        
+        We are pleased to inform you that you have been SELECTED for the position of:
+        
+        {request.jobpost_id.position}
+        at {company.company_name}
+        
+        You have successfully completed all interview stages and have been placed!
+        
+        The company will contact you shortly with further details regarding your joining process.
+        
+        This is a significant achievement. We wish you all the best for your career!
+        
+        Warm regards,
+        Placement Cell
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[student.email],
+            fail_silently=True,
+        )
+        
+        print(f"[EMAIL] Placement congratulation sent to {student.email}")
+        return True
+        
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send placement email: {str(e)}")
+        return False
+
+# Optional: Rejection email function
+def send_rejection_email_to_student(student, request, company):
+    """Send rejection email to student"""
+    try:
+        subject = f"Application Update: {company.company_name} - {request.jobpost_id.position}"
+        
+        message = f"""
+        Dear {student.student_name},
+        
+        Thank you for your interest in the position of {request.jobpost_id.position} at {company.company_name}.
+        
+        After careful consideration, we regret to inform you that you have not been selected to proceed to the next stage of the interview process.
+        
+        We appreciate the time and effort you put into your application and encourage you to apply for future opportunities.
+        
+        We wish you the best in your job search.
+        
+        Sincerely,
+        Placement Cell
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[student.email],
+            fail_silently=True,
+        )
+        
+        print(f"[EMAIL] Rejection notification sent to {student.email}")
+        return True
+        
+    except Exception as e:
+        print(f"[EMAIL ERROR] Failed to send rejection email: {str(e)}")
+        return False
+    
+
 
 def company_home(request):
     return render(request, 'company/index.html')
+
+def company_profile(request):
+    company = tbl_company.objects.get(login_id=request.session['login_id'])
+    return render(request, 'company/profile.html', {'company': company})
 
 def jobpost(request):
     return render(request, 'company/jobpost.html')
@@ -23,7 +147,7 @@ def jobpost_insert(request):
         jobpost.company_id = company_id
         jobpost.status = "open"
         jobpost.save()
-        return HttpResponse("<script>alert('Job Posted Successfully');window.location='/company_home/';</script>")
+        return HttpResponse("<script>alert('Job Posted Successfully');window.location='/companyapp/jobpost/';</script>")
     else:
         return HttpResponse("<script>alert('Invalid Request');window.location='/jobpost/';</script>")
     
@@ -71,8 +195,6 @@ def company_requests(request):
         ).select_related(
             'jobpost_id',
             'batch_id',
-            'course_id',
-            'course_id__department_id'
         ).order_by('-request_date')
         
         for req in requests:
@@ -103,7 +225,7 @@ def company_requests(request):
             'total_requests': requests.count(),
         }
         
-        return render(request, 'Company/view_requests.html', context)
+        return render(request, 'company/view_requests.html', context)
     
     except Exception as e:
         return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='/company_home/';</script>")
@@ -125,12 +247,93 @@ def view_request_details(request, request_id):
             'jobpost': jobpost,
         }
         
-        return render(request, 'Company/request_details.html', context)
+        return render(request, 'company/request_details.html', context)
         
     except Exception as e:
         return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='{reverse('company_requests')}';</script>")
 
 view_requests = company_requests
+
+def automate_student_selection(request, request_id):
+    """Automated student selection based on scoring algorithm"""
+    try:
+        from .automation import StudentSelectionAutomation
+        
+        login_id = request.session.get('login_id')
+        if not login_id:
+            return redirect('company_home')
+        
+        company = tbl_company.objects.get(login_id=login_id)
+        req = get_object_or_404(tbl_requests, request_id=request_id, jobpost_id__company_id=company)
+        
+        # Check if there are interviewed students
+        interviewed_count = tbl_student_schedule.objects.filter(
+            request_id=req,
+            status='interviewed'
+        ).count()
+        
+        if interviewed_count == 0:
+            return HttpResponse(
+                f"""
+                <script>
+                    alert('No interviewed students found for automation. Students must be interviewed first.');
+                    window.location='{reverse('company_requests')}';
+                </script>
+                """
+            )
+        
+        # Execute automation
+        automation = StudentSelectionAutomation(request_id)
+        result = automation.execute_automation()
+        
+        if result['success']:
+            message = f"""
+                Automation completed successfully!
+                
+                Total Students: {result['total_students']}
+                Selected: {result['selected_count']}
+                Rejected: {result['rejected_count']}
+                Selection Rate: {result['selection_rate']}%
+                Average Score: {result['avg_score']}
+                Top Score: {result['top_score']}
+                
+                Students have been notified of their status.
+            """
+        else:
+            # Removed email calls from here since they don't make sense in automation failure
+            message = f"Automation failed: {result['message']}"
+        
+        return HttpResponse(
+            f"""
+            <script>
+                alert('{message}');
+                window.location='{reverse('company_requests')}';
+            </script>
+            """
+        )
+        
+    except Exception as e:
+        return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='{reverse('company_requests')}';</script>")
+
+def preview_automation_results(request, request_id):
+    """Preview automation results without applying them"""
+    try:
+        from .automation import preview_automation
+        
+        login_id = request.session.get('login_id')
+        if not login_id:
+            return JsonResponse({'success': False, 'message': 'Not logged in'})
+        
+        company = tbl_company.objects.get(login_id=login_id)
+        req = get_object_or_404(tbl_requests, request_id=request_id, jobpost_id__company_id=company)
+        
+        # Get preview
+        result = preview_automation(request_id)
+        
+        return JsonResponse(result)
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 def approve_request(request, request_id):
     try:
@@ -139,16 +342,17 @@ def approve_request(request, request_id):
             return redirect('company_home')
         
         company = tbl_company.objects.get(login_id=login_id)
-        req = tbl_requests.objects.get(request_id=request_id, jobpost_id__company_id=company)
+        req = get_object_or_404(tbl_requests, request_id=request_id, jobpost_id__company_id=company)
         
         if request.method == "POST":
+            old_status = req.status 
             req.status = 'approved'
             req.save()
-            
+            send_company_action_email_to_admin(req, 'approved')
             return HttpResponse(
                 f"""
                 <script>
-                    alert('Request #{request_id} approved successfully!');
+                    alert('Request #{request_id} approved successfully! Email notification sent to admin.');
                     window.location='{reverse('company_requests')}';
                 </script>
                 """
@@ -158,7 +362,7 @@ def approve_request(request, request_id):
             'request_id': request_id,
             'request': req,
         }
-        return render(request, 'Company/approve_request.html', context)
+        return render(request, 'company/approve_request.html', context)
         
     except tbl_requests.DoesNotExist:
         return HttpResponse(f"<script>alert('Request not found');window.location='{reverse('company_requests')}';</script>")
@@ -176,14 +380,17 @@ def reject_request(request, request_id):
         
         if request.method == "POST":
             reason = request.POST.get('reason', 'No reason provided')
+            old_status = req.status
             
             req.status = 'rejected'
             req.save()
+
+            send_company_action_email_to_admin(req, 'rejected')
             
             return HttpResponse(
                 f"""
                 <script>
-                    alert('Request #{request_id} rejected.\\n\\nReason: {reason}');
+                    alert('Request #{request_id} rejected.\\n\\nReason: {reason}\\n\\nEmail notification sent to admin.');
                     window.location='{reverse('company_requests')}';
                 </script>
                 """
@@ -192,7 +399,7 @@ def reject_request(request, request_id):
         context = {
             'request_id': request_id,
         }
-        return render(request, 'Company/reject_request.html', context)
+        return render(request, 'company/reject_request.html', context)
         
     except tbl_requests.DoesNotExist:
         return HttpResponse(f"<script>alert('Request not found');window.location='{reverse('company_requests')}';</script>")
@@ -204,84 +411,107 @@ def schedule_job(request, request_id):
         login_id = request.session.get('login_id')
         if not login_id:
             return redirect('company_home')
-        
+
         company = tbl_company.objects.get(login_id=login_id)
         req = get_object_or_404(
-            tbl_requests, 
-            request_id=request_id, 
+            tbl_requests,
+            request_id=request_id,
             jobpost_id__company_id=company
         )
-        
+
         if request.method == "POST":
             stage = request.POST.get('stage')
             schedule_date = request.POST.get('schedule_date')
             selected_students = request.POST.getlist('selected_students[]')
-            
+
             if not selected_students:
                 return HttpResponse(
-                    f"""
-                    <script>
-                        alert('Please select at least one student!');
-                        window.location='{reverse('schedule_job', args=[request_id])}';
-                    </script>
-                    """
+                    "<script>alert('Please select at least one student');window.history.back();</script>"
                 )
-            
-            interview_schedule = tbl_interview_schedule.objects.create(
-                schedule_date=schedule_date,
+
+            if len(selected_students) > req.student_count:
+                return HttpResponse(
+                    f"<script>alert('You can select only {req.student_count} students');window.history.back();</script>"
+                )
+
+            interview_schedule, _ = tbl_interview_schedule.objects.get_or_create(
+                request_id=req,
                 stage=stage,
-                status='scheduled',
+                defaults={
+                    'schedule_date': schedule_date,
+                    'status': 'scheduled'
+                }
+            )
+
+            eligible_schedules = tbl_student_schedule.objects.filter(
                 request_id=req
-            )
-            
-            for student_id in selected_students:
-                student = tbl_student.objects.get(student_id=student_id)
-                student_schedule = tbl_student_schedule.objects.get(
-                    student_id=student,
-                    request_id=req,
-                    status='assigned'
+            ).exclude(status__in=['rejected', 'selected'])
+
+            students_placed = []
+
+            for sch in eligible_schedules:
+                student = sch.student_id
+
+                if str(student.student_id) in selected_students:
+                    sch.schedule_id = interview_schedule
+
+                    if stage == 'completed':
+                        sch.status = 'selected'
+                        sch.save()
+                        students_placed.append(student.student_name)
+                        send_placement_email_to_student(student, req, company)
+                    else:
+                        sch.status = 'interviewed'
+                        sch.save()
+                        send_interview_email_to_student(
+                            student,
+                            req,
+                            company,
+                            stage,
+                            schedule_date
+                        )
+                else:
+                    sch.status = 'rejected'
+                    sch.save()
+                    send_rejection_email_to_student(student, req, company)
+
+            if stage == 'completed':
+                req.status = 'students_assigned'
+                req.save()
+
+            if stage == 'completed' and students_placed:
+                names = ", ".join(students_placed[:3])
+                if len(students_placed) > 3:
+                    names += f" and {len(students_placed) - 3} more"
+
+                message = (
+                    f"{len(students_placed)} student(s) PLACED!\\n\\n"
+                    f"Students: {names}"
                 )
-                student_schedule.schedule_id = interview_schedule
-                student_schedule.save()
-            
+            else:
+                message = "Round completed successfully!"
+
             return HttpResponse(
-                f"""
-                <script>
-                    alert('Students scheduled successfully!');
-                    window.location='{reverse('view_request_details', args=[request_id])}';
-                </script>
-                """
+                f"<script>alert('{message}');"
+                f"window.location='{reverse('view_request_details', args=[request_id])}';</script>"
             )
-        
-        details = tbl_interview_schedule.objects.filter(request_id_id=request_id)
-        
+
+        details = tbl_interview_schedule.objects.filter(request_id=req)
         existing_stages = details.values_list('stage', flat=True)
-        
+
         options = {
-            'aptitude': 'Aptitude',
-            'aptitude_technical': 'Aptitude & Technical',
-            'interview': 'Interview',
-            'technical_hr': 'Technical & HR',
-            'hr': 'HR',
-            'aptitude_technical_hr': 'Aptitude, Technical & HR',
-            'completed': 'Completed'
-        }
+    'aptitude': 'Aptitude',
+    'technical': 'Technical',
+    'interview': 'HR',
+    'completed': 'Completed'
+   }
+
         
-        assigned_student_schedules = tbl_student_schedule.objects.filter(
-            request_id=req,
-            status='assigned'
-        ).select_related('student_id')
-        
-        scheduled_student_ids = []
-        for detail in details:
-            scheduled = tbl_student_schedule.objects.filter(
-                schedule_id=detail
-            ).values_list('student_id_id', flat=True)
-            scheduled_student_ids.extend(scheduled)
-        
-        available_students = [schedule.student_id for schedule in assigned_student_schedules 
-                              if schedule.student_id.student_id not in scheduled_student_ids]
-        
+
+        available_students = tbl_student_schedule.objects.filter(
+            request_id=req
+        ).exclude(status__in=['rejected', 'selected']).select_related('student_id')
+
         context = {
             'details': details,
             'options': options,
@@ -289,13 +519,14 @@ def schedule_job(request, request_id):
             'requestid': request_id,
             'request': req,
             'company': company,
-            'available_students': available_students,
-            'total_assigned': len(assigned_student_schedules),
-            'available_count': len(available_students),
-            'scheduled_count': len(scheduled_student_ids),
+            'available_students': [s.student_id for s in available_students],
+            'available_count': available_students.count(),
         }
-        
+
         return render(request, 'company/schedule_job.html', context)
-        
+
     except Exception as e:
-        return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='{reverse('company_requests')}';</script>")
+        return HttpResponse(
+            f"<script>alert('Error: {str(e)}');"
+            f"window.location='{reverse('company_requests')}';</script>"
+        )

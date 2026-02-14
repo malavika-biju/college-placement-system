@@ -1,0 +1,654 @@
+{% load static %}
+{% include 'Admin/header.html' %}
+
+<section class="section" style="margin-left: 280px; padding: 20px;">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-1 fw-bold text-dark">Placement Dashboard</h3>
+                    <p class="text-muted mb-0">Analytics and insights for placement management</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-download me-2"></i>Export Report
+                    </button>
+                    <button class="btn btn-primary btn-sm">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 bg-primary bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-user-graduate text-primary fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="text-muted mb-1">Total Students</h5>
+                            <h3 class="fw-bold mb-0">{{ total_students }}</h3>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success fw-medium">
+                            <i class="fas fa-arrow-up me-1"></i>12.5%
+                        </span>
+                        <span class="text-muted"> from last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 bg-success bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-building text-success fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="text-muted mb-1">Companies</h5>
+                            <h3 class="fw-bold mb-0">{{ total_companies }}</h3>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success fw-medium">
+                            <i class="fas fa-arrow-up me-1"></i>8.2%
+                        </span>
+                        <span class="text-muted"> from last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 bg-info bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-briefcase text-info fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="text-muted mb-1">Job Posts</h5>
+                            <h3 class="fw-bold mb-0">{{ total_job_posts }}</h3>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success fw-medium">
+                            <i class="fas fa-arrow-up me-1"></i>15.3%
+                        </span>
+                        <span class="text-muted"> from last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="fas fa-user-check text-warning fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="text-muted mb-1">Placed Students</h5>
+                            <h3 class="fw-bold mb-0">{{ total_placed }}</h3>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-success fw-medium">
+                                <i class="fas fa-arrow-up me-1"></i>{{ placement_rate }}%
+                            </span>
+                            <span class="text-muted">Placement Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section (2 columns) -->
+    <div class="row mb-4">
+        <!-- Student Distribution Pie Chart -->
+        <div class="col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom px-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-semibold">Student Distribution</h5>
+                            <p class="text-muted mb-0 fs-7">Students per course</p>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                All Courses
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">All Courses</a></li>
+                                <li><a class="dropdown-item" href="#">Top 5</a></li>
+                                <li><a class="dropdown-item" href="#">By Department</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="studentDistributionChart"></canvas>
+                    </div>
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted fs-7">Total Students</span>
+                            <span class="fw-bold">{{ total_students_all }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted fs-7">Courses</span>
+                            <span class="fw-bold">{{ total_courses }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Placement Chart -->
+        <div class="col-xl-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom px-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-semibold">Placement Statistics by Course</h5>
+                            <p class="text-muted mb-0 fs-7">Current academic year placement performance</p>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                This Year
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">This Month</a></li>
+                                <li><a class="dropdown-item" href="#">Last 6 Months</a></li>
+                                <li><a class="dropdown-item" href="#">This Year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="placementChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Table Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom px-4 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0 fw-semibold">Course-wise Placement Details</h5>
+                            <p class="text-muted mb-0 fs-7">Detailed breakdown by course</p>
+                        </div>
+                        <a href="/adminapp/placed_students_barchart/" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-external-link-alt me-2"></i>View Full Report
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4 py-3 border-0">
+                                        <span class="text-uppercase fs-7 fw-medium text-muted">Course Name</span>
+                                    </th>
+                                    <th class="px-4 py-3 border-0">
+                                        <span class="text-uppercase fs-7 fw-medium text-muted">Total Students</span>
+                                    </th>
+                                    <th class="px-4 py-3 border-0">
+                                        <span class="text-uppercase fs-7 fw-medium text-muted">Placed</span>
+                                    </th>
+                                    <th class="px-4 py-3 border-0">
+                                        <span class="text-uppercase fs-7 fw-medium text-muted">Percentage</span>
+                                    </th>
+                                    <th class="px-4 py-3 border-0">
+                                        <span class="text-uppercase fs-7 fw-medium text-muted">Progress</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in chart_data %}
+                                <tr class="border-top">
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 bg-light rounded-circle p-2 me-3">
+                                                <i class="fas fa-book text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-medium">{{ data.course_name }}</h6>
+                                                <small class="text-muted">{{ data.department|default:"Computer Science" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="fw-medium">{{ data.total }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-medium">
+                                            {{ data.placed }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1 me-2">
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar 
+                                                        {% if data.percentage >= 70 %}bg-success
+                                                        {% elif data.percentage >= 50 %}bg-warning
+                                                        {% else %}bg-danger{% endif %}" 
+                                                        role="progressbar" 
+                                                        style="width: {{ data.percentage }}%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span class="fw-bold 
+                                                {% if data.percentage >= 70 %}text-success
+                                                {% elif data.percentage >= 50 %}text-warning
+                                                {% else %}text-danger{% endif %}">
+                                                {{ data.percentage }}%
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        {% if data.percentage >= 70 %}
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">
+                                            <i class="fas fa-trophy me-1"></i>Excellent
+                                        </span>
+                                        {% elif data.percentage >= 50 %}
+                                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-1 rounded-pill">
+                                            <i class="fas fa-chart-line me-1"></i>Good
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-1 rounded-pill">
+                                            <i class="fas fa-exclamation-circle me-1"></i>Needs Attention
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity & Quick Actions -->
+    <div class="row">
+        <!-- Recent Companies -->
+        <div class="col-xl-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom px-4 py-3">
+                    <h5 class="mb-0 fw-semibold">Recent Company Registrations</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if recent_companies %}
+                    <div class="list-group list-group-flush">
+                        {% for company in recent_companies %}
+                        <div class="list-group-item border-0 px-0 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-light rounded-circle p-2">
+                                        <i class="fas fa-building text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-0 fw-medium">{{ company.company_name }}</h6>
+                                    <small class="text-muted">{{ company.location_id.location_name }} • Registered {{ company.reg_date|date:"M d, Y" }}</small>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill fs-7">
+                                        Verified
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">No recent companies</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-xl-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom px-4 py-3">
+                    <h5 class="mb-0 fw-semibold">Quick Actions</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="/adminapp/view_student/" class="card action-card text-decoration-none">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-3">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block">
+                                            <i class="fas fa-users text-primary fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Manage Students</h6>
+                                    <p class="text-muted fs-7 mb-0">View and manage student profiles</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/adminapp/view_company/" class="card action-card text-decoration-none">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-3">
+                                        <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-block">
+                                            <i class="fas fa-building text-success fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Manage Companies</h6>
+                                    <p class="text-muted fs-7 mb-0">Approve and manage companies</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/adminapp/view_job_posts/" class="card action-card text-decoration-none">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-3">
+                                        <div class="bg-info bg-opacity-10 rounded-circle p-3 d-inline-block">
+                                            <i class="fas fa-briefcase text-info fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Job Posts</h6>
+                                    <p class="text-muted fs-7 mb-0">View and manage job opportunities</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/adminapp/student_distribution_piechart/" class="card action-card text-decoration-none">
+                                <div class="card-body text-center p-4">
+                                    <div class="mb-3">
+                                        <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-block">
+                                            <i class="fas fa-chart-pie text-warning fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Student Analytics</h6>
+                                    <p class="text-muted fs-7 mb-0">Detailed student distribution</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Custom Styles */
+    .card {
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .action-card {
+        border: 1px solid #eef2f7;
+        height: 100%;
+    }
+    
+    .action-card:hover {
+        border-color: #667eea;
+        background-color: rgba(102, 126, 234, 0.02);
+    }
+    
+    .table th {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .progress {
+        border-radius: 10px;
+        background-color: #f1f5f9;
+    }
+    
+    .progress-bar {
+        border-radius: 10px;
+    }
+    
+    .badge {
+        font-weight: 500;
+    }
+    
+    .fs-7 {
+        font-size: 0.875rem;
+    }
+    
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+    
+    .list-group-item:last-child {
+        border-bottom: none !important;
+    }
+    
+    .bg-opacity-10 {
+        background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+    }
+    
+    .bg-success.bg-opacity-10 {
+        background-color: rgba(var(--bs-success-rgb), 0.1) !important;
+    }
+    
+    .bg-warning.bg-opacity-10 {
+        background-color: rgba(var(--bs-warning-rgb), 0.1) !important;
+    }
+    
+    .bg-info.bg-opacity-10 {
+        background-color: rgba(var(--bs-info-rgb), 0.1) !important;
+    }
+    
+    .bg-danger.bg-opacity-10 {
+        background-color: rgba(var(--bs-danger-rgb), 0.1) !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get data from Django template
+    const courseNames = JSON.parse('{{ course_names_json|escapejs }}');
+    const placedCounts = JSON.parse('{{ placed_counts_json|escapejs }}');
+    const percentages = JSON.parse('{{ percentages_json|escapejs }}');
+    
+    // Primary Chart - Placement Statistics
+    const ctx1 = document.getElementById('placementChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: courseNames,
+            datasets: [{
+                label: 'Placed Students',
+                data: placedCounts,
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 1,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 12
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    cornerRadius: 6,
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const index = context.dataIndex;
+                            const percentage = percentages[index] || 0;
+                            return `${label}: ${value} placed (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        padding: 10
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+    
+    // Student Distribution Pie Chart
+    const ctx2 = document.getElementById('studentDistributionChart').getContext('2d');
+    
+    // Get student distribution data - you need to add this to your view context
+    // For now, I'll create sample data based on existing chart_data
+    const distributionLabels = courseNames;
+    const distributionData = [];
+    
+    // Use total students from chart_data or create sample data
+    {% for data in chart_data %}
+        distributionData.push({{ data.total }});
+    {% endfor %}
+    
+    // If no data, create sample
+    if (distributionData.length === 0) {
+        distributionLabels.push('Sample Course 1', 'Sample Course 2', 'Sample Course 3');
+        distributionData.push(150, 120, 80);
+    }
+    
+    // Define colors for pie chart
+    const pieColors = [
+        'rgba(102, 126, 234, 0.8)',   // Primary blue
+        'rgba(118, 75, 162, 0.8)',    // Purple
+        'rgba(240, 147, 251, 0.8)',   // Pink
+        'rgba(245, 87, 108, 0.8)',    // Red
+        'rgba(79, 172, 254, 0.8)',    // Light blue
+        'rgba(0, 242, 254, 0.8)',     // Cyan
+        'rgba(67, 233, 123, 0.8)',    // Green
+        'rgba(56, 249, 215, 0.8)',    // Teal
+        'rgba(250, 112, 154, 0.8)',   // Rose
+        'rgba(254, 225, 64, 0.8)'     // Yellow
+    ];
+    
+    // Create pie chart
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: distributionLabels,
+            datasets: [{
+                data: distributionData,
+                backgroundColor: pieColors.slice(0, distributionLabels.length),
+                borderColor: 'white',
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: {
+                            size: 11
+                        },
+                        color: '#6c757d'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 12
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    cornerRadius: 6,
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} students (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
+{% include 'Admin/footer.html' %}

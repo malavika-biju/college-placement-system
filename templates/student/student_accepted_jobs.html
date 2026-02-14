@@ -1,5 +1,5 @@
-{% include "student/header.html" %}
 {% load static %}
+{% include "student/header.html" %}
 
 <!-- Page Content -->
 <section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'guest/assets/images/hero_1.jpg' %}'); margin-top: -20px; padding-top: 100px; padding-bottom: 50px;">
@@ -40,15 +40,24 @@
         </div>
       </div>
       
-      <div class="col-md-4 mb-4">
-        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); color: white;">
-          <div class="card-body py-4">
-            <h2 class="display-4 mb-2">{{ student.course_id.course_name|truncatechars:15 }}</h2>
-            <h5 class="card-title">Your Course</h5>
-            <p class="mb-0">Current study</p>
-          </div>
-        </div>
-      </div>
+     <div class="col-md-4 mb-4">
+  <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); color: white;">
+    <div class="card-body py-4">
+      <h2 class="display-4 mb-2">
+        {% if interview_stages %}
+          {% with total=0 %}
+            {% for request_id, stages in interview_stages.items %}
+              {% with total=total|add:stages|length %}{% endwith %}
+            {% endfor %}
+            {{ total }}
+          {% endwith %}
+        {% else %}0{% endif %}
+      </h2>
+      <h5 class="card-title">Interview Stages</h5>
+      <p class="mb-0">Total stages scheduled</p>
+    </div>
+  </div>
+</div>
     </div>
     
     <!-- Student Info -->
@@ -133,7 +142,16 @@
                     </div>
                     <div class="mb-2">
                       <strong><i class="fas fa-clock text-muted mr-2"></i>Stage:</strong>
-                      <span class="badge badge-info">{{ interview.stage }}</span>
+                      <span class="badge 
+                        {% if interview.stage == 'aptitude' %}badge-primary
+                        {% elif interview.stage == 'aptitude_technical' %}badge-info
+                        {% elif interview.stage == 'interview' %}badge-warning
+                        {% elif interview.stage == 'hr' %}badge-success
+                        {% elif interview.stage == 'technical_hr' %}badge-danger
+                        {% elif interview.stage == 'aptitude_technical_hr' %}badge-dark
+                        {% else %}badge-secondary{% endif %}">
+                        {{ interview.stage|title }}
+                      </span>
                     </div>
                     {% if interview.status %}
                     <div class="mb-2">
@@ -177,14 +195,35 @@
                       </div>
                       <div class="mb-3">
                         <h6><i class="fas fa-layer-group mr-2"></i>Stage</h6>
-                        <p class="ml-4"><span class="badge badge-info">{{ interview.stage }}</span></p>
+                        <p class="ml-4">
+                          <span class="badge 
+                            {% if interview.stage == 'aptitude' %}badge-primary
+                            {% elif interview.stage == 'aptitude_technical' %}badge-info
+                            {% elif interview.stage == 'interview' %}badge-warning
+                            {% elif interview.stage == 'hr' %}badge-success
+                            {% elif interview.stage == 'technical_hr' %}badge-danger
+                            {% elif interview.stage == 'aptitude_technical_hr' %}badge-dark
+                            {% else %}badge-secondary{% endif %}">
+                            {{ interview.stage|title }}
+                          </span>
+                          <br>
+                          <small class="text-muted">
+                            {% if interview.stage == 'aptitude' %}Aptitude Test
+                            {% elif interview.stage == 'aptitude_technical' %}Aptitude & Technical Test
+                            {% elif interview.stage == 'interview' %}Personal Interview
+                            {% elif interview.stage == 'hr' %}HR Round
+                            {% elif interview.stage == 'technical_hr' %}Technical & HR Round
+                            {% elif interview.stage == 'aptitude_technical_hr' %}Aptitude, Technical & HR
+                            {% else %}Interview Stage{% endif %}
+                          </small>
+                        </p>
                       </div>
                       {% if interview.status %}
                       <div class="mb-3">
                         <h6><i class="fas fa-info-circle mr-2"></i>Status</h6>
                         <p class="ml-4">
                           <span class="badge {% if interview.status == 'scheduled' %}badge-success{% else %}badge-warning{% endif %}">
-                            {{ interview.status }}
+                            {{ interview.status|title }}
                           </span>
                         </p>
                       </div>
@@ -203,6 +242,96 @@
       </div>
     </div>
     {% endif %}
+
+    <!-- All Interview Stages Section -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card shadow-sm border-info">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-layer-group mr-2"></i>
+              Interview Stages Progress
+            </h5>
+          </div>
+          <div class="card-body">
+            {% if interview_stages %}
+            <div class="accordion" id="stagesAccordion">
+              {% for request_id, stages in interview_stages.items %}
+              <div class="card mb-3">
+                <div class="card-header" id="heading{{ request_id }}">
+                  <h6 class="mb-0">
+                    <button class="btn btn-link text-dark font-weight-bold collapsed" 
+                            type="button" 
+                            data-toggle="collapse" 
+                            data-target="#collapse{{ request_id }}" 
+                            aria-expanded="false" 
+                            aria-controls="collapse{{ request_id }}">
+                      <i class="fas fa-briefcase mr-2"></i>
+                      {{ stages.0.job_position }} at {{ stages.0.company }}
+                      <span class="badge badge-light ml-2">{{ stages|length }} stages</span>
+                    </button>
+                  </h6>
+                </div>
+                
+                <div id="collapse{{ request_id }}" class="collapse" aria-labelledby="heading{{ request_id }}" data-parent="#stagesAccordion">
+                  <div class="card-body">
+                    <div class="timeline">
+                      {% for stage in stages %}
+                      <div class="timeline-item mb-4">
+                        <div class="timeline-marker {% if stage.status == 'assigned' %}bg-success{% elif stage.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}"></div>
+                        <div class="timeline-content">
+                          <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">
+                              <span class="badge 
+                                {% if stage.stage == 'aptitude' %}badge-primary
+                                {% elif stage.stage == 'aptitude_technical' %}badge-info
+                                {% elif stage.stage == 'interview' %}badge-warning
+                                {% elif stage.stage == 'hr' %}badge-success
+                                {% elif stage.stage == 'technical_hr' %}badge-danger
+                                {% elif stage.stage == 'aptitude_technical_hr' %}badge-dark
+                                {% else %}badge-secondary{% endif %}">
+                                {{ stage.stage|title }}
+                              </span>
+                            </h6>
+                            <small class="text-muted">{{ stage.date|date:"d M Y" }}</small>
+                          </div>
+                          <p class="mb-1">
+                            <strong>Status:</strong> 
+                            <span class="badge {% if stage.status == 'assigned' %}badge-success{% elif stage.status == 'rejected' %}badge-danger{% else %}badge-warning{% endif %}">
+                              {{ stage.status|title }}
+                            </span>
+                          </p>
+                          {% if stage.status == 'rejected' %}
+                          <div class="alert alert-danger small mb-0">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            Not selected for next stage
+                          </div>
+                          {% elif stage.status == 'assigned' %}
+                          <div class="alert alert-success small mb-0">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Qualified for this stage
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+              <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No Interview Stages Yet</h5>
+              <p class="text-muted">Your interview stages will appear here once scheduled by companies.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Accepted Applications Section -->
     <div class="row">
@@ -230,6 +359,7 @@
                     <th>Company & Position</th>
                     <th>Application Date</th>
                     <th>Batch</th>
+                    <th>Current Stage</th>
                     <th>Status</th>
                     <th class="text-center">Actions</th>
                   </tr>
@@ -265,6 +395,22 @@
                     </td>
                     <td>
                       <span class="badge badge-info">{{ app.request_id.batch_id.batch_year }}</span>
+                    </td>
+                    <td>
+                      {% if app.schedule_id %}
+                      <span class="badge 
+                        {% if app.schedule_id.stage == 'aptitude' %}badge-primary
+                        {% elif app.schedule_id.stage == 'aptitude_technical' %}badge-info
+                        {% elif app.schedule_id.stage == 'interview' %}badge-warning
+                        {% elif app.schedule_id.stage == 'hr' %}badge-success
+                        {% elif app.schedule_id.stage == 'technical_hr' %}badge-danger
+                        {% elif app.schedule_id.stage == 'aptitude_technical_hr' %}badge-dark
+                        {% else %}badge-secondary{% endif %}">
+                        {{ app.schedule_id.stage|title }}
+                      </span>
+                      {% else %}
+                      <span class="badge badge-secondary">Not Scheduled</span>
+                      {% endif %}
                     </td>
                     <td>
                       <span class="badge badge-success">
@@ -349,7 +495,17 @@
                             <p class="mb-0">
                               Interview is scheduled for {{ app.schedule_id.schedule_date|date:"F d, Y" }}.
                               {% if app.schedule_id.stage %}
-                              (Stage: {{ app.schedule_id.stage }})
+                              (Stage: 
+                              <span class="badge 
+                                {% if app.schedule_id.stage == 'aptitude' %}badge-primary
+                                {% elif app.schedule_id.stage == 'aptitude_technical' %}badge-info
+                                {% elif app.schedule_id.stage == 'interview' %}badge-warning
+                                {% elif app.schedule_id.stage == 'hr' %}badge-success
+                                {% elif app.schedule_id.stage == 'technical_hr' %}badge-danger
+                                {% elif app.schedule_id.stage == 'aptitude_technical_hr' %}badge-dark
+                                {% else %}badge-secondary{% endif %}">
+                                {{ app.schedule_id.stage|title }}
+                              </span>)
                               {% endif %}
                             </p>
                           </div>
@@ -426,6 +582,65 @@
   .display-4 {
     font-weight: 700;
   }
+  
+  /* Timeline Styles */
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+  }
+  
+  .timeline-item {
+    position: relative;
+  }
+  
+  .timeline-marker {
+    position: absolute;
+    left: -30px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e9ecef;
+  }
+  
+  .timeline-content {
+    margin-left: 10px;
+  }
+  
+  .accordion .card-header {
+    background-color: #f8f9fa;
+    cursor: pointer;
+  }
+  
+  .accordion .btn-link {
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .accordion .btn-link:hover {
+    text-decoration: none;
+    color: #007bff !important;
+  }
+  
+  /* Stage badge colors */
+  .badge-primary { background-color: #667eea; }
+  .badge-info { background-color: #36b9cc; }
+  .badge-warning { background-color: #f6c23e; }
+  .badge-success { background-color: #1cc88a; }
+  .badge-danger { background-color: #e74a3b; }
+  .badge-dark { background-color: #5a5c69; }
+  .badge-secondary { background-color: #858796; }
 </style>
 
 <script>
@@ -437,6 +652,12 @@
   // Initialize tooltips
   $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
+    
+    // Open first accordion if only one item
+    var accordionItems = $('#stagesAccordion .card').length;
+    if (accordionItems === 1) {
+      $('#stagesAccordion .collapse').first().addClass('show');
+    }
   });
 </script>
 

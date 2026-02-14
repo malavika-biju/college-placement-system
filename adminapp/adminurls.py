@@ -45,6 +45,9 @@ urlpatterns = [
    path('view_company/', views.view_company, name='view_company'),
    path('accept_company/<int:loginid>/', views.accept_company, name='accept_company'),
    path('reject_company/<int:loginid>/', views.reject_company, name='reject_company'),
+   path('registered_companies/', views.registered_companies, name='registered_companies'),
+   path('companyexcel_export/', views.companyexcel_export, name='companyexcel_export'),
+   path('placed_students_barchart/', views.placed_students_barchart, name='placed_students_barchart'),
    path('view_student/', views.view_student, name='view_student'),
    path('accept_student/<int:loginid>/', views.accept_student, name='accept_student'),
    path('reject_student/<int:loginid>/', views.reject_student, name='reject_student'),
@@ -59,7 +62,13 @@ urlpatterns = [
     
   
    path('company_accepted_students/', views.view_company_accepted_students, name='company_accepted_students'),
+   path('request_again/<int:request_id>/', views.request_again, name='request_again'),
+   path('reject_accepted_request/<int:request_id>/', views.reject_accepted_request, name='reject_accepted_request'),
+   path('approve_request/<int:request_id>/', views.approve_request, name='approve_request'),
+
    path('interview_schedule/<int:id>/', views.interview_schedule, name='interview_schedule'),
    path('assign_students/', views.assign_students, name='assign_students'),
-  
+   path('view_students_scheduled/', views.view_students_scheduled_by_company, name='view_students_scheduled'),
+
+   path('student_distribution_piechart/', views.student_distribution_piechart, name='student_distribution_piechart'),
 ]

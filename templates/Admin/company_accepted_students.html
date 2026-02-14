@@ -9,20 +9,29 @@
                     <div>
                         <h4 class="card-title mb-0">
                             <i class="fas fa-user-check me-2"></i>
-                            Students Approved by Companies
+                            Company Request Management
                         </h4>
-                        <p class="text-muted mb-0">View all students accepted through company requests</p>
+                        <p class="text-muted mb-0">Manage all company student requests</p>
                     </div>
                     
-                    <!-- Export Button -->
-                    <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-download me-2"></i>Export
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="exportToCSV()"><i class="fas fa-file-csv me-2"></i>Export to CSV</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="window.print()"><i class="fas fa-print me-2"></i>Print Report</a></li>
-                        </ul>
+                    <!-- Status Filter Tabs -->
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'company_accepted_students' %}" 
+                           class="btn btn-outline-primary {% if not status_filter %}active{% endif %}">
+                            <i class="fas fa-list me-1"></i> All
+                        </a>
+                        <a href="{% url 'company_accepted_students' %}?status=approved" 
+                           class="btn btn-outline-success {% if status_filter == 'approved' %}active{% endif %}">
+                            <i class="fas fa-check-circle me-1"></i> Approved
+                        </a>
+                        <a href="{% url 'company_accepted_students' %}?status=pending" 
+                           class="btn btn-outline-warning {% if status_filter == 'pending' %}active{% endif %}">
+                            <i class="fas fa-clock me-1"></i> Pending
+                        </a>
+                        <a href="{% url 'company_accepted_students' %}?status=rejected" 
+                           class="btn btn-outline-danger {% if status_filter == 'rejected' %}active{% endif %}">
+                            <i class="fas fa-times-circle me-1"></i> Rejected
+                        </a>
                     </div>
                 </div>
 
@@ -30,10 +39,21 @@
                 <div class="card-body border-bottom">
                     <div class="row mb-4">
                         <div class="col-xl-3 col-md-6">
-                            <div class="small-box bg-info">
+                            <div class="small-box bg-primary">
                                 <div class="inner">
-                                    <h3>{{ total_approved_requests }}</h3>
-                                    <p>Approved Requests</p>
+                                    <h3>{{ total_requests|default:0 }}</h3>
+                                    <p>Total Requests</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>{{ status_counts.approved|default:0 }}</h3>
+                                    <p>Approved</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-check-circle"></i>
@@ -41,35 +61,24 @@
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
-                            <div class="small-box bg-success">
-                                <div class="inner">
-                                    <h3>{{ total_eligible_students }}</h3>
-                                    <p>Eligible Students</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6">
                             <div class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3>{{ companies.count }}</h3>
-                                    <p>Companies</p>
+                                    <h3>{{ status_counts.pending|default:0 }}</h3>
+                                    <p>Pending</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="fas fa-building"></i>
+                                    <i class="fas fa-clock"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
-                            <div class="small-box bg-primary">
+                            <div class="small-box bg-danger">
                                 <div class="inner">
-                                    <h3>{{ courses.count }}</h3>
-                                    <p>Courses</p>
+                                    <h3>{{ status_counts.rejected|default:0 }}</h3>
+                                    <p>Rejected</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="fas fa-graduation-cap"></i>
+                                    <i class="fas fa-times-circle"></i>
                                 </div>
                             </div>
                         </div>
@@ -97,39 +106,26 @@
                                     </select>
                                 </div>
                                 
+                        
+                                
+                                
                                 <div class="col-lg-3 col-md-6">
-                                    <label class="form-label fw-bold">Batch</label>
-                                    <select name="batch" class="form-select shadow-sm">
-                                        <option value="">All Batches</option>
-                                        {% for batch in batches %}
-                                        <option value="{{ batch.batch_id }}" 
-                                            {% if batch_filter == batch.batch_id|stringformat:"s" %}selected{% endif %}>
-                                            {{ batch.batch_year }}
-                                        </option>
-                                        {% endfor %}
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select name="status" class="form-select shadow-sm">
+                                        <option value="">All Status</option>
+                                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
                                     </select>
                                 </div>
                                 
-                                <div class="col-lg-3 col-md-6">
-                                    <label class="form-label fw-bold">Course</label>
-                                    <select name="course" class="form-select shadow-sm">
-                                        <option value="">All Courses</option>
-                                        {% for course in courses %}
-                                        <option value="{{ course.course_id }}" 
-                                            {% if course_filter == course.course_id|stringformat:"s" %}selected{% endif %}>
-                                            {{ course.course_name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                
-                                <div class="col-lg-3 col-md-6 d-flex align-items-end">
+                                <div class="col-lg-12 d-flex align-items-end">
                                     <div class="d-grid gap-2 w-100">
                                         <button type="submit" class="btn btn-primary shadow-sm">
                                             <i class="fas fa-search me-2"></i>Apply Filters
                                         </button>
                                         <a href="{% url 'company_accepted_students' %}" class="btn btn-outline-secondary shadow-sm">
-                                            <i class="fas fa-redo me-2"></i>Reset
+                                            <i class="fas fa-redo me-2"></i>Reset All
                                         </a>
                                     </div>
                                 </div>
@@ -148,13 +144,12 @@
                                     <th style="width: 50px;">#</th>
                                     <th style="width: 200px;">Company & Job</th>
                                     <th style="width: 120px;">Request Date</th>
-                                    <th style="width: 100px;">Batch</th>
-                                    <th style="width: 150px;">Course</th>
+
                                     <th style="width: 120px;">Cutoff Mark</th>
                                     <th style="width: 120px;">Requested</th>
                                     <th style="width: 120px;">Eligible</th>
-                                    <th style="width: 100px;" class="text-center">Status</th>
-                                    <th style="width: 100px;" class="text-center">Actions</th>
+                                    <th style="width: 120px;" class="text-center">Status</th>
+                                    <th style="width: 180px;" class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -172,12 +167,7 @@
                                             {{ data.request.request_date|date:"d M Y" }}
                                         </span>
                                     </td>
-                                    <td>
-                                        <span class="badge bg-info">{{ data.request.batch_id.batch_year }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ data.request.course_id.course_name }}</span>
-                                    </td>
+                                   
                                     <td>
                                         <span class="fw-bold {% if data.jobpost.cutoff_mark >= 70 %}text-success{% elif data.jobpost.cutoff_mark >= 50 %}text-warning{% else %}text-danger{% endif %}">
                                             {{ data.jobpost.cutoff_mark }}%
@@ -186,7 +176,7 @@
                                     <td>
                                         <div class="progress" style="height: 20px;">
                                             <div class="progress-bar bg-primary" role="progressbar" 
-                                                 style="width: {% widthratio data.requested_count data.total_students 100 %}%">
+                                                 style="width: {% widthratio data.requested_count data.eligible_count 100 %}%"></div>
                                                 {{ data.requested_count }}
                                             </div>
                                         </div>
@@ -200,23 +190,60 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
+                                        {% if data.request.status == 'approved' %}
                                         <span class="badge bg-success rounded-pill">
                                             <i class="fas fa-check-circle me-1"></i>Approved
                                         </span>
+                                        {% elif data.request.status == 'pending' %}
+                                        <span class="badge bg-warning rounded-pill">
+                                            <i class="fas fa-clock me-1"></i>Pending
+                                        </span>
+                                        {% elif data.request.status == 'rejected' %}
+                                        <span class="badge bg-danger rounded-pill">
+                                            <i class="fas fa-times-circle me-1"></i>Rejected
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary rounded-pill">
+                                            <i class="fas fa-question-circle me-1"></i>{{ data.request.status|title }}
+                                        </span>
+                                        {% endif %}
                                     </td>
-                                   <td class="text-center">
-   
-        </button>
-        <a href="{% url 'job_details' jobpost_id=data.jobpost.jobpost_id %}" 
-           class="btn btn-primary" title="View Job Details">
-            <i class="fas fa-briefcase"></i>
-        </a>
-        <a href="{% url 'interview_schedule' data.request.request_id %}" 
-           class="btn btn-success" title="Schedule Interview">
-            <i class="fas fa-calendar-plus"></i>
-                              </a>
-                              </div>
-                               </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <!-- View Job Details -->
+                                            <a href="{% url 'job_details' jobpost_id=data.jobpost.jobpost_id %}" 
+                                               class="btn btn-primary" title="View Job Details">
+                                                <i class="fas fa-briefcase"></i>
+                                            </a>
+                                            
+                                            <!-- Dynamic Actions based on status -->
+                                            {% if data.request.status == 'approved' %}
+                                            <!-- Approved: Can Schedule Interview -->
+                                            <a href="{% url 'interview_schedule' data.request.request_id %}" 
+                                               class="btn btn-success" title="Schedule Interview">
+                                                <i class="fas fa-calendar-plus"></i>
+                                            </a>
+                                            
+                                            {% elif data.request.status == 'pending' %}
+                                            <!-- Pending: Can Approve -->
+                                            <a href="{% url 'approve_request' data.request.request_id %}" 
+                                               class="btn btn-success" 
+                                               title="Approve Request"
+                                               onclick="return confirmApprove()">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            
+                                            {% elif data.request.status == 'rejected' %}
+                                            <!-- Rejected: Can Request Again -->
+                                            <a href="{% url 'request_again' data.request.request_id %}" 
+                                               class="btn btn-warning" 
+                                               title="Request Again"
+                                               onclick="return confirmRequestAgain()">
+                                                <i class="fas fa-redo"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -226,17 +253,17 @@
                     <div class="text-center py-5">
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-user-check fa-4x text-muted"></i>
+                                <i class="fas fa-inbox fa-4x text-muted"></i>
                             </div>
-                            <h3 class="mt-4">No Approved Requests Found</h3>
+                            <h3 class="mt-4">No Requests Found</h3>
                             <p class="text-muted mb-4">
-                                {% if company_filter or batch_filter or course_filter %}
+                                {% if company_filter or batch_filter or course_filter or status_filter %}
                                 Try adjusting your filters to see results.
                                 {% else %}
-                                Companies haven't approved any requests yet.
+                                No company requests have been made yet.
                                 {% endif %}
                             </p>
-                            {% if company_filter or batch_filter or course_filter %}
+                            {% if company_filter or batch_filter or course_filter or status_filter %}
                             <a href="{% url 'company_accepted_students' %}" class="btn btn-primary">
                                 <i class="fas fa-redo me-2"></i>Clear All Filters
                             </a>
@@ -306,30 +333,27 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-6">
-                                        <p class="mb-1"><strong>Batch:</strong></p>
-                                        <p class="mb-1"><strong>Course:</strong></p>
+                                        
                                         <p class="mb-1"><strong>Requested:</strong></p>
+                                        <p class="mb-1"><strong>Status:</strong></p>
                                     </div>
                                     <div class="col-6">
-                                        <p class="mb-1">{{ data.request.batch_id.batch_year }}</p>
-                                        <p class="mb-1">{{ data.request.course_id.course_name }}</p>
+                                        
                                         <p class="mb-1">
                                             <span class="badge bg-primary">{{ data.requested_count }} students</span>
+                                        </p>
+                                        <p class="mb-1">
+                                            {% if data.request.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                            {% elif data.request.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                            {% elif data.request.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                            {% endif %}
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Approval Status Banner -->
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle fa-2x me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-1">Approved by Company</h5>
-                            <p class="mb-0">This request was approved on {{ data.request.request_date|date:"F d, Y" }}</p>
                         </div>
                     </div>
                 </div>
@@ -580,11 +604,22 @@
     .border-success {
         border-color: #10b981 !important;
     }
+    
+    .btn-group-sm > .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.2rem;
+    }
 </style>
 
 <script>
 function exportToCSV() {
     let table = document.getElementById('studentsTable');
+    if (!table) {
+        alert('No data to export');
+        return;
+    }
+    
     let rows = table.querySelectorAll('tr');
     let csv = [];
     
@@ -604,7 +639,7 @@ function exportToCSV() {
     let encodedUri = encodeURI(csvContent);
     let link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "company_accepted_students.csv");
+    link.setAttribute("download", "company_requests.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -612,6 +647,8 @@ function exportToCSV() {
 
 function printModalContent(modalId) {
     let modal = document.getElementById(modalId);
+    if (!modal) return;
+    
     let modalContent = modal.querySelector('.modal-content').innerHTML;
     let originalContent = document.body.innerHTML;
     
@@ -619,6 +656,19 @@ function printModalContent(modalId) {
     window.print();
     document.body.innerHTML = originalContent;
     window.location.reload();
+}
+
+// Confirmation functions
+function confirmApprove() {
+    return confirm('Are you sure you want to approve this request?');
+}
+
+function confirmReject() {
+    return confirm('Are you sure you want to reject this request?');
+}
+
+function confirmRequestAgain() {
+    return confirm('Are you sure you want to send this request to the company again?');
 }
 
 // Initialize tooltips

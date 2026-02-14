@@ -1,20 +1,173 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
-
+from django.db.models import Count, Q
 from guestapp.models import tbl_company, tbl_login, tbl_student
-from .models import tbl_district, tbl_batch, tbl_department, tbl_classtype, tbl_location, tbl_course, tbl_trainingclass, tbl_requests, tbl_student_schedule
+from .models import tbl_district, tbl_batch, tbl_department, tbl_classtype, tbl_location, tbl_course, tbl_trainingclass, tbl_requests, tbl_student_schedule, tbl_batch, tbl_department, tbl_course
 from companyapp.models import tbl_jobpost
 from django.core.paginator import Paginator
 from datetime import date
+from catalystProject.constants import STUDENT_SCHEDULE_STATUS, REQUEST_STATUS, LOGIN_STATUS
+from django.core.exceptions import ValidationError
+import openpyxl
+from openpyxl.styles import Font, PatternFill
+import json
+
+
+def validate_request_creation(jobpost, batch, student_count=0):
+    today = date.today()
+
+    if jobpost.application_end_date < today:
+        raise ValidationError("Job application deadline has passed")
+
+    if jobpost.company_id.login_id.status != LOGIN_STATUS['CONFIRMED']:
+        raise ValidationError("Company is not approved")
+
+    eligible_students = tbl_student.objects.filter(
+        login_id__status='confirmed',
+        percentage__gte=jobpost.cutoff_mark,
+        batch_id=batch
+    )
+
+    eligible_count = eligible_students.count()
+
+    if student_count and student_count > eligible_count:
+        raise ValidationError(
+            f"Requested {student_count} students but only {eligible_count} are eligible"
+        )
+
+    return eligible_count
+
+
+
 
 
 def admin_dashboard(request):
-    return render(request, 'Admin/index.html')
-
-
+    """Clean admin dashboard with placement reports"""
+    try:
+        # Get dashboard statistics
+        total_students = tbl_student.objects.filter(login_id__status='confirmed').count()
+        total_companies = tbl_company.objects.filter(login_id__status='confirmed').count()
+        total_job_posts = tbl_jobpost.objects.all().count()
+        pending_requests = tbl_requests.objects.filter(status='pending').count()
+        
+        # Get placement data for charts
+        courses = tbl_course.objects.all().order_by('course_name')
+        chart_data = []
+        
+        for course in courses:
+            # Count placed students for this course
+            placed_count = tbl_student_schedule.objects.filter(
+                student_id__course_id=course,
+                status='selected'
+            ).count()
+            
+            # Count total students in this course
+            total_course_students = tbl_student.objects.filter(
+                course_id=course,
+                login_id__status='confirmed'
+            ).count()
+            
+            # Calculate placement percentage
+            placement_percent = 0
+            if total_course_students > 0:
+                placement_percent = round((placed_count / total_course_students) * 100, 2)
+            
+            chart_data.append({
+                'course_name': course.course_name,
+                'placed': placed_count,
+                'total': total_course_students,
+                'percentage': placement_percent,
+                'department': course.department_id.department_name if course.department_id else "Computer Science"
+            })
+        
+        # Sort by placed count (highest first)
+        chart_data.sort(key=lambda x: x['placed'], reverse=True)
+        
+        # Calculate totals
+        total_placed = sum(item['placed'] for item in chart_data)
+        total_students_all = sum(item['total'] for item in chart_data)
+        
+        # Calculate overall placement percentage
+        overall_percentage = 0
+        if total_students_all > 0:
+            overall_percentage = round((total_placed / total_students_all) * 100, 2)
+        
+        # Prepare data for Chart.js
+        course_names = [item['course_name'] for item in chart_data]
+        placed_counts = [item['placed'] for item in chart_data]
+        percentages = [item['percentage'] for item in chart_data]
+        
+        # Get student distribution data for pie chart
+        student_distribution = []
+        for course in courses:
+            student_count = tbl_student.objects.filter(
+                course_id=course,
+                login_id__status='confirmed'
+            ).count()
+            if student_count > 0:
+                student_distribution.append({
+                    'course_name': course.course_name,
+                    'count': student_count,
+                    'department': course.department_id.department_name if course.department_id else "General"
+                })
+        
+        # Sort by student count (descending)
+        student_distribution.sort(key=lambda x: x['count'], reverse=True)
+        
+        # Prepare data for pie chart
+        distribution_labels = [item['course_name'] for item in student_distribution]
+        distribution_data = [item['count'] for item in student_distribution]
+        
+        # Get recent activities
+        recent_companies = tbl_company.objects.filter(
+            login_id__status='confirmed'
+        ).select_related('location_id').order_by('-reg_date')[:5]
+        
+        recent_jobs = tbl_jobpost.objects.order_by('-post_date')[:5]
+        
+        context = {
+            # Statistics cards
+            'total_students': total_students,
+            'total_companies': total_companies,
+            'total_job_posts': total_job_posts,
+            'pending_requests': pending_requests,
+            
+            # Chart data
+            'chart_data': chart_data,
+            'course_names_json': json.dumps(course_names),
+            'placed_counts_json': json.dumps(placed_counts),
+            'percentages_json': json.dumps(percentages),  # Fixed typo: was 'percentiles_json'
+            
+            # Student distribution for pie chart
+            'student_distribution': student_distribution,
+            'distribution_labels_json': json.dumps(distribution_labels),
+            'distribution_data_json': json.dumps(distribution_data),
+            
+            # Totals and percentages
+            'total_placed': total_placed,
+            'total_students_all': total_students_all,
+            'total_courses': len(chart_data),
+            'overall_percentage': overall_percentage,
+            'placement_rate': overall_percentage,  # Same as overall_percentage
+            
+            # Recent activities
+            'recent_companies': recent_companies,
+            'recent_jobs': recent_jobs,
+        }
+        
+        return render(request, 'Admin/dashboard.html', context)
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return HttpResponse(f"""
+            <script>
+                alert('Error loading dashboard: {str(e)}');
+                window.location='/adminapp/admin_dashboard/';
+            </script>
+        """)
 def district(request):
-    # Show the district form page
     return render(request, "Admin/district.html")
 
 
@@ -22,11 +175,9 @@ def district_insert(request):
     if request.method == "POST":
         dname = request.POST.get("district_name")
 
-        # Check duplicate
         if tbl_district.objects.filter(district_name=dname).exists():
             return HttpResponse("<script>alert('District already exists');window.location='/Admin/district';</script>")
 
-        # Insert new district
         obj = tbl_district(district_name=dname)
         obj.save()
 
@@ -54,7 +205,6 @@ def edit_district(request, district_id):
     if request.method == "POST":
         new_name = request.POST.get("district_name")
 
-        # Check for duplicate name excluding the current district
         if tbl_district.objects.filter(district_name=new_name).exclude(district_id=district_id).exists():
             return HttpResponse("<script>alert('District name already exists');window.location='/adminapp/edit_district/{}';</script>".format(district_id))
 
@@ -121,7 +271,6 @@ def department_insert(request):
     if request.method == "POST":
         name = request.POST.get("department_name")
 
-        # Duplicate check
         if tbl_department.objects.filter(department_name=name).exists():
             return HttpResponse(
                 "<script>alert('Department already exists');window.location='/adminapp/department/';</script>"
@@ -160,7 +309,6 @@ def edit_department(request, department_id):
     if request.method == "POST":
         new_name = request.POST.get("department_name")
 
-        # Duplicate name check
         if tbl_department.objects.filter(department_name=new_name).exclude(department_id=department_id).exists():
             return HttpResponse(
                 "<script>alert('Department name already exists');window.location='/adminapp/department/edit/{}/';</script>".format(
@@ -234,14 +382,11 @@ def location_insert(request):
         district_id = request.POST.get("ddldistrict")
         location_name = request.POST.get("locname")
 
-        # FK get
         district_obj = tbl_district.objects.get(district_id=district_id)
 
-        # FIX: use district_id (not district)
         if tbl_location.objects.filter(location_name=location_name, district_id=district_id).exists():
             return HttpResponse("<script>alert('Location already exists');window.location='/adminapp/location/';</script>")
 
-        # Insert
         obj = tbl_location(location_name=location_name, district_id=district_obj)
         obj.save()
 
@@ -276,12 +421,10 @@ def edit_location(request, location_id):
 
     if request.method == "POST":
         new_name = request.POST.get("location_name")
-        new_district_id = request.POST.get("district_id")  # FIXED NAME
+        new_district_id = request.POST.get("district_id")
 
-        # FK get
         district_obj = tbl_district.objects.get(district_id=new_district_id)
 
-        # Duplicate check
         if tbl_location.objects.filter(
             location_name=new_name,
             district_id=new_district_id
@@ -326,6 +469,7 @@ def fillcourse(request):
     return JsonResponse(list(course), safe=False)
 
 def delete_course(request, course_id):
+    
     try:
         course = tbl_course.objects.get(course_id=course_id)
         course.delete()
@@ -490,27 +634,204 @@ def reject_company(request,loginid):
     login.save()
     return admin_dashboard(request)
 
+def registered_companies(request):
+    companies = tbl_company.objects.filter(login_id__status='confirmed').order_by('-reg_date')
+    
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    
+    if from_date and to_date:
+        companies = companies.filter(reg_date__range=[from_date, to_date])
+    
+    return render(request, 'Admin/registered_companies.html', {'companies': companies})
+
+def companyexcel_export(request):
+    companies = tbl_company.objects.filter(login_id__status='confirmed').order_by('-reg_date')
+    
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    
+    if from_date and to_date:
+        companies = companies.filter(reg_date__range=[from_date, to_date])
+    
+    # Create Excel workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Registered Companies"
+    
+    # Header styling
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    
+    # Headers
+    headers = ['Company Name', 'Contact Number', 'Email', 'Registration Date', 'Location']
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+    
+    # Data
+    for row_num, company in enumerate(companies, 2):
+        ws.cell(row=row_num, column=1).value = company.company_name
+        ws.cell(row=row_num, column=2).value = company.contact_number
+        ws.cell(row=row_num, column=3).value = company.contact_email
+        ws.cell(row=row_num, column=4).value = company.reg_date.strftime('%Y-%m-%d')
+        ws.cell(row=row_num, column=5).value = company.location_id.location_name
+    
+    # Auto-adjust column widths
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Create response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=registered_companies.xlsx'
+    
+    wb.save(response)
+    return response
+
+def placed_students_barchart(request):
+    """Simple bar chart showing placed students by course"""
+    try:
+        # Get all courses with placement data
+        courses = tbl_course.objects.all().order_by('course_name')
+        
+        # Prepare data for chart
+        chart_data = []
+        for course in courses:
+            # Count placed students for this course
+            placed_count = tbl_student_schedule.objects.filter(
+                student_id__course_id=course,
+                status='selected'
+            ).count()
+            
+            # Count total students in this course
+            total_students = tbl_student.objects.filter(
+                course_id=course,
+                login_id__status='confirmed'
+            ).count()
+            
+            # Calculate placement percentage
+            placement_percent = 0
+            if total_students > 0:
+                placement_percent = round((placed_count / total_students) * 100, 2)
+            
+            chart_data.append({
+                'course_name': course.course_name,
+                'placed': placed_count,
+                'total': total_students,
+                'percentage': placement_percent
+            })
+        
+        # Sort by placed count (highest first)
+        chart_data.sort(key=lambda x: x['placed'], reverse=True)
+        
+        # Prepare data for Chart.js
+        course_names = [item['course_name'] for item in chart_data]
+        placed_counts = [item['placed'] for item in chart_data]
+        percentages = [item['percentage'] for item in chart_data]
+        
+        context = {
+            'chart_data': chart_data,
+            'course_names_json': json.dumps(course_names),
+            'placed_counts_json': json.dumps(placed_counts),
+            'percentages_json': json.dumps(percentages),
+            'total_placed': sum(item['placed'] for item in chart_data),
+            'total_students': sum(item['total'] for item in chart_data),
+        }
+        
+        return render(request, 'Admin/placed_students_barchart.html', context)
+        
+    except Exception as e:
+        return HttpResponse(f"""
+            <script>
+                alert('Error: {str(e)}');
+                window.location='/adminapp/admin_dashboard/';
+            </script>
+        """)
+    # Get all courses
+    courses = tbl_course.objects.all()
+    
+    course_data = []
+    for course in courses:
+        # Count students with status='selected'
+        placed_count = tbl_student_schedule.objects.filter(
+            student_id__course_id=course,
+            status='selected'  # Make sure this is the correct status value
+        ).count()
+        
+        # Also get total students in this course for reference
+        total_students = tbl_student.objects.filter(
+            course_id=course
+        ).count()
+        
+        course_data.append({
+            'name': course.course_name,
+            'placed': placed_count,
+            'total': total_students
+        })
+    
+    # Sort by placed count (descending)
+    course_data.sort(key=lambda x: x['placed'], reverse=True)
+    
+    # Calculate totals
+    total_placed = sum(course['placed'] for course in course_data)
+    total_courses = len(course_data)
+    
+    context = {
+        'courses': course_data,
+        'total_placed': total_placed,
+        'total_courses': total_courses,
+        'has_placements': total_placed > 0
+    }
+    
+    return render(request, 'Admin/placed_students_chart.html', context)
+    courses = tbl_course.objects.all()
+    course_names = []
+    placed_counts = []
+    
+    for course in courses:
+        placed_count = tbl_student_schedule.objects.filter(
+            student_id__course_id=course,
+            status='selected'
+        ).count()
+        course_names.append(course.course_name)
+        placed_counts.append(placed_count)
+    
+    context = {
+        'course_names': json.dumps(course_names),
+        'placed_counts': json.dumps(placed_counts),
+    }
+    return render(request, 'Admin/placed_students_chart.html', context)
+      
+    
+
 def view_student(request):
     """View all students with their details"""
-    # Filter by status if requested
     status = request.GET.get('status', 'requested')
     
-    # Get students with their login details
     students = tbl_student.objects.select_related(
         'login_id', 
         'course_id', 
         'batch_id'
     ).order_by('student_name')
     
-    # Filter by login status
     if status == 'confirmed':
         students = students.filter(login_id__status='confirmed')
     elif status == 'rejected':
         students = students.filter(login_id__status='rejected')
-    else:  # requested (default)
+    else:
         students = students.filter(login_id__status='requested')
     
-    # Calculate counts for different statuses
     total_students = tbl_student.objects.count()
     confirmed_count = tbl_student.objects.filter(login_id__status='confirmed').count()
     requested_count = tbl_student.objects.filter(login_id__status='requested').count()
@@ -550,22 +871,20 @@ def reject_student(request, loginid):
     except tbl_login.DoesNotExist:
         return HttpResponse("<script>alert('Student not found');window.location='/adminapp/view_student/';</script>")
 
-# Add these views to your views.py
+
 
 def view_job_posts(request):
     """View all job posts with filters"""
     try:
-        # Get all job posts - SIMPLIFIED without select_related for now
+        
         jobposts_list = tbl_jobpost.objects.all().order_by('-post_date')
         
         print(f"DEBUG: Found {jobposts_list.count()} jobs in database")
         
-        # Check if we get the data
         if jobposts_list.exists():
             for job in jobposts_list:
                 print(f"Job ID: {job.jobpost_id}, Position: {job.position}")
         
-        # Apply filters if needed
         status_filter = request.GET.get('status', '')
         if status_filter:
             jobposts_list = jobposts_list.filter(status=status_filter)
@@ -574,15 +893,12 @@ def view_job_posts(request):
         if search_query:
             jobposts_list = jobposts_list.filter(position__icontains=search_query)
         
-        # Pagination
         paginator = Paginator(jobposts_list, 10)
         page_number = request.GET.get('page')
         jobposts = paginator.get_page(page_number)
         
-        # Get companies for dropdown
         companies = tbl_company.objects.filter(login_id__status='confirmed')
         
-        # Get today's date
         today = date.today()
         print(f"DEBUG: Today is {today}")
         
@@ -601,7 +917,6 @@ def view_job_posts(request):
         import traceback
         traceback.print_exc()
         
-        # Return a simple error message
         return HttpResponse(f"""
             <h1>Error loading job posts</h1>
             <p>Error: {str(e)}</p>
@@ -613,13 +928,10 @@ def job_details(request, jobpost_id):
     try:
         jobpost = tbl_jobpost.objects.select_related('company_id').get(jobpost_id=jobpost_id)
         
-        # Get company details
         company = jobpost.company_id
         
-        # Count total students in system (optional)
         total_students = tbl_student.objects.filter(login_id__status='confirmed').count()
         
-        # Check if job is expired
         today = date.today()
         is_expired = jobpost.application_end_date < today
         
@@ -639,31 +951,24 @@ def job_details(request, jobpost_id):
 def view_students_for_job(request, jobpost_id):
     """View students who meet the job requirements"""
     try:
-        # Get job post
         jobpost = tbl_jobpost.objects.get(jobpost_id=jobpost_id)
         
-        # Debug print
         print(f"DEBUG: Found jobpost - ID: {jobpost.jobpost_id}, Position: {jobpost.position}, Cutoff: {jobpost.cutoff_mark}")
         
-        # Get all departments, batches, and courses
         department = tbl_department.objects.all()
         batch = tbl_batch.objects.all()
         courses = tbl_course.objects.all()
         
-        # Get filter parameters from GET request
         selected_department = request.GET.get('department', '')
         selected_batch = request.GET.get('batch', '')
         selected_course = request.GET.get('course', '')
         
-        # Start with all confirmed students
         students = tbl_student.objects.filter(
             login_id__status='confirmed'
         ).select_related('course_id', 'batch_id', 'course_id__department_id')
         
-        # Debug: Count all confirmed students
         print(f"DEBUG: Total confirmed students: {students.count()}")
         
-        # Apply filters
         if selected_department:
             students = students.filter(course_id__department_id=selected_department)
             print(f"DEBUG: After department filter: {students.count()}")
@@ -676,18 +981,15 @@ def view_students_for_job(request, jobpost_id):
             students = students.filter(course_id=selected_course)
             print(f"DEBUG: After course filter: {students.count()}")
         
-        # Calculate statistics
         meets_cutoff_count = 0
         below_cutoff_count = 0
         
-        # IMPORTANT FIX: Create a list to store student data with meets_cutoff flag
         students_with_eligibility = []
         
         for student in students:
             student_score = student.percentage if student.percentage else 0
             meets_cutoff = student_score >= jobpost.cutoff_mark
             
-            # Store student data in a dictionary
             student_data = {
                 'student': student,
                 'meets_cutoff': meets_cutoff,
@@ -700,7 +1002,6 @@ def view_students_for_job(request, jobpost_id):
             else:
                 below_cutoff_count += 1
             
-            # Debug for first few students
             if len(students_with_eligibility) <= 3:
                 print(f"DEBUG: Student {student.student_name} - Score: {student_score}, Cutoff: {jobpost.cutoff_mark}, Meets: {meets_cutoff}")
         
@@ -709,7 +1010,7 @@ def view_students_for_job(request, jobpost_id):
         context = {
             'jobpost': jobpost,
             'company': jobpost.company_id,
-            'students_data': students_with_eligibility,  # Changed to students_data
+            'students_data': students_with_eligibility,
             'department': department,
             'batch': batch,
             'courses': courses,
@@ -749,84 +1050,47 @@ def get_all_courses(request):
     return JsonResponse([], safe=False)
 
 def request_company(request):
-    """Create and send a request to company"""
     if request.method == "POST":
         try:
-            # Get form data
             jobpost_id = request.POST.get('jobpost_id')
             batch_id = request.POST.get('batch_id')
-            course_id = request.POST.get('course_id')
-            student_count = request.POST.get('student_count')
-            send_all = request.POST.get('send_all', 'false')
-            
-            # Set status based on send_all
-            status = 'pending'
-            if send_all == 'true':
-                status = 'bulk_pending'
-            
-            print(f"DEBUG: Creating request for JobPost {jobpost_id}")
-            print(f"DEBUG: Batch: {batch_id}, Course: {course_id}")
-            print(f"DEBUG: Student count: {student_count}, Status: {status}, Send All: {send_all}")
-            
-            # Validate required fields
-            if not jobpost_id or not batch_id or not course_id or not student_count:
+            student_count = int(request.POST.get('student_count', 0))
+
+            if not jobpost_id or not batch_id or not student_count:
                 return HttpResponse(
-                    "<script>alert('Please fill all required fields');window.location='/adminapp/view_students_for_job/{}/';</script>".format(jobpost_id)
+                    "<script>alert('Missing required fields');window.location='/adminapp/job_posts/';</script>"
                 )
-            
-            # Get related objects
+
             jobpost = tbl_jobpost.objects.get(jobpost_id=jobpost_id)
             batch = tbl_batch.objects.get(batch_id=batch_id)
-            course = tbl_course.objects.get(course_id=course_id)
-            
-            # Create the request record - USING tbl_requests (with 's')
+
+            # ✅ Correct validation call
+            eligible_count = validate_request_creation(jobpost, batch, student_count)
+
+            # ✅ Save batch in request
             request_obj = tbl_requests.objects.create(
-                jobpost_id=jobpost,  # This is the ForeignKey
+                jobpost_id=jobpost,
                 batch_id=batch,
-                student_count=int(student_count),
-                course_id=course,
-                status=status
-                # request_date is auto_now_add=True, so it will be set automatically
+                student_count=student_count,
+                status=REQUEST_STATUS['PENDING']
             )
-            
-            print(f"DEBUG: Created request #{request_obj.request_id}")
-            
+
             return HttpResponse(
-                f"""
-                <script>
-                    alert('Request #{request_obj.request_id} created successfully!\\n\\n'
-                          + 'Details:\\n'
-                          + '- Job: {jobpost.position}\\n'
-                          + '- Company: {jobpost.company_id.company_name}\\n'
-                          + '- Date: {request_obj.request_date}\\n'
-                          + '- Batch: {batch.batch_year}\\n'
-                          + '- Course: {course.course_name}\\n'
-                          + '- Students: {student_count}\\n'
-                          + '- Status: {status}\\n'
-                          + '- Type: {"All Eligible Students" if send_all == "true" else "Filtered Students"}\\n\\n'
-                          + 'Request has been sent to {jobpost.company_id.company_name}.');
-                    window.location='/adminapp/job_posts/';
-                </script>
-                """
+                f"<script>alert('Request #{request_obj.request_id} created successfully');"
+                "window.location='/adminapp/job_posts/';</script>"
             )
-            
+
         except Exception as e:
-            print(f"DEBUG: Error in request_company: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            jobpost_id = request.POST.get('jobpost_id', '')
             return HttpResponse(
-                f"""
-                <script>
-                    alert('Error: {str(e)}');
-                    window.location='/adminapp/view_students_for_job/{jobpost_id}/';
-                </script>
-                """
+                f"<script>alert('Error: {str(e)}');"
+                "window.location='/adminapp/job_posts/';</script>"
             )
-    
+
     return HttpResponse(
         "<script>alert('Invalid request');window.location='/adminapp/job_posts/';</script>"
     )
+
+
 def request_company_approval(request, jobpost_id):
     """Send selected students to company"""
     if request.method == "POST":
@@ -840,10 +1104,7 @@ def request_company_approval(request, jobpost_id):
             print(f"DEBUG: Selected students IDs: {selected_students}")
             print(f"DEBUG: Message: {message}")
             
-            # TODO: Here you would typically:
-            # 1. Create a record in a new model (e.g., JobApplication)
-            # 2. Send email notification to company
-            # 3. Update job post status if needed
+           
             
             return HttpResponse(
                 f"""
@@ -870,256 +1131,279 @@ def request_company_approval(request, jobpost_id):
     )
 
 
-# Add this to your adminapp/views.py
+
 def view_company_accepted_students(request):
-    """View requests approved by companies and the students who meet criteria"""
     try:
-        # Get all approved requests
-        approved_requests = tbl_requests.objects.filter(
-            status='approved'
-        ).select_related(
+        today = date.today()
+
+        all_requests = tbl_requests.objects.select_related(
             'jobpost_id',
-            'jobpost_id__company_id',
-            'batch_id',
-            'course_id'
+            'jobpost_id__company_id'
         ).order_by('-request_date')
-        
-        # Get all confirmed companies
-        companies = tbl_company.objects.filter(login_id__status='confirmed')
-        
-        # Get filter parameters
-        company_filter = request.GET.get('company', '')
-        batch_filter = request.GET.get('batch', '')
-        course_filter = request.GET.get('course', '')
-        
-        # Apply filters
-        if company_filter:
-            approved_requests = approved_requests.filter(jobpost_id__company_id=company_filter)
-        
-        if batch_filter:
-            approved_requests = approved_requests.filter(batch_id=batch_filter)
-        
-        if course_filter:
-            approved_requests = approved_requests.filter(course_id=course_filter)
-        
-        # Get all batches and courses for filters
-        batches = tbl_batch.objects.all()
-        courses = tbl_course.objects.all()
-        
-        # Get job posts for reference
-        job_posts = tbl_jobpost.objects.all()
-        
-        # Prepare data for each approved request
+
+        companies = tbl_company.objects.filter(
+            login_id__status='confirmed'
+        ).order_by('company_name')
+
         request_data = []
-        for req in approved_requests:
-            # Get students who meet the criteria for this request
-            students = tbl_student.objects.filter(
+
+        for req in all_requests:
+            cutoff = req.jobpost_id.cutoff_mark or 0
+
+            # GLOBAL eligible students
+            eligible_students = tbl_student.objects.filter(
                 login_id__status='confirmed',
-                batch_id=req.batch_id,
-                course_id=req.course_id
+                percentage__gte=cutoff
             )
-            
-            # Check if students meet cutoff
-            eligible_students = []
-            for student in students:
-                student_score = student.percentage if student.percentage else 0
-                meets_cutoff = student_score >= req.jobpost_id.cutoff_mark
-                
-                if meets_cutoff:
-                    eligible_students.append({
-                        'student': student,
-                        'percentage': student_score,
-                    })
-            
-            # Calculate statistics for this request
-            total_students = students.count()
-            eligible_count = len(eligible_students)
-            
+
             request_data.append({
                 'request': req,
                 'company': req.jobpost_id.company_id,
                 'jobpost': req.jobpost_id,
-                'total_students': total_students,
                 'eligible_students': eligible_students,
-                'eligible_count': eligible_count,
-                'requested_count': req.student_count,
+                'eligible_count': eligible_students.count(),
+                'requested_count': req.student_count or 0,
             })
-        
-        # Calculate overall statistics
-        total_approved_requests = approved_requests.count()
-        total_eligible_students = sum(item['eligible_count'] for item in request_data)
-        
+
+        status_counts = {
+            'approved': tbl_requests.objects.filter(status='approved').count(),
+            'pending': tbl_requests.objects.filter(status='pending').count(),
+            'rejected': tbl_requests.objects.filter(status='rejected').count(),
+        }
+
         context = {
             'request_data': request_data,
             'companies': companies,
-            'batches': batches,
-            'courses': courses,
-            'job_posts': job_posts,
-            'company_filter': company_filter,
-            'batch_filter': batch_filter,
-            'course_filter': course_filter,
-            'total_approved_requests': total_approved_requests,
-            'total_eligible_students': total_eligible_students,
+            'total_requests': len(request_data),
+            'status_counts': status_counts,
+            'today': today,
         }
-        
+
         return render(request, "Admin/company_accepted_students.html", context)
-        
+
     except Exception as e:
-        print(f"Error in view_company_accepted_students: {str(e)}")
         return HttpResponse(
-            f"""
-            <script>
-                alert('Error loading accepted students: {str(e)}');
-                window.location='/adminapp/admin_dashboard/';
-            </script>
-            """
+            f"<script>alert('Error: {str(e)}');"
+            "window.location='/adminapp/admin_dashboard/';</script>"
         )
 
-def view_company_accepted_students(request):
-    """View students accepted by companies based on approved requests"""
-    try:
-        # Get today's date for comparisons
-        today = date.today()
-        
-        # Get all approved requests
-        approved_requests = tbl_requests.objects.filter(
-            status='approved'
-        ).select_related(
-            'jobpost_id',
-            'jobpost_id__company_id',
-            'batch_id',
-            'course_id'
-        ).order_by('-request_date')
-        
-        
-        companies = tbl_company.objects.filter(login_id__status='confirmed').order_by('company_name')
-        
-        # Get filter parameters from GET request
-        company_filter = request.GET.get('company', '')
-        batch_filter = request.GET.get('batch', '')
-        course_filter = request.GET.get('course', '')
-        
-        # Apply filters
-        if company_filter:
-            approved_requests = approved_requests.filter(jobpost_id__company_id=company_filter)
-        
-        if batch_filter:
-            approved_requests = approved_requests.filter(batch_id=batch_filter)
-        
-        if course_filter:
-            approved_requests = approved_requests.filter(course_id=course_filter)
-        
-        # Get all batches and courses for filter dropdowns
-        batches = tbl_batch.objects.all().order_by('batch_year')
-        courses = tbl_course.objects.all().order_by('course_name')
-        
-        # Prepare data for each approved request
-        request_data = []
-        for req in approved_requests:
-            try:
-                # Get all confirmed students for this batch and course
-                students = tbl_student.objects.filter(
-                    login_id__status='confirmed',
-                    batch_id=req.batch_id,
-                    course_id=req.course_id
-                )
-                
-                # Check if students meet the cutoff mark
-                eligible_students = []
-                for student in students:
-                    # Safely get percentage (handle None values)
-                    student_score = student.percentage if student.percentage else 0
-                    cutoff_mark = req.jobpost_id.cutoff_mark if req.jobpost_id.cutoff_mark else 0
-                    
-                    meets_cutoff = student_score >= cutoff_mark
-                    
-                    if meets_cutoff:
-                        eligible_students.append({
-                            'student': student,
-                            'percentage': student_score,
-                        })
-                
-                # Get total students count for this batch/course combination
-                total_students = students.count()
-                eligible_count = len(eligible_students)
-                
-                # Safely get requested count
-                requested_count = req.student_count if req.student_count else 0
-                
-                request_data.append({
-                    'request': req,
-                    'company': req.jobpost_id.company_id,
-                    'jobpost': req.jobpost_id,
-                    'total_students': total_students,
-                    'eligible_students': eligible_students,
-                    'eligible_count': eligible_count,
-                    'requested_count': requested_count,
-                })
-                
-            except Exception as e:
-                print(f"Error processing request {req.request_id}: {str(e)}")
-                # Skip this request if there's an error
-                continue
-        
-        # Calculate overall statistics
-        total_approved_requests = len(request_data)
-        total_eligible_students = sum(item['eligible_count'] for item in request_data)
-        
-        context = {
-            'request_data': request_data,
-            'companies': companies,
-            'batches': batches,
-            'courses': courses,
-            'company_filter': company_filter,
-            'batch_filter': batch_filter,
-            'course_filter': course_filter,
-            'total_approved_requests': total_approved_requests,
-            'total_eligible_students': total_eligible_students,
-            'today': today,  # Pass today's date for template comparisons
-        }
-        
-        return render(request, "Admin/company_accepted_students.html", context)
-        
-    except Exception as e:
-        print(f"Error in view_company_accepted_students: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        
-        # Show error message
-        return HttpResponse(
-            f"""
-            <script>
-                alert('Error loading accepted students: {str(e)}');
-                window.location='/adminapp/admin_dashboard/';
-            </script>
-            """
-        )
-    
 def interview_schedule(request, id):
     schedule = tbl_requests.objects.get(request_id=id)
-    students = tbl_student.objects.filter(batch_id=schedule.batch_id, course_id=schedule.course_id)
-    return render(request, "admin/interview_schedule.html", {'student': schedule, 'students': students})
+    
+    students = tbl_student.objects.filter(
+        batch_id=schedule.batch_id, 
+        course_id=schedule.course_id,
+        login_id__status='confirmed'
+    )
+    
+    
+    eligible_students = []
+    for student in students:
+        student_score = student.percentage if student.percentage else 0
+        cutoff_mark = schedule.jobpost_id.cutoff_mark if schedule.jobpost_id.cutoff_mark else 0
+        
+        
+        if student_score >= cutoff_mark:
+            eligible_students.append(student)
+    
+    return render(request, "admin/interview_schedule.html", {
+        'student': schedule, 
+        'students': eligible_students
+    })
 
 def assign_students(request):
     if request.method == "POST":
         request_id = request.POST.get('request_id')
         selected_students = request.POST.getlist('selected_students')
-        
+
         try:
             req = tbl_requests.objects.get(request_id=request_id)
-            
+
+            already_assigned = tbl_student_schedule.objects.filter(
+                request_id=req
+            ).exists()
+
+            if already_assigned:
+                return HttpResponse(
+                    "<script>alert('Students already assigned for this request.');"
+                    "window.location='/adminapp/company_accepted_students/';</script>"
+                )
+
             for student_id in selected_students:
                 student = tbl_student.objects.get(student_id=student_id)
-                
+
                 tbl_student_schedule.objects.create(
                     student_id=student,
                     request_id=req,
-                    status='assigned'
+                    status=STUDENT_SCHEDULE_STATUS['ASSIGNED']
                 )
-            
-            return HttpResponse("<script>alert('Students assigned successfully');window.location='/adminapp/company_accepted_students/';</script>")
+
+            req.status = 'students_assigned'
+            req.save()
+
+            return HttpResponse(
+                "<script>alert('Students assigned successfully');"
+                "window.location='/adminapp/company_accepted_students/';</script>"
+            )
+
         except Exception as e:
-            print(f"Error: {str(e)}")
-            return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='/adminapp/company_accepted_students/';</script>")
+            return HttpResponse(
+                f"<script>alert('Error: {str(e)}');"
+                "window.location='/adminapp/company_accepted_students/';</script>"
+            )
+
+    return HttpResponse(
+        "<script>alert('Invalid request');"
+        "window.location='/adminapp/company_accepted_students/';</script>"
+    )
+
+
+def change_request_status(request, request_id, new_status):
+    try:
+        req = tbl_requests.objects.get(request_id=request_id)
+        req.status = new_status
+        req.save()
+        return HttpResponse(f"<script>alert('Status updated');window.location='/adminapp/company_accepted_students/';</script>")
+    except:
+        return HttpResponse(f"<script>alert('Error');window.location='/adminapp/company_accepted_students/';</script>")
+
+def request_again(request, request_id):
+    return change_request_status(request, request_id, 'pending')
+
+def reject_accepted_request(request, request_id):
+    return change_request_status(request, request_id, 'rejected')
+
+def approve_request(request, request_id):
+    return change_request_status(request, request_id, 'approved')
+
+
+
+
+def view_students_scheduled_by_company(request):
+    try:
+        student_schedules = tbl_student_schedule.objects.select_related(
+            'student_id',
+            'student_id__batch_id',
+            'student_id__course_id',
+            'request_id',
+            'request_id__jobpost_id',
+            'request_id__jobpost_id__company_id',
+            'schedule_id'
+        ).all().order_by('-assigned_date')
+        
+        company_filter = request.GET.get('company', '')
+        status_filter = request.GET.get('status', '')
+        batch_filter = request.GET.get('batch', '')
+        date_filter = request.GET.get('date', '')
+        
+        if company_filter:
+            student_schedules = student_schedules.filter(
+                request_id__jobpost_id__company_id=company_filter
+            )
+        
+        if status_filter:
+            student_schedules = student_schedules.filter(status=status_filter)
+        
+        if batch_filter:
+            student_schedules = student_schedules.filter(
+                student_id__batch_id=batch_filter
+            )
+        
+        if date_filter:
+            student_schedules = student_schedules.filter(
+                assigned_date=date_filter
+            )
+        
+        companies = tbl_company.objects.filter(login_id__status='confirmed')
+        batches = tbl_batch.objects.all()
+        
+        total_scheduled = student_schedules.count()
+        assigned_count = student_schedules.filter(status='assigned').count()
+        interviewed_count = student_schedules.filter(status='interviewed').count()
+        selected_count = student_schedules.filter(status='selected').count()
+        rejected_count = student_schedules.filter(status='rejected').count()
+        
+        context = {
+            'student_schedules': student_schedules,
+            'companies': companies,
+            'batches': batches,
+            'company_filter': company_filter,
+            'status_filter': status_filter,
+            'batch_filter': batch_filter,
+            'date_filter': date_filter,
+            'total_scheduled': total_scheduled,
+            'assigned_count': assigned_count,
+            'interviewed_count': interviewed_count,
+            'selected_count': selected_count,
+            'rejected_count': rejected_count,
+        }
+        
+        return render(request, "Admin/view_students_scheduled.html", context)
+        
+    except Exception as e:
+        return HttpResponse(f"""
+            <script>
+                alert('Error: {str(e)}');
+                window.location='/adminapp/dashboard/';
+            </script>
+        """)
     
-    return HttpResponse("<script>alert('Invalid request');window.location='/adminapp/company_accepted_students/';</script>")
+
+def student_distribution_piechart(request):
+    """Generate pie chart showing student distribution by course"""
+    try:
+        # Get course-wise student count
+        queryset = tbl_student.objects.filter(
+            login_id__status='confirmed'
+        ).values(
+            'course_id__course_name'
+        ).annotate(
+            student_count=Count('student_id')
+        ).order_by('course_id__course_name')
+        
+        # Prepare data
+        course_data = []
+        labels = []
+        data = []
+        
+        for item in queryset:
+            if item['course_id__course_name']:
+                course_name = item['course_id__course_name']
+                count = item['student_count']
+                
+                course_data.append((course_name, count))
+                labels.append(course_name)
+                data.append(count)
+        
+        # Calculate totals
+        total_students = sum(data) if data else 0
+        total_courses = len(labels)
+        all_courses_count = tbl_course.objects.count()
+        
+        context = {
+            'course_data': course_data,
+            'labels': labels,
+            'data': data,
+            'labels_json': json.dumps(labels),
+            'data_json': json.dumps(data),
+            'total_students': total_students,
+            'total_courses': total_courses,
+            'all_courses_count': all_courses_count,
+        }
+        
+        return render(request, 'Admin/student_distribution_piechart.html', context)
+        
+    except Exception as e:
+        print(f"Error in student_distribution_piechart: {str(e)}")
+        # Return simple error context
+        context = {
+            'course_data': [],
+            'labels': [],
+            'data': [],
+            'labels_json': '[]',
+            'data_json': '[]',
+            'total_students': 0,
+            'total_courses': 0,
+            'all_courses_count': 0,
+        }
+        return render(request, 'Admin/student_distribution_piechart.html', context)

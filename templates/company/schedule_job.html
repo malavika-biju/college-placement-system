@@ -1,11 +1,9 @@
 {% load static %}
 {% include 'company/header.html' %}
 
-<!-- jQuery -->
 <script src="{% static 'admin/jquery-3.7.1.min.js' %}"></script>
 <script>
 $(document).ready(function () {
-    // Form validation
     $('form').submit(function (e) {
         if ($('.student-checkbox:checked').length === 0) {
             alert("Please select at least one student before submitting.");
@@ -30,38 +28,20 @@ $(document).ready(function () {
         return true;
     });
     
-    // Filter functionality for scheduled students
-    $('.filter-all').click(function(e) {
-        e.preventDefault();
-        $('.student-row').show();
-    });
-    
-    $('.filter-stage').click(function(e) {
-        e.preventDefault();
-        var stage = $(this).data('stage');
-        $('.student-row').hide();
-        $('.student-row[data-stage="' + stage + '"]').show();
-    });
-    
-    // Check/Uncheck all students
     $('#checkAll').click(function() {
         $('.student-checkbox').prop('checked', $(this).prop('checked'));
+    });
+    
+    $('#stage').change(function() {
+        var selectedStage = $(this).val();
+        if (selectedStage) {
+            window.location.href = '{% url "schedule_job" request.request_id %}?stage=' + selectedStage;
+        }
     });
 });
 </script>
 
 <div class="site-wrap">
-
-    <div class="site-mobile-menu site-navbar-target">
-        <div class="site-mobile-menu-header">
-            <div class="site-mobile-menu-close mt-3">
-                <span class="icon-close2 js-menu-toggle"></span>
-            </div>
-        </div>
-        <div class="site-mobile-menu-body"></div>
-    </div> <!-- .site-mobile-menu -->
-
-    <!-- HOME -->
     <section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'company/assets/images/hero_1.jpg' %}');" id="home-section">
         <div class="container">
             <div class="row">
@@ -102,7 +82,6 @@ $(document).ready(function () {
                 </div>
             </div>
             
-            <!-- Request Summary -->
             <div class="row mb-5">
                 <div class="col-md-12">
                     <div class="border rounded bg-white p-4">
@@ -124,8 +103,8 @@ $(document).ready(function () {
                                         <span class="icon-graduation-cap text-primary" style="font-size: 2rem;"></span>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0">Batch & Course</h6>
-                                        <p class="mb-0"><strong>{{ request.batch_id.batch_year }} - {{ request.course_id.course_name }}</strong></p>
+                                        <h6 class="mb-0">Batch</h6>
+                                        <p class="mb-0"><strong>{{ request.batch_id.batch_year }}</strong></p>
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +116,7 @@ $(document).ready(function () {
                                     <div>
                                         <h6 class="mb-0">Student Status</h6>
                                         <p class="mb-0">
-                                            <span class="badge badge-info">{{ total_students }} Total</span>
+                                            <span class="badge badge-info">{{ total_assigned }} Total</span>
                                             <span class="badge badge-success ml-2">{{ available_count }} Available</span>
                                             <span class="badge badge-warning ml-2">{{ scheduled_count }} Scheduled</span>
                                         </p>
@@ -150,7 +129,6 @@ $(document).ready(function () {
             </div>
 
             <div class="row">
-                <!-- Left Column: Schedule Form -->
                 <div class="col-lg-6 mb-4">
                     <div class="border rounded bg-white">
                         <div class="p-4 border-bottom bg-light">
@@ -165,7 +143,6 @@ $(document).ready(function () {
                             <form action="{% url 'schedule_job' request.request_id %}" method="POST">
                                 {% csrf_token %}
                                 
-                                <!-- Stage Selection -->
                                 <div class="form-group mb-4">
                                     <label for="stage" class="text-black">Interview Stage</label>
                                     <select class="form-control" name="stage" id="stage" required>
@@ -179,7 +156,6 @@ $(document).ready(function () {
                                     <small class="form-text text-muted">Select a stage that hasn't been scheduled yet</small>
                                 </div>
                                 
-                                <!-- Schedule Date -->
                                 <div class="form-group mb-4">
                                     <label for="schedule_date" class="text-black">Schedule Date</label>
                                     <input type="date" name="schedule_date" id="schedule_date" class="form-control" required 
@@ -187,7 +163,6 @@ $(document).ready(function () {
                                     <small class="form-text text-muted">Select today or a future date</small>
                                 </div>
                                 
-                                <!-- Student Selection -->
                                 <div class="form-group mb-4">
                                     <label class="text-black">Available Students ({{ available_count }})</label>
                                     {% if available_students %}
@@ -201,8 +176,12 @@ $(document).ready(function () {
                                         <div class="border-top pt-3">
                                             {% for student in available_students %}
                                             <div class="form-check mb-3">
-                                                <input type="checkbox" name="selected_students[]" value="{{ student.student_id }}" 
-                                                       class="form-check-input student-checkbox" id="student_{{ student.student_id }}">
+                                                <input type="checkbox" 
+                                                       name="selected_students[]" 
+                                                       value="{{ student.student_id }}" 
+                                                       class="form-check-input student-checkbox" 
+                                                       id="student_{{ student.student_id }}"
+                                                       {% if student.student_id in scheduled_student_ids %}checked{% endif %}>
                                                 <label class="form-check-label d-flex align-items-center" for="student_{{ student.student_id }}">
                                                     {% if student.images %}
                                                     <img src="/media/{{ student.images }}" class="rounded-circle mr-3" width="45" alt="{{ student.student_name }}">
@@ -212,7 +191,11 @@ $(document).ready(function () {
                                                     </div>
                                                     {% endif %}
                                                     <div>
-                                                        <div class="font-weight-bold">{{ student.student_name }}</div>
+                                                        <div class="font-weight-bold">{{ student.student_name }}
+                                                            {% if student.student_id in scheduled_student_ids %}
+                                                            <span class="badge badge-success ml-2">Already Scheduled</span>
+                                                            {% endif %}
+                                                        </div>
                                                         <div class="small text-muted">
                                                             {{ student.email }} | 
                                                             <span class="badge {% if student.percentage >= 80 %}badge-success{% elif student.percentage >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
@@ -238,7 +221,6 @@ $(document).ready(function () {
                                     {% endif %}
                                 </div>
                                 
-                                <!-- Submit Button -->
                                 <div class="form-group text-center">
                                     <button type="submit" class="btn btn-primary btn-lg px-5 py-3" {% if not available_students %}disabled{% endif %}>
                                         <span class="icon-send mr-2"></span>
@@ -250,7 +232,6 @@ $(document).ready(function () {
                     </div>
                 </div>
                 
-                <!-- Right Column: Already Scheduled Students -->
                 <div class="col-lg-6 mb-4">
                     <div class="border rounded bg-white h-100">
                         <div class="p-4 border-bottom bg-light">
@@ -263,27 +244,11 @@ $(document).ready(function () {
                         
                         <div class="p-4">
                             {% if details %}
-                            <!-- Stage Filter -->
-                            <div class="mb-4">
-                                <label class="text-black mb-2">Filter by Stage:</label>
-                                <div class="d-flex flex-wrap">
-                                    <button class="btn btn-outline-primary btn-sm mb-2 mr-2 filter-all">
-                                        <span class="icon-filter mr-1"></span>All Stages
-                                    </button>
-                                    {% for stage in existing_stages %}
-                                    <button class="btn btn-outline-secondary btn-sm mb-2 mr-2 filter-stage" data-stage="{{ stage }}">
-                                        {{ stage|title }}
-                                    </button>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            
-                            <!-- Scheduled Students -->
                             <div style="max-height: 400px; overflow-y: auto;">
                                 {% for detail in details %}
                                     {% with scheduled_students=detail.tbl_student_schedule_set.all %}
                                         {% if scheduled_students %}
-                                        <div class="mb-4 student-stage-group" data-stage="{{ detail.stage }}">
+                                        <div class="mb-4">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
                                                 <h5 class="mb-0 text-primary">
                                                     <span class="icon-calendar mr-2"></span>
@@ -298,7 +263,7 @@ $(document).ready(function () {
                                             
                                             <div class="list-group">
                                                 {% for schedule in scheduled_students %}
-                                                <div class="list-group-item student-row" data-stage="{{ detail.stage }}">
+                                                <div class="list-group-item">
                                                     <div class="d-flex align-items-center">
                                                         {% if schedule.student_id.photo %}
                                                         <img src="/media/{{ schedule.student_id.photo }}" class="rounded-circle mr-3" width="50" alt="{{ schedule.student_id.student_name }}">
@@ -318,9 +283,19 @@ $(document).ready(function () {
                                                                         <span class="badge {% if schedule.student_id.percentage >= 80 %}badge-success{% elif schedule.student_id.percentage >= 60 %}badge-warning{% else %}badge-danger{% endif %} mr-2">
                                                                             {{ schedule.student_id.percentage }}%
                                                                         </span>
-                                                                        <span class="badge {% if schedule.status == 'assigned' %}badge-warning{% elif schedule.status == 'completed' %}badge-success{% else %}badge-secondary{% endif %}">
-                                                                            {{ schedule.status|title }}
-                                                                        </span>
+                                                                       <span class="badge 
+                                                            {% if schedule.status == 'interviewed' %}
+                                                                badge-warning
+                                      {% elif schedule.status == 'selected' %}
+                                 badge-success
+                         {% elif schedule.status == 'rejected' %}
+                         badge-danger
+                    {% else %}
+    badge-secondary
+{% endif %}">
+    {{ schedule.status|title }}
+</span>
+
                                                                     </div>
                                                                 </div>
                                                                 <div class="text-right">
@@ -346,10 +321,6 @@ $(document).ready(function () {
                                 </div>
                                 <h4 class="text-muted mb-3">No Students Scheduled Yet</h4>
                                 <p class="text-muted mb-4">No interview stages have been scheduled for this request yet.</p>
-                                <a href="#" class="btn btn-primary" id="scrollToForm">
-                                    <span class="icon-calendar-plus mr-2"></span>
-                                    Schedule First Interview
-                                </a>
                             </div>
                             {% endif %}
                         </div>
@@ -357,17 +328,16 @@ $(document).ready(function () {
                 </div>
             </div>
             
-            <!-- Bottom Info Card -->
             <div class="row mt-5">
                 <div class="col-md-12">
                     <div class="border rounded bg-light p-4">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <h5 class="mb-0">Interview Stage Information</h5>
+                                <h5 class="mb-0">Important Note</h5>
                                 <p class="mb-0 text-muted">
                                     <small>
                                         <span class="icon-info-circle mr-1"></span>
-                                        Schedule different interview stages as per your recruitment process. Each stage can have different dates and student selections.
+                                        When scheduling a new stage, students NOT selected will be marked as rejected and won't appear for future stages.
                                     </small>
                                 </p>
                             </div>
@@ -384,15 +354,5 @@ $(document).ready(function () {
         </div>
     </section>
 </div>
-
-<script>
-// Scroll to form when clicking "Schedule First Interview"
-$('#scrollToForm').click(function(e) {
-    e.preventDefault();
-    $('html, body').animate({
-        scrollTop: $('#stage').offset().top - 100
-    }, 1000);
-});
-</script>
 
 {% include 'company/footer.html' %}
