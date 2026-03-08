@@ -1,78 +1,346 @@
 {% load static %}
 {% include 'Admin/header.html' %}
 
+<style>
+    /* Consistent with your project's minimal style */
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    #main {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    /* Simple header matching location form */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .page-header .text-muted {
+        color: #64748b !important;
+        font-size: 0.95rem;
+    }
+    
+    /* Clean breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-item.active {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    /* Simple form container - matching location form */
+    .form-container {
+        max-width: 700px;
+        margin: 0;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        border: 1px solid #f1f5f9;
+    }
+    
+    /* Clean form title */
+    .form-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-title i {
+        color: #0d6efd;
+        font-size: 1.5rem;
+    }
+    
+    /* Form labels */
+    .form-label-custom {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Form controls */
+    .form-control-custom {
+        padding: 0.7rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background: #f8fafc;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    
+    .form-control-custom:focus {
+        outline: none;
+        border-color: #0d6efd;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.05);
+    }
+    
+    .form-control-custom:hover {
+        background: white;
+        border-color: #cbd5e1;
+    }
+    
+    /* Form row spacing */
+    .form-row {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Action buttons */
+    .btn-submit {
+        background: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-submit:hover {
+        background: #0b5ed7;
+        transform: translateY(-1px);
+    }
+    
+    .btn-reset {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.7rem 2rem;
+        font-size: 0.95rem;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        margin-left: 1rem;
+    }
+    
+    .btn-reset:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+    
+    /* Simple quick tip */
+    .quick-tip {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 10px;
+        border-left: 3px solid #ffc107;
+        font-size: 0.9rem;
+        color: #475569;
+        max-width: 700px;
+    }
+    
+    .quick-tip i {
+        color: #ffc107;
+        margin-right: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Helper text */
+    .help-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    /* Required field indicator */
+    .required::after {
+        content: '*';
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+    
+    /* Character counter */
+    .char-counter {
+        margin-left: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        #main {
+            padding: 1rem;
+        }
+        
+        .form-container {
+            padding: 1rem;
+        }
+        
+        .btn-reset {
+            margin-left: 0;
+            margin-top: 0.5rem;
+        }
+        
+        .form-row .d-flex {
+            flex-direction: column;
+        }
+    }
+</style>
+
 <div id="main">
-    <header class="mb-3">
-        <a href="#" class="burger-btn d-block d-xl-none">
-            <i class="bi bi-justify fs-3"></i>
-        </a>
-    </header>
-
-    <div class="page-heading">
-        <div class="page-title">
-            <div class="row">
-                <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Departments</h3>
-                    <p class="text-subtitle text-muted">Manage department information</p>
-                </div>
-                <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="{% url 'admin_dashboard' %}">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                Departments
-                            </li>
-                        </ol>
-                    </nav>
-                </div>
+    <!-- Simple header matching location form -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3>Add New Department</h3>
+                <p class="text-muted">Manage department information</p>
             </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'admin_dashboard' %}">
+                            <i class="bi bi-house-door me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <i class="bi bi-building me-1"></i>Departments
+                    </li>
+                </ol>
+            </nav>
         </div>
+    </div>
 
-        <!-- Add Department Form Section -->
-        <section class="section">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">Add New Department</h4>
-                        </div>
-                        <div class="card-body">
-                            <form action="{% url 'department_insert' %}" method="POST">
-                                {% csrf_token %}
-                                
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label" for="department_name">
-                                        Department Name
-                                    </label>
-                                    <div class="col-sm-10">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            id="department_name"
-                                            name="department_name"
-                                            placeholder="Enter department name"
-                                            required
-                                        />
-                                    </div>
-                                </div>
+    <!-- Simple Form Container - matching location form style -->
+    <div class="form-container">
+        <div class="form-title">
+            <i class="bi bi-building"></i>
+            Department Details
+        </div>
+        
+        <form action="{% url 'department_insert' %}" method="POST">
+            {% csrf_token %}
 
-                                <div class="row justify-content-end">
-                                    <div class="col-sm-10">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="bi bi-check-circle me-1"></i> Add Department
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </form>
-                        </div>
-                    </div>
+            <!-- Department Name Field -->
+            <div class="form-row">
+                <div class="form-label-custom">
+                    <span class="required">Department Name</span>
+                </div>
+                <input
+                    type="text"
+                    class="form-control-custom"
+                    id="department_name"
+                    name="department_name"
+                    placeholder="e.g., Computer Science, Mechanical Engineering, Business Administration"
+                    required
+                    pattern="[A-Za-z\s]{3,50}"
+                    title="Department name must contain only letters and spaces (3-50 characters)"
+                    oninvalid="this.setCustomValidity('Please enter a department name')"
+                    oninput="this.setCustomValidity('')"
+                />
+                <div class="help-text">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Only letters and spaces allowed (3-50 characters)</span>
+                    <span class="char-counter" id="charCount">0/50</span>
                 </div>
             </div>
-        </section>
 
+            <!-- Form Actions -->
+            <div class="form-row mt-4">
+                <div class="d-flex align-items-center">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle"></i>
+                        Add Department
+                    </button>
+                    <button type="reset" class="btn-reset">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
+
+    <!-- Simple quick tip matching location form -->
+    <div class="quick-tip">
+        <i class="bi bi-lightbulb"></i>
+        <strong>Quick tip:</strong> Use full department names like "Computer Science" instead of abbreviations like "CS" for better clarity. Department names must be unique.
+    </div>
+
+    <!-- Optional: View Departments link -->
+    <div class="mt-3" style="max-width: 700px;">
+        <a href="{% url 'view_department' %}" class="text-decoration-none" style="color: #0d6efd; font-size: 0.9rem;">
+            <i class="bi bi-arrow-right me-1"></i>
+            View all departments
+        </a>
+    </div>
+
+</div>
+
+<!-- Character counter script -->
+<script>
+    document.getElementById('department_name').addEventListener('input', function(e) {
+        const length = e.target.value.length;
+        const counter = document.getElementById('charCount');
+        
+        counter.textContent = length + '/50';
+        
+        // Color indicator
+        if (length < 3) {
+            counter.style.color = '#dc3545';
+        } else {
+            counter.style.color = '#28a745';
+        }
+    });
+    
+    // Auto-capitalize first letter of each word
+    document.getElementById('department_name').addEventListener('blur', function(e) {
+        let value = e.target.value;
+        if (value.length > 0) {
+            value = value.toLowerCase().replace(/\b\w/g, function(l) {
+                return l.toUpperCase();
+            });
+            e.target.value = value;
+        }
+    });
+    
+    // Reset form handler
+    document.querySelector('button[type="reset"]').addEventListener('click', function() {
+        setTimeout(function() {
+            document.getElementById('charCount').textContent = '0/50';
+            document.getElementById('charCount').style.color = '#64748b';
+        }, 10);
+    });
+</script>
 
 {% include 'Admin/footer.html' %}

@@ -1,7 +1,261 @@
 {% load static %}
 {% include 'Admin/header.html' %}
-<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
 
+<style>
+    /* Consistent with your project's minimal style */
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    #main {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    /* Simple header matching other forms */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .page-header .text-muted {
+        color: #64748b !important;
+        font-size: 0.95rem;
+    }
+    
+    /* Clean breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-item.active {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    /* Simple form container */
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        border: 1px solid #f1f5f9;
+    }
+    
+    /* Clean form title */
+    .form-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-title i {
+        color: #0d6efd;
+        font-size: 1.5rem;
+    }
+    
+    /* Form labels */
+    .form-label-custom {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Form controls */
+    .form-control-custom,
+    .form-select-custom {
+        padding: 0.7rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background: #f8fafc;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    
+    .form-control-custom:focus,
+    .form-select-custom:focus {
+        outline: none;
+        border-color: #0d6efd;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.05);
+    }
+    
+    .form-control-custom:hover,
+    .form-select-custom:hover {
+        background: white;
+        border-color: #cbd5e1;
+    }
+    
+    textarea.form-control-custom {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    /* Form row spacing */
+    .form-row {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Action buttons */
+    .btn-submit {
+        background: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-submit:hover {
+        background: #0b5ed7;
+        transform: translateY(-1px);
+    }
+    
+    .btn-reset {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.7rem 2rem;
+        font-size: 0.95rem;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        margin-left: 1rem;
+    }
+    
+    .btn-reset:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+    
+    /* Simple quick tip */
+    .quick-tip {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 10px;
+        border-left: 3px solid #ffc107;
+        font-size: 0.9rem;
+        color: #475569;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .quick-tip i {
+        color: #ffc107;
+        margin-right: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Helper text */
+    .help-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    /* Required field indicator */
+    .required::after {
+        content: '*';
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+    
+    /* Select dropdown arrow */
+    .form-select-custom {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px;
+        padding-right: 2.5rem;
+    }
+    
+    /* View all link */
+    .view-link {
+        margin-top: 1rem;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .view-link a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .view-link a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        #main {
+            padding: 1rem;
+        }
+        
+        .form-container {
+            padding: 1rem;
+        }
+        
+        .btn-reset {
+            margin-left: 0;
+            margin-top: 0.5rem;
+        }
+        
+        .form-row .d-flex {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script src="{% static 'jquery-3.7.1.min.js' %}"></script>
 <script>
 $(document).ready(function() {
 
@@ -11,6 +265,7 @@ $(document).ready(function() {
 
     $('#department').change(function () {
         var department_id = $(this).val();
+        var department_name = $(this).find('option:selected').text();
 
         $.ajax({
             type: "POST",
@@ -20,7 +275,7 @@ $(document).ready(function() {
             success: function (data) {
 
                 $('#course').empty();
-                $('#course').append('<option value="">Select Course</option>');
+                $('#course').append('<option value="">-- Select Course --</option>');
 
                 $.each(data, function (key, val) {
                     var row =
@@ -30,6 +285,16 @@ $(document).ready(function() {
 
                     $('#course').append(row);
                 });
+                
+                // Show success indicator
+                if (data.length > 0) {
+                    $('#courseHelp').html('<i class="bi bi-check-circle text-success me-1"></i>' + data.length + ' courses loaded');
+                } else {
+                    $('#courseHelp').html('<i class="bi bi-info-circle me-1"></i>No courses found for this department');
+                }
+            },
+            error: function() {
+                $('#courseHelp').html('<i class="bi bi-exclamation-triangle text-danger me-1"></i>Error loading courses');
             }
         });
     });
@@ -38,158 +303,223 @@ $(document).ready(function() {
 </script>
 
 <div id="main">
-    <header class="mb-3">
-        <a href="#" class="burger-btn d-block d-xl-none">
-            <i class="bi bi-justify fs-3"></i>
-        </a>
-    </header>
-
+    <!-- Simple header matching other forms -->
     <div class="page-heading">
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Training Classes</h3>
+                    <h3>Add New Training Class</h3>
                     <p class="text-subtitle text-muted">Manage training class information</p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item">
-                                <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+                                <a href="{% url 'admin_dashboard' %}">
+                                    <i class="bi bi-house-door me-1"></i>Dashboard
+                                </a>
                             </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                Training Class
+                            <li class="breadcrumb-item active">
+                                <i class="bi bi-mortarboard me-1"></i>Training Class
                             </li>
                         </ol>
                     </nav>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Add Training Class Form -->
-        <section class="section">
+    <!-- Simple Form Container -->
+    <div class="form-container">
+        <div class="form-title">
+            <i class="bi bi-calendar-plus"></i>
+            Training Class Details
+        </div>
+        
+        <form action="{% url 'trainingclass_insert' %}" method="POST">
+            {% csrf_token %}
+
+            <!-- Class Name -->
+            <div class="form-row">
+                <div class="form-label-custom">
+                    <span class="required">Class Name</span>
+                </div>
+                <input type="text" name="trainingclass_name"
+                       class="form-control-custom"
+                       placeholder="e.g., Python Programming, Web Development, Data Science"
+                       required
+                       oninvalid="this.setCustomValidity('Please enter a class name')"
+                       oninput="this.setCustomValidity('')">
+                <div class="help-text">
+                    <i class="bi bi-info-circle"></i>
+                    Enter a descriptive name for the training class
+                </div>
+            </div>
+
+            <!-- Date and Time Row (2 columns) -->
             <div class="row">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">Add New Training Class</h4>
+                <div class="col-md-6">
+                    <div class="form-row">
+                        <div class="form-label-custom">
+                            <span class="required">Date</span>
                         </div>
-
-                        <div class="card-body">
-                            <form action="{% url 'trainingclass_insert' %}" method="POST">
-                                {% csrf_token %}
-
-                                <!-- Class Name -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Class Name</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="trainingclass_name"
-                                               class="form-control"
-                                               placeholder="Enter class name" required>
-                                    </div>
-                                </div>
-
-                                <!-- Date -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Date</label>
-                                    <div class="col-sm-10">
-                                        <input type="date" name="date"
-                                               class="form-control" required>
-                                    </div>
-                                </div>
-
-                                <!-- Start Time -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Start Time</label>
-                                    <div class="col-sm-10">
-                                        <input type="time" name="start_time"
-                                               class="form-control" required>
-                                    </div>
-                                </div>
-
-                               
-<div class="row mb-3">
-    <label class="col-sm-2 col-form-label">Department</label>
-    <div class="col-sm-10">
-        <select id="department" class="form-select" required>
-            <option value="">-- Select Department --</option>
-            {% for d in departments %}
-                <option value="{{ d.department_id }}">{{ d.department_name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-</div>
-
-
-<div class="row mb-3">
-    <label class="col-sm-2 col-form-label">Course</label>
-    <div class="col-sm-10">
-        <select name="course_id" id="course" class="form-select" required>
-            <option value="">-- Select Course --</option>
-        </select>
-    </div>
-</div>
-                                
-
-                                <!-- Class Type -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Class Type</label>
-                                    <div class="col-sm-10">
-                                        <select name="classtype_id" class="form-select" required>
-                                            <option value="">-- Select Class Type --</option>
-                                            {% for ct in classtypes %}
-                                                <option value="{{ ct.classtype_id }}">
-                                                    {{ ct.classtype_name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Batch -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Batch</label>
-                                    <div class="col-sm-10">
-                                        <select name="batch_id" class="form-select" required>
-                                            <option value="">-- Select Batch --</option>
-                                            {% for b in batches %}
-                                                <option value="{{ b.batch_id }}">
-                                                    {{ b.batch_year }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-
-                            
-
-                                <!-- Description -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Description</label>
-                                    <div class="col-sm-10">
-                                        <textarea name="description"
-                                                  class="form-control"
-                                                  rows="3"
-                                                  placeholder="Enter description"></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Submit -->
-                                <div class="row justify-content-end">
-                                    <div class="col-sm-10">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="bi bi-check-circle me-1"></i> Add Training Class
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </form>
+                        <input type="date" name="date"
+                               class="form-control-custom" 
+                               required
+                               oninvalid="this.setCustomValidity('Please select a date')"
+                               oninput="this.setCustomValidity('')">
+                        <div class="help-text">
+                            <i class="bi bi-calendar"></i>
+                            Select class date
                         </div>
-
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-row">
+                        <div class="form-label-custom">
+                            <span class="required">Start Time</span>
+                        </div>
+                        <input type="time" name="start_time"
+                               class="form-control-custom" 
+                               required
+                               oninvalid="this.setCustomValidity('Please select a start time')"
+                               oninput="this.setCustomValidity('')">
+                        <div class="help-text">
+                            <i class="bi bi-clock"></i>
+                            Select class start time
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <!-- Department and Course -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-row">
+                        <div class="form-label-custom">
+                            <span class="required">Department</span>
+                        </div>
+                        <select id="department" class="form-select-custom" required
+                                oninvalid="this.setCustomValidity('Please select a department')"
+                                oninput="this.setCustomValidity('')">
+                            <option value="" selected disabled>-- Select Department --</option>
+                            {% for d in departments %}
+                                <option value="{{ d.department_id }}">{{ d.department_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">
+                            <i class="bi bi-building"></i>
+                            {{ departments|length }} departments available
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-row">
+                        <div class="form-label-custom">
+                            <span class="required">Course</span>
+                        </div>
+                        <select name="course_id" id="course" class="form-select-custom" required
+                                oninvalid="this.setCustomValidity('Please select a course')"
+                                oninput="this.setCustomValidity('')">
+                            <option value="" selected disabled>-- Select Course --</option>
+                        </select>
+                        <div class="help-text" id="courseHelp">
+                            <i class="bi bi-info-circle"></i>
+                            Select a department first
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Type and Batch -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-row">
+                        <div class="form-label-custom">
+                            <span class="required">Class Type</span>
+                        </div>
+                        <select name="classtype_id" class="form-select-custom" required
+                                oninvalid="this.setCustomValidity('Please select a class type')"
+                                oninput="this.setCustomValidity('')">
+                            <option value="" selected disabled>-- Select Class Type --</option>
+                            {% for ct in classtypes %}
+                                <option value="{{ ct.classtype_id }}">
+                                    {{ ct.classtype_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">
+                            <i class="bi bi-book"></i>
+                            {{ classtypes|length }} types available
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-row">
+                        <div class="form-label-custom">
+                            <span class="required">Batch</span>
+                        </div>
+                        <select name="batch_id" class="form-select-custom" required
+                                oninvalid="this.setCustomValidity('Please select a batch')"
+                                oninput="this.setCustomValidity('')">
+                            <option value="" selected disabled>-- Select Batch --</option>
+                            {% for b in batches %}
+                                <option value="{{ b.batch_id }}">
+                                    {{ b.batch_year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">
+                            <i class="bi bi-calendar-week"></i>
+                            {{ batches|length }} batches available
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-row">
+                <div class="form-label-custom">Description</div>
+                <textarea name="description"
+                          class="form-control-custom"
+                          rows="3"
+                          placeholder="Enter class description, objectives, or notes..."></textarea>
+                <div class="help-text">
+                    <i class="bi bi-pencil"></i>
+                    Optional: Add any additional information about the class
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-row mt-4">
+                <div class="d-flex align-items-center">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle"></i>
+                        Add Training Class
+                    </button>
+                    <button type="reset" class="btn-reset">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
+
+    <!-- Simple quick tip -->
+    <div class="quick-tip">
+        <i class="bi bi-lightbulb"></i>
+        <strong>Quick tip:</strong> Select a department first to load its associated courses. Fill in all required fields marked with <span class="text-danger">*</span>.
+    </div>
+
+    <!-- View all link -->
+    <div class="view-link">
+        <a href="{% url 'view_trainingclass' %}">
+            <i class="bi bi-arrow-right-circle"></i>
+            View all training classes
+        </a>
+    </div>
+
+</div>
 
 {% include 'Admin/footer.html' %}

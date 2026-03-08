@@ -131,11 +131,15 @@ def student_accepted_jobs(request):
                         'company': schedule.request_id.jobpost_id.company_id.company_name
                     })
             
+            # compute total number of stages across all requests
+            total_stages = sum(len(stages) for stages in interview_stages.values())
+            
             context = {
                 'student': student,
                 'accepted_applications': accepted_applications,
                 'upcoming_interviews': upcoming_interviews,
                 'interview_stages': interview_stages,
+                'total_stages': total_stages,
                 'today': date.today(),
             }
             

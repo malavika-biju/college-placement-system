@@ -1,17 +1,30 @@
 {% load static %}
-{% include 'company/header.html' %}
-
- <div class="site-wrap">  
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Edit Job Posting - Placement Portal</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
-    <section class="site-section py-5">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-md-12 text-center">
-                    <h2 class="section-title mb-2">Edit Job Posting</h2>
-                    <p class="lead text-muted">Update and manage job details</p>
-                </div>
-            </div>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'company/assets/css/style.css' %}">
+  </head>
+  <body id="top">
 
+    <div class="site-wrap">  
+    
+        <section class="site-section py-5">
+            <div class="container">
+                <div class="row mb-5">
+                    <div class="col-md-12 text-center">
+                        <h2 class="section-title mb-2">Edit Job Posting</h2>
+                        <p class="lead text-muted">Update and manage job details</p>
+                    </div>
+                </div>
 
         <!-- Form Section -->
         <section class="section">
@@ -263,81 +276,85 @@
         </section>
 
     </div>
+    </div> <!-- Added closing div tag -->
     
-{% include 'company/footer.html' %}
-
-<!-- Image Preview Script -->
-<script>
-function previewImage(event) {
-    const input = event.target;
-    const preview = document.getElementById('imagePreview');
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML = `
-                <div class="alert alert-success mt-2">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        <div>
-                            <strong>New Image Selected</strong><br>
-                            <small>${input.files[0].name}</small>
+    <!-- Image Preview Script -->
+    <script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('imagePreview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <div class="alert alert-success mt-2">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <div>
+                                <strong>New Image Selected</strong><br>
+                                <small>${input.files[0].name}</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        };
-        reader.readAsDataURL(input.files[0]);
+                `;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
-}
 
-// Form validation
-(function () {
-    'use strict'
-    var forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-})()
-</script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+    </script>
 
-<!-- Add this CSS for better styling -->
-<style>
-.border-dashed {
-    border: 2px dashed #dee2e6 !important;
-    border-radius: 10px;
-}
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-.form-control:focus, .form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-}
-.input-group-text {
-    background-color: #f8f9fa;
-    border-right: none;
-}
-.input-group .form-control {
-    border-left: none;
-}
-.input-group .form-control:focus {
-    border-left: 1px solid #667eea;
-    border-color: #667eea;
-}
-.card {
-    border-radius: 15px;
-    overflow: hidden;
-}
-.form-label {
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
-</style>
+    <!-- Add this CSS for better styling -->
+    <style>
+    .border-dashed {
+        border: 2px dashed #dee2e6 !important;
+        border-radius: 10px;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+    .input-group .form-control {
+        border-left: none;
+    }
+    .input-group .form-control:focus {
+        border-left: 1px solid #667eea;
+        border-color: #667eea;
+    }
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .form-label {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    </style>
+  </body>
+</html>

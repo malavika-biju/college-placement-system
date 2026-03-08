@@ -14,33 +14,6 @@ from openpyxl.styles import Font, PatternFill
 import json
 
 
-def validate_request_creation(jobpost, batch, student_count=0):
-    today = date.today()
-
-    if jobpost.application_end_date < today:
-        raise ValidationError("Job application deadline has passed")
-
-    if jobpost.company_id.login_id.status != LOGIN_STATUS['CONFIRMED']:
-        raise ValidationError("Company is not approved")
-
-    eligible_students = tbl_student.objects.filter(
-        login_id__status='confirmed',
-        percentage__gte=jobpost.cutoff_mark,
-        batch_id=batch
-    )
-
-    eligible_count = eligible_students.count()
-
-    if student_count and student_count > eligible_count:
-        raise ValidationError(
-            f"Requested {student_count} students but only {eligible_count} are eligible"
-        )
-
-    return eligible_count
-
-
-
-
 
 def admin_dashboard(request):
     """Clean admin dashboard with placement reports"""
@@ -893,6 +866,11 @@ def view_job_posts(request):
         if search_query:
             jobposts_list = jobposts_list.filter(position__icontains=search_query)
         
+        # Count open and closed positions
+        open_count = jobposts_list.filter(status='open').count()
+        closed_count = jobposts_list.filter(status='closed').count()
+        total_count = jobposts_list.count()
+        
         paginator = Paginator(jobposts_list, 10)
         page_number = request.GET.get('page')
         jobposts = paginator.get_page(page_number)
@@ -909,6 +887,9 @@ def view_job_posts(request):
             'search_query': search_query,
             'companies': companies,
             'today': today,
+            'total_count': total_count,
+            'open_count': open_count,
+            'closed_count': closed_count,
         }
         return render(request, "Admin/view_job_posts.html", context)
         
@@ -935,12 +916,26 @@ def job_details(request, jobpost_id):
         today = date.today()
         is_expired = jobpost.application_end_date < today
         
+        # Calculate days remaining
+        days_remaining = (jobpost.application_end_date - today).days
+        if days_remaining < 0:
+            days_remaining = 0
+        
+        # Count eligible students for this job
+        cutoff = jobpost.cutoff_mark or 0
+        eligible_count = tbl_student.objects.filter(
+            login_id__status='confirmed',
+            percentage__gte=cutoff
+        ).count()
+        
         context = {
             'jobpost': jobpost,
             'company': company,
             'total_students': total_students,
             'today': today,
             'is_expired': is_expired,
+            'days_remaining': days_remaining,
+            'eligible_count': eligible_count,
         }
         return render(request, "Admin/job_details.html", context)
         
@@ -1050,47 +1045,80 @@ def get_all_courses(request):
     return JsonResponse([], safe=False)
 
 def request_company(request):
+    """Create and send a request to company"""
     if request.method == "POST":
         try:
+            # Get form data
             jobpost_id = request.POST.get('jobpost_id')
             batch_id = request.POST.get('batch_id')
-            student_count = int(request.POST.get('student_count', 0))
-
-            if not jobpost_id or not batch_id or not student_count:
+            course_id = request.POST.get('course_id')
+            student_count = request.POST.get('student_count')
+            send_all = request.POST.get('send_all', 'false')
+            
+            # Set status based on send_all
+            status = 'pending'
+            if send_all == 'true':
+                status = 'bulk_pending'
+            
+            print(f"DEBUG: Creating request for JobPost {jobpost_id}")
+            print(f"DEBUG: Batch: {batch_id}, Course: {course_id}")
+            print(f"DEBUG: Student count: {student_count}, Status: {status}, Send All: {send_all}")
+            
+            # Validate required fields
+            if not jobpost_id or not batch_id or not course_id or not student_count:
                 return HttpResponse(
-                    "<script>alert('Missing required fields');window.location='/adminapp/job_posts/';</script>"
+                    "<script>alert('Please fill all required fields');window.location='/adminapp/view_students_for_job/{}/';</script>".format(jobpost_id)
                 )
-
+            
+            # Get related objects
             jobpost = tbl_jobpost.objects.get(jobpost_id=jobpost_id)
             batch = tbl_batch.objects.get(batch_id=batch_id)
-
-            # ✅ Correct validation call
-            eligible_count = validate_request_creation(jobpost, batch, student_count)
-
-            # ✅ Save batch in request
+            course = tbl_course.objects.get(course_id=course_id)
+            
+            # Create the request record - USING tbl_requests (with 's')
             request_obj = tbl_requests.objects.create(
-                jobpost_id=jobpost,
+                jobpost_id=jobpost,  # This is the ForeignKey
                 batch_id=batch,
-                student_count=student_count,
-                status=REQUEST_STATUS['PENDING']
+                student_count=int(student_count),
+                course_id=course,
+                status=status
+                
             )
-
+            
+            print(f"DEBUG: Created request #{request_obj.request_id}")
+            
             return HttpResponse(
-                f"<script>alert('Request #{request_obj.request_id} created successfully');"
-                "window.location='/adminapp/job_posts/';</script>"
+                f"""
+                <script>
+                    alert('Request #{request_obj.request_id} created successfully!\\n\\n'
+                          + 'Details:\\n'
+                          + '- Job: {jobpost.position}\\n'
+                          + '- Company: {jobpost.company_id.company_name}\\n'
+                          + '- Date: {request_obj.request_date}\\n'
+                          + '- Batch: {batch.batch_year}\\n'
+                          + '- Course: {course.course_name}\\n'
+                          + '- Students: {student_count}\\n'
+                          + '- Status: {status}\\n'
+                          + '- Type: {"All Eligible Students" if send_all == "true" else "Filtered Students"}\\n\\n'
+                          + 'Request has been sent to {jobpost.company_id.company_name}.');
+                    window.location='/adminapp/job_posts/';
+                </script>
+                """
             )
-
+            
         except Exception as e:
+            print(f"DEBUG: Error in request_company: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            jobpost_id = request.POST.get('jobpost_id', '')
             return HttpResponse(
-                f"<script>alert('Error: {str(e)}');"
-                "window.location='/adminapp/job_posts/';</script>"
+                f"""
+                <script>
+                    alert('Error: {str(e)}');
+                    window.location='/adminapp/view_students_for_job/{jobpost_id}/';
+                </script>
+                """
             )
-
-    return HttpResponse(
-        "<script>alert('Invalid request');window.location='/adminapp/job_posts/';</script>"
-    )
-
-
 def request_company_approval(request, jobpost_id):
     """Send selected students to company"""
     if request.method == "POST":
@@ -1136,10 +1164,24 @@ def view_company_accepted_students(request):
     try:
         today = date.today()
 
+        # pull filter values from the query string
+        status_filter = request.GET.get('status', '')
+        company_filter = request.GET.get('company', '')
+
         all_requests = tbl_requests.objects.select_related(
             'jobpost_id',
             'jobpost_id__company_id'
         ).order_by('-request_date')
+
+        # apply filters before building the data list
+        if status_filter:
+            if status_filter == 'pending':
+                # treat 'pending' as both 'pending' AND 'bulk_pending'
+                all_requests = all_requests.filter(status__in=['pending', 'bulk_pending'])
+            else:
+                all_requests = all_requests.filter(status=status_filter)
+        if company_filter:
+            all_requests = all_requests.filter(jobpost_id__company_id__company_id=company_filter)
 
         companies = tbl_company.objects.filter(
             login_id__status='confirmed'
@@ -1165,10 +1207,12 @@ def view_company_accepted_students(request):
                 'requested_count': req.student_count or 0,
             })
 
+        # compute counts based on filtered queryset
+        # combine 'pending' and 'bulk_pending' as one 'pending' status
         status_counts = {
-            'approved': tbl_requests.objects.filter(status='approved').count(),
-            'pending': tbl_requests.objects.filter(status='pending').count(),
-            'rejected': tbl_requests.objects.filter(status='rejected').count(),
+            'approved': all_requests.filter(status='approved').count(),
+            'pending': all_requests.filter(status__in=['pending', 'bulk_pending']).count(),
+            'rejected': all_requests.filter(status='rejected').count(),
         }
 
         context = {
@@ -1177,6 +1221,8 @@ def view_company_accepted_students(request):
             'total_requests': len(request_data),
             'status_counts': status_counts,
             'today': today,
+            'status_filter': status_filter,
+            'company_filter': company_filter,
         }
 
         return render(request, "Admin/company_accepted_students.html", context)

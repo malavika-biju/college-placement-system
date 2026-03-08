@@ -10,7 +10,7 @@
     <meta name="author" content="Catalyst Team" />
     <link rel="shortcut icon" href="{% static 'guest/assets/ftco-32x32.png' %}">
 
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800" rel="stylesheet">  
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">  
 
     <link rel="stylesheet" href="{% static 'guest/assets/css/custom-bs.css' %}">
     <link rel="stylesheet" href="{% static 'guest/assets/css/jquery.fancybox.min.css' %}">
@@ -27,13 +27,13 @@
     <header class="site-navbar mt-3">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="site-logo col-6"><a href="index.html">Catalyst</a></div>
+          <div class="site-logo col-6"><a href="{% url 'guest_home' %}">Catalyst</a></div>
 
           <nav class="mx-auto site-navigation">
             <ul class="site-menu js-clone-nav d-none d-xl-block ml-0 pl-0">
-              <li><a href="/" class="nav-link active">Home</a></li>
+              <li><a href="{% url 'guest_home' %}" class="nav-link active">Home</a></li>
 
-              <li><a href="contact.html">Contact</a></li>
+              <li><a href="{% url 'contact' %}">Contact</a></li>
             </ul>
           </nav>
           

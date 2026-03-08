@@ -36,7 +36,7 @@
                       <label class="form-label fw-bold" for="company_name">Company Name *</label>
                       <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-building"></i></span>
-                        <input type="text" name="company_name" id="company_name" class="form-control form-control-lg" placeholder="Enter your company name" required>
+                        <input type="text" name="company_name" id="company_name" class="form-control form-control-lg" placeholder="Enter your company name" required pattern="[A-Z][a-zA-Z\s]*" title="Name must start with a capital letter and contain only letters and spaces" required>
                       </div>
                     </div>
                   </div>
@@ -53,7 +53,7 @@
                       <label class="form-label fw-bold" for="contact_number">Contact Number *</label>
                       <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                        <input type="tel" name="contact_number" id="contact_number" class="form-control form-control-lg" placeholder="+1234567890" required>
+                        <input type="tel" name="contact_number" id="contact_number" class="form-control form-control-lg" placeholder="+1234567890" required pattern="[6-9][0-9]{9}" title="Enter a valid 10-digit mobile number starting with 6,7,8, or 9">
                       </div>
                     </div>
                   </div>
@@ -96,14 +96,14 @@
                       <label class="form-label fw-bold" for="username">Username *</label>
                       <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Choose a username" required>
+                        <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Choose a username" required >
                       </div>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label fw-bold" for="password">Password *</label>
                       <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="Create a strong password" required>
+                        <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="Create a strong password" required pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$" title="Password must be at least 6 characters, include 1 letter, 1 number, 1 special character, and no spaces">
                       </div>
                     </div>
                   </div>

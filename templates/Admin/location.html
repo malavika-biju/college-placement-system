@@ -1,90 +1,296 @@
 {% load static %}
 {% include 'Admin/header.html' %}
 
+<style>
+    /* Minimal, clean styling */
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    #main {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    /* Simple header */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .page-header .text-muted {
+        color: #64748b !important;
+        font-size: 0.95rem;
+    }
+    
+    /* Clean breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-item.active {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    /* Simple form container - no card styling */
+    .form-container {
+        max-width: 700px;
+        margin: 0;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        border: 1px solid #f1f5f9;
+    }
+    
+    /* Clean form title */
+    .form-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eef2f6;
+    }
+    
+    /* Form labels */
+    .form-label-custom {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Form controls */
+    .form-control-custom,
+    .form-select-custom {
+        padding: 0.7rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background: #f8fafc;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    
+    .form-control-custom:focus,
+    .form-select-custom:focus {
+        outline: none;
+        border-color: #0d6efd;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.05);
+    }
+    
+    .form-control-custom:hover,
+    .form-select-custom:hover {
+        background: white;
+        border-color: #cbd5e1;
+    }
+    
+    /* Form row spacing */
+    .form-row {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Action buttons */
+    .btn-submit {
+        background: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-submit:hover {
+        background: #0b5ed7;
+        transform: translateY(-1px);
+    }
+    
+    /* Simple quick tip */
+    .quick-tip {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 10px;
+        border-left: 3px solid #ffc107;
+        font-size: 0.9rem;
+        color: #475569;
+        max-width: 700px;
+    }
+    
+    .quick-tip i {
+        color: #ffc107;
+        margin-right: 0.5rem;
+    }
+    
+    /* Helper text */
+    .help-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    /* Required field indicator */
+    .required::after {
+        content: '*';
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        #main {
+            padding: 1rem;
+        }
+        
+        .form-container {
+            padding: 1rem;
+        }
+    }
+</style>
+
 <div id="main">
-    <header class="mb-3">
-        <a href="#" class="burger-btn d-block d-xl-none">
-            <i class="bi bi-justify fs-3"></i>
-        </a>
-    </header>
-
-    <div class="page-heading">
-        <div class="page-title">
-            <div class="row">
-                <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Location</h3>
-                    <p class="text-subtitle text-muted">Manage location information</p>
-                </div>
-                <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Location</li>
-                        </ol>
-                    </nav>
-                </div>
+    <!-- Simple header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3>Add New Location</h3>
+                <p class="text-muted">Manage location information</p>
             </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Location</li>
+                </ol>
+            </nav>
         </div>
+    </div>
 
-        <!-- Add Location Form Section -->
-        <section class="section">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">Add New Location</h4>
-                        </div>
+    <!-- Simple Form Container (no card styling) -->
+    <div class="form-container">
+        <div class="form-title">
+            <i class="bi bi-geo-alt me-2" style="color: #0d6efd;"></i>
+            Location Details
+        </div>
+        
+        <form action="{% url 'location_insert' %}" method="POST">
+            {% csrf_token %}
 
-                        <div class="card-body">
-                            <form action="{% url 'location_insert' %}" method="POST">
-                                {% csrf_token %}
-
-                                <!-- District Dropdown -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">District</label>
-                                    <div class="col-sm-10">
-                                        <select name="ddldistrict" class="form-select" required>
-                                            <option value="">Choose...</option>
-                                            {% for dis in districts %}
-                                                <option value="{{ dis.district_id }}">
-                                                    {{ dis.district_name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Location Name -->
-                                <div class="row mb-3">
-                                    <label class="col-sm-2 col-form-label">Location Name</label>
-                                    <div class="col-sm-10">
-                                        <input 
-                                            type="text" 
-                                            class="form-control" 
-                                            name="locname"
-                                            placeholder="Enter location name"
-                                            required
-                                        >
-                                    </div>
-                                </div>
-
-                                <!-- Submit -->
-                                <div class="row justify-content-end">
-                                    <div class="col-sm-10">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="bi bi-check-circle me-1"></i> Add Location
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </form>
-                        </div>
-
-                    </div>
+            <!-- District Dropdown -->
+            <div class="form-row">
+                <div class="form-label-custom">
+                    <span class="required">District</span>
+                </div>
+                <select name="ddldistrict" class="form-select-custom" required 
+                        oninvalid="this.setCustomValidity('Please select a district')"
+                        oninput="this.setCustomValidity('')">
+                    <option value="" selected disabled>-- Select a district --</option>
+                    {% for dis in districts %}
+                        <option value="{{ dis.district_id }}">
+                            {{ dis.district_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">
+                    <i class="bi bi-info-circle"></i>
+                    Choose the district where this location belongs
                 </div>
             </div>
-        </section>
 
+            <!-- Location Name -->
+            <div class="form-row">
+                <div class="form-label-custom">
+                    <span class="required">Location Name</span>
+                </div>
+                <input 
+                    type="text" 
+                    class="form-control-custom" 
+                    name="locname"
+                    placeholder="e.g., Downtown, Industrial Area, North Campus"
+                    required
+                    pattern="[A-Za-z0-9\s\-]{3,50}"
+                    title="Location name should be 3-50 characters and can include letters, numbers, spaces and hyphens"
+                    oninvalid="this.setCustomValidity('Please enter a location name')"
+                    oninput="this.setCustomValidity('')"
+                >
+                <div class="help-text">
+                    <i class="bi bi-info-circle"></i>
+                    3-50 characters, letters, numbers, spaces and hyphens allowed
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-row mt-4">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i>
+                    Add Location
+                </button>
+                <button type="reset" class="btn" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.7rem 2rem; margin-left: 1rem; color: #475569;">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Reset
+                </button>
+            </div>
+        </form>
     </div>
+
+   
+
+</div>
+
+<!-- Simple character counter script -->
+<script>
+    document.querySelector('input[name="locname"]').addEventListener('input', function(e) {
+        const length = e.target.value.length;
+        const helpText = this.nextElementSibling;
+        
+        // Create or update character counter
+        let counter = helpText.querySelector('.char-counter');
+        if (!counter) {
+            counter = document.createElement('span');
+            counter.className = 'char-counter';
+            counter.style.marginLeft = '1rem';
+            counter.style.color = '#64748b';
+            helpText.appendChild(counter);
+        }
+        
+        counter.textContent = `${length}/50 characters`;
+        
+        // Color indicator
+        if (length < 3) {
+            counter.style.color = '#dc3545';
+        } else {
+            counter.style.color = '#28a745';
+        }
+    });
+</script>
 
 {% include 'Admin/footer.html' %}

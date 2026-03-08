@@ -1,450 +1,927 @@
 {% load static %}
 {% include "student/header.html" %}
 
+<style>
+    /* Professional styling */
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #f8fafc;
+    }
+    
+    /* Hero section enhancement */
+    .section-hero {
+        position: relative;
+        margin-top: -20px;
+        padding-top: 100px;
+        padding-bottom: 50px;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    
+    .section-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+        z-index: 1;
+    }
+    
+    .section-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .custom-breadcrumbs a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    .custom-breadcrumbs a:hover {
+        color: white;
+    }
+    
+    .custom-breadcrumbs .slash {
+        color: rgba(255,255,255,0.5);
+    }
+    
+    /* Main content */
+    .site-section {
+        padding: 3rem 0;
+    }
+    
+    /* Profile header card */
+    .profile-header-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    
+    .profile-cover {
+        height: 120px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+    }
+    
+    .profile-avatar-wrapper {
+        position: relative;
+        margin-top: -60px;
+        padding: 0 2rem;
+        display: flex;
+        align-items: flex-end;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        background: white;
+    }
+    
+    .profile-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid white;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .profile-avatar-placeholder i {
+        font-size: 3rem;
+        color: #64748b;
+    }
+    
+    .profile-title {
+        flex: 1;
+        padding-bottom: 0.5rem;
+    }
+    
+    .profile-title h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .profile-title p {
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .badge-custom {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .badge-light {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .badge-success {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .profile-actions {
+        padding: 1rem 2rem 2rem 2rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102,126,234,0.4);
+        color: white;
+    }
+    
+    /* Info cards */
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s;
+    }
+    
+    .info-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+    
+    .info-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #eef2f6;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .info-header i {
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+    
+    .info-header h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .info-body {
+        padding: 1.5rem;
+    }
+    
+    /* Info grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        color: #1e293b;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .info-value i {
+        color: #667eea;
+        width: 20px;
+    }
+    
+    /* Contact items */
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #eef2f6;
+    }
+    
+    .contact-item:last-child {
+        border-bottom: none;
+    }
+    
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .contact-details {
+        flex: 1;
+    }
+    
+    .contact-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .contact-value {
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 500;
+    }
+    
+    /* Document items */
+    .document-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid #eef2f6;
+    }
+    
+    .document-item:last-child {
+        border-bottom: none;
+    }
+    
+    .document-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .document-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .document-name {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #1e293b;
+    }
+    
+    .document-status {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+    
+    .document-uploaded {
+        color: #10b981;
+    }
+    
+    .btn-view {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-view:hover {
+        background: #eef2ff;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    /* Quick links */
+    .quick-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .quick-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.8rem 1.2rem;
+        color: #475569;
+        text-decoration: none;
+        transition: all 0.2s;
+        border-radius: 10px;
+    }
+    
+    .quick-link:hover {
+        background: #f8fafc;
+        color: #667eea;
+    }
+    
+    .quick-link i {
+        width: 24px;
+        text-align: center;
+    }
+    
+    .quick-link.primary i { color: #667eea; }
+    .quick-link.success i { color: #10b981; }
+    .quick-link.info i { color: #3b82f6; }
+    .quick-link.secondary i { color: #6b7280; }
+    
+    /* Modal styling */
+    .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 1px solid #eef2f6;
+        padding: 1.2rem 1.5rem;
+    }
+    
+    .modal-header h5 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #eef2f6;
+        padding: 1rem 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.3rem;
+    }
+    
+    .form-control {
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+    
+    .custom-file-label {
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+    
+    .custom-file-label::after {
+        padding: 0.6rem 1rem;
+        height: auto;
+        border-radius: 0 10px 10px 0;
+    }
+    
+    .alert-info-custom {
+        background: #eef2ff;
+        border: none;
+        color: #475569;
+        border-radius: 10px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-cancel {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        padding: 0.6rem 1.5rem;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102,126,234,0.4);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+        
+        .profile-avatar-wrapper {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .profile-actions {
+            justify-content: center;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <!-- Page Content -->
-<section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'student/assets/images/student1.jpg' %}'); margin-top: -20px; padding-top: 100px; padding-bottom: 50px;">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h1 class="text-white font-weight-bold">My Profile</h1>
-        <div class="custom-breadcrumbs">
-          <a href="{% url 'student_home' %}">Dashboard</a> <span class="mx-2 slash">/</span>
-          <span class="text-white"><strong>My Profile</strong></span>
+<section class="section-hero overlay inner-page" style="background-image: url('{% static 'student/assets/images/student1.jpg' %}'); background-size: cover; background-position: center;">
+    <div class="container hero-content">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-white font-weight-bold">My Profile</h1>
+                <div class="custom-breadcrumbs">
+                    <a href="{% url 'student_home' %}">Dashboard</a> 
+                    <span class="mx-2 slash">/</span>
+                    <span class="text-white"><strong>My Profile</strong></span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
 
 <section class="site-section">
-  <div class="container">
-    <!-- Profile Header -->
-    <div class="row mb-5">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="row align-items-center">
-              <div class="col-md-8">
-                <div class="d-flex align-items-center">
-                  <div class="mr-4">
-                    {% if student.photo %}
-                      <img src="{{ student.photo.url }}" alt="Profile" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                    {% else %}
-                      <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                        <i class="fas fa-user fa-3x text-muted"></i>
-                      </div>
-                    {% endif %}
-                  </div>
-                  <div>
-                    <h3 class="mb-2">{{ student.student_name }}</h3>
-                    <p class="text-muted mb-2">
-                      <i class="fas fa-graduation-cap mr-2"></i>{{ student.course_id.course_name }} Student
-                    </p>
-                    <div class="d-flex flex-wrap">
-                      <span class="badge badge-light mr-2 mb-2">
-                        <i class="fas fa-calendar mr-1"></i> Batch: {{ student.batch_id.batch_year }}
-                      </span>
-                      <span class="badge badge-light mr-2 mb-2">
-                        <i class="fas fa-percentage mr-1"></i> {{ student.percentage|default:"0" }}%
-                      </span>
-                      <span class="badge badge-success mb-2">
-                        <i class="fas fa-check-circle mr-1"></i> Active
-                      </span>
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header-card">
+            <div class="profile-cover"></div>
+            
+            <div class="profile-avatar-wrapper">
+                {% if student.photo %}
+                    <img src="{{ student.photo.url }}" alt="Profile" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        <i class="fas fa-user"></i>
                     </div>
-                  </div>
+                {% endif %}
+                
+                <div class="profile-title">
+                    <h3>{{ student.student_name }}</h3>
+                    <p>
+                        <i class="fas fa-graduation-cap mr-2"></i>
+                        {{ student.course_id.course_name }} Student
+                    </p>
+                    <div class="profile-badges">
+                        <span class="badge-custom badge-light">
+                            <i class="fas fa-calendar"></i> Batch: {{ student.batch_id.batch_year }}
+                        </span>
+                        <span class="badge-custom badge-light">
+                            <i class="fas fa-percentage"></i> {{ student.percentage|default:"0" }}%
+                        </span>
+                        <span class="badge-custom badge-success">
+                            <i class="fas fa-check-circle"></i> Active
+                        </span>
+                    </div>
                 </div>
-              </div>
-              <div class="col-md-4 text-right">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
-                  <i class="fas fa-edit mr-2"></i>Edit Profile
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Profile Details -->
-    <div class="row">
-      <!-- Left Column -->
-      <div class="col-lg-8">
-        <!-- Personal Information -->
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-white border-bottom-0 pt-4">
-            <h5 class="mb-0">Personal Information</h5>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Full Name</label>
-                <p class="mb-0">{{ student.student_name }}</p>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Student ID</label>
-                <p class="mb-0">{{ student.student_id|default:"—" }}</p>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Gender</label>
-                <p class="mb-0">{{ student.gender|default:"—" }}</p>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Registration ID</label>
-                <p class="mb-0">{{ student.reg_id|default:"—" }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Academic Information -->
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-white border-bottom-0 pt-4">
-            <h5 class="mb-0">Academic Information</h5>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Course</label>
-                <p class="mb-0">{{ student.course_id.course_name }}</p>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Batch</label>
-                <p class="mb-0">{{ student.batch_id.batch_year }}</p>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Percentage</label>
-                <p class="mb-0">{{ student.percentage|default:"0" }}%</p>
-              </div>
-              {% if student.mark %}
-              <div class="col-md-6 mb-3">
-                <label class="text-muted small">Marks</label>
-                <p class="mb-0">{{ student.mark }}</p>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column -->
-      <div class="col-lg-4">
-        <!-- Contact Information -->
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-white border-bottom-0 pt-4">
-            <h5 class="mb-0">Contact Information</h5>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <div class="d-flex align-items-center mb-3">
-                <i class="fas fa-envelope text-muted mr-3"></i>
-                <div>
-                  <label class="text-muted small">Email Address</label>
-                  <p class="mb-0">{{ student.email }}</p>
-                </div>
-              </div>
-              
-              <div class="d-flex align-items-center mb-3">
-                <i class="fas fa-phone text-muted mr-3"></i>
-                <div>
-                  <label class="text-muted small">Phone Number</label>
-                  <p class="mb-0">{{ student.contact_number }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Documents -->
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-white border-bottom-0 pt-4">
-            <h5 class="mb-0">Documents</h5>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label class="text-muted small mb-2">Resume</label>
-              {% if student.resume %}
-              <div class="d-flex align-items-center justify-content-between">
-                <span class="text-success">
-                  <i class="fas fa-check-circle mr-2"></i>Uploaded
-                </span>
-                <a href="{{ student.resume.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                  <i class="fas fa-eye mr-1"></i> View
-                </a>
-              </div>
-              {% else %}
-              <div class="text-warning">
-                <i class="fas fa-exclamation-circle mr-2"></i>Not uploaded
-              </div>
-              {% endif %}
             </div>
             
-            {% if student.id_proof %}
-            <div class="mb-3">
-              <label class="text-muted small mb-2">ID Proof</label>
-              <div class="d-flex align-items-center justify-content-between">
-                <span class="text-info">
-                  <i class="fas fa-id-card mr-2"></i>Uploaded
-                </span>
-                <a href="{{ student.id_proof.url }}" class="btn btn-sm btn-outline-info" target="_blank">
-                  <i class="fas fa-eye mr-1"></i> View
-                </a>
-              </div>
+            <div class="profile-actions">
+                <button class="btn-edit" data-toggle="modal" data-target="#editProfileModal">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
             </div>
-            {% endif %}
-          </div>
         </div>
 
-        <!-- Quick Links -->
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-bottom-0 pt-4">
-            <h5 class="mb-0">Quick Links</h5>
-          </div>
-          <div class="card-body">
-            <div class="list-group list-group-flush">
-              <a href="#" class="list-group-item list-group-item-action border-0">
-                <i class="fas fa-file-alt mr-2 text-primary"></i>
-                View Resume
-              </a>
-              <a href="{% url 'student_accepted_jobs' %}" class="list-group-item list-group-item-action border-0">
-                <i class="fas fa-briefcase mr-2 text-success"></i>
-                Accepted Jobs
-              </a>
-              <a href="{% url 'student_trainingclass' %}" class="list-group-item list-group-item-action border-0">
-                <i class="fas fa-chalkboard-teacher mr-2 text-info"></i>
-                Training Classes
-              </a>
-              <a href="{% url 'student_home' %}" class="list-group-item list-group-item-action border-0">
-                <i class="fas fa-home mr-2 text-secondary"></i>
-                Back to Dashboard
-              </a>
+        <!-- Profile Details -->
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Personal Information -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h5>Personal Information</h5>
+                    </div>
+                    <div class="info-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Full Name</span>
+                                <span class="info-value">{{ student.student_name }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Student ID</span>
+                                <span class="info-value">{{ student.student_id|default:"—" }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Gender</span>
+                                <span class="info-value">{{ student.gender|default:"—" }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Registration ID</span>
+                                <span class="info-value">{{ student.reg_id|default:"—" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Information -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h5>Academic Information</h5>
+                    </div>
+                    <div class="info-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Course</span>
+                                <span class="info-value">{{ student.course_id.course_name }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Batch</span>
+                                <span class="info-value">{{ student.batch_id.batch_year }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Percentage</span>
+                                <span class="info-value">{{ student.percentage|default:"0" }}%</span>
+                            </div>
+                            {% if student.mark %}
+                            <div class="info-item">
+                                <span class="info-label">Marks</span>
+                                <span class="info-value">{{ student.mark }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Contact Information -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <i class="fas fa-address-card"></i>
+                        <h5>Contact Information</h5>
+                    </div>
+                    <div class="info-body">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-label">Email Address</div>
+                                <div class="contact-value">{{ student.email }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-label">Phone Number</div>
+                                <div class="contact-value">{{ student.contact_number }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <i class="fas fa-file-alt"></i>
+                        <h5>Documents</h5>
+                    </div>
+                    <div class="info-body">
+                        <div class="document-item">
+                            <div class="document-info">
+                                <div class="document-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div>
+                                    <div class="document-name">Resume/CV</div>
+                                    {% if student.resume %}
+                                        <div class="document-status document-uploaded">
+                                            <i class="fas fa-check-circle"></i> Uploaded
+                                        </div>
+                                    {% else %}
+                                        <div class="document-status">
+                                            <i class="fas fa-exclamation-circle"></i> Not uploaded
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if student.resume %}
+                            <a href="{{ student.resume.url }}" class="btn-view" target="_blank">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        {% if student.id_proof %}
+                        <div class="document-item">
+                            <div class="document-info">
+                                <div class="document-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div>
+                                    <div class="document-name">ID Proof</div>
+                                    <div class="document-status document-uploaded">
+                                        <i class="fas fa-check-circle"></i> Uploaded
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ student.id_proof.url }}" class="btn-view" target="_blank">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <i class="fas fa-link"></i>
+                        <h5>Quick Links</h5>
+                    </div>
+                    <div class="info-body">
+                        <div class="quick-links">
+                            <a href="#" class="quick-link primary">
+                                <i class="fas fa-file-alt"></i>
+                                <span>View Resume</span>
+                            </a>
+                            <a href="{% url 'student_accepted_jobs' %}" class="quick-link success">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Accepted Jobs</span>
+                            </a>
+                            <a href="{% url 'student_trainingclass' %}" class="quick-link info">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>Training Classes</span>
+                            </a>
+                            <a href="{% url 'student_home' %}" class="quick-link secondary">
+                                <i class="fas fa-home"></i>
+                                <span>Back to Dashboard</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
 
 <!-- Edit Profile Modal -->
 <div class="modal fade" id="editProfileModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h5 class="modal-title">Edit Profile</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form method="POST" action="{% url 'update_profile' %}" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" class="form-control" name="student_name" value="{{ student.student_name }}" required>
-              </div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit Profile
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
             </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Gender</label>
-                <select class="form-control" name="gender">
-                  <option value="male" {% if student.gender == 'male' %}selected{% endif %}>Male</option>
-                  <option value="female" {% if student.gender == 'female' %}selected{% endif %}>Female</option>
-                  <option value="other" {% if student.gender == 'other' %}selected{% endif %}>Other</option>
-                </select>
-              </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'update_profile' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="student_name" value="{{ student.student_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <select class="form-control" name="gender">
+                                    <option value="male" {% if student.gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if student.gender == 'female' %}selected{% endif %}>Female</option>
+                                    <option value="other" {% if student.gender == 'other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" name="email" value="{{ student.email }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" name="contact_number" value="{{ student.contact_number }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Percentage</label>
+                                <input type="number" step="0.01" min="0" max="100" class="form-control" name="percentage" value="{{ student.percentage|default:'0' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Marks</label>
+                                <input type="text" class="form-control" name="mark" value="{{ student.mark|default:'' }}" placeholder="Enter your marks">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Profile Picture</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="photo" name="photo" accept="image/*">
+                            <label class="custom-file-label" for="photo">Choose file</label>
+                        </div>
+                        {% if student.photo %}
+                        <small class="form-text text-muted mt-1">Current file: {{ student.photo.name|slice:"-30:" }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Resume/CV</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="resume" name="resume" accept=".pdf,.doc,.docx">
+                            <label class="custom-file-label" for="resume">Choose file</label>
+                        </div>
+                        {% if student.resume %}
+                        <small class="form-text text-muted mt-1">Current file: {{ student.resume.name|slice:"-30:" }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">ID Proof</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="id_proof" name="id_proof" accept="image/*,.pdf">
+                            <label class="custom-file-label" for="id_proof">Choose file</label>
+                        </div>
+                        {% if student.id_proof %}
+                        <small class="form-text text-muted mt-1">Current file: {{ student.id_proof.name|slice:"-30:" }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert-info-custom">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Course and Batch information are managed by the administration. Contact your coordinator for changes.</span>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-save">Save Changes</button>
+                    </div>
+                </form>
             </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" class="form-control" name="email" value="{{ student.email }}" required>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Phone Number</label>
-                <input type="text" class="form-control" name="contact_number" value="{{ student.contact_number }}" required>
-              </div>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Percentage</label>
-                <input type="number" step="0.01" min="0" max="100" class="form-control" name="percentage" value="{{ student.percentage|default:'0' }}">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Marks</label>
-                <input type="text" class="form-control" name="mark" value="{{ student.mark|default:'' }}" placeholder="Enter your marks">
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Profile Picture</label>
-            <div class="custom-file">
-              <input type="file" class="custom-file-input" id="photo" name="photo" accept="image/*">
-              <label class="custom-file-label" for="photo">Choose file</label>
-            </div>
-            {% if student.photo %}
-            <small class="form-text text-muted">Current file: {{ student.photo.name|slice:"-30:" }}</small>
-            {% endif %}
-          </div>
-          
-          <div class="form-group">
-            <label>Resume/CV</label>
-            <div class="custom-file">
-              <input type="file" class="custom-file-input" id="resume" name="resume" accept=".pdf,.doc,.docx">
-              <label class="custom-file-label" for="resume">Choose file</label>
-            </div>
-            {% if student.resume %}
-            <small class="form-text text-muted">Current file: {{ student.resume.name|slice:"-30:" }}</small>
-            {% endif %}
-          </div>
-          
-          <div class="form-group">
-            <label>ID Proof</label>
-            <div class="custom-file">
-              <input type="file" class="custom-file-input" id="id_proof" name="id_proof" accept="image/*,.pdf">
-              <label class="custom-file-label" for="id_proof">Choose file</label>
-            </div>
-            {% if student.id_proof %}
-            <small class="form-text text-muted">Current file: {{ student.id_proof.name|slice:"-30:" }}</small>
-            {% endif %}
-          </div>
-          
-          <div class="alert alert-light border mt-4">
-            <small class="text-muted">
-              <i class="fas fa-info-circle mr-2"></i>
-              Course and Batch information are managed by the administration. Contact your coordinator for changes.
-            </small>
-          </div>
-          
-          <div class="modal-footer border-top-0">
-            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<style>
-  .card {
-    border-radius: 8px;
-    border: 1px solid #eaeaea;
-  }
-  
-  .card-header {
-    background: transparent;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  .badge-light {
-    background-color: #f8f9fa;
-    color: #495057;
-    border: 1px solid #dee2e6;
-  }
-  
-  .list-group-item {
-    padding: 0.75rem 0;
-    border: none;
-  }
-  
-  .list-group-item:hover {
-    background-color: #f8f9fa;
-  }
-  
-  .custom-file-label::after {
-    content: "Browse";
-  }
-  
-  .modal-header {
-    padding: 1.5rem 1.5rem 0;
-  }
-  
-  .modal-footer {
-    padding: 1rem 1.5rem 1.5rem;
-  }
-  
-  .form-control {
-    border-color: #e0e0e0;
-  }
-  
-  .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.1);
-  }
-  
-  .section-hero {
-    position: relative;
-  }
-  
-  .section-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-  }
-  
-  .section-hero .container {
-    position: relative;
-    z-index: 1;
-  }
-</style>
-
 <script>
-  // Load jQuery if not already loaded
-  if (typeof jQuery == 'undefined') {
+// Load jQuery if not already loaded
+if (typeof jQuery == 'undefined') {
     var script = document.createElement('script');
     script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
     script.onload = function() {
-      // jQuery loaded, now load Bootstrap
-      var bootstrap = document.createElement('script');
-      bootstrap.src = 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js';
-      document.head.appendChild(bootstrap);
-      
-      // Now run your jQuery code
-      initPage();
+        // jQuery loaded, now load Bootstrap
+        var bootstrap = document.createElement('script');
+        bootstrap.src = 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js';
+        document.head.appendChild(bootstrap);
+        
+        // Now run your jQuery code
+        initPage();
     };
     document.head.appendChild(script);
-  } else {
+} else {
     // jQuery already loaded
     $(document).ready(initPage);
-  }
-  
-  function initPage() {
+}
+
+function initPage() {
     // Initialize tooltips
     $('[data-toggle="tooltip"]').tooltip();
     
     // Update file input labels
     $('.custom-file-input').on('change', function() {
-      var fileName = $(this).val().split('\\').pop();
-      $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').addClass("selected").html(fileName);
     });
     
     // Profile picture preview
     $('#photo').on('change', function(e) {
-      var file = e.target.files[0];
-      if (file) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          $('.rounded-circle[alt="Profile"]').attr('src', e.target.result);
+        var file = e.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('.profile-avatar').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
-      }
     });
-  }
+}
 </script>
+
 {% include "student/footer.html" %}

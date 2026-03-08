@@ -1,60 +1,155 @@
-
 {% load static %}
-{% include 'Admin/header.html'  %}
+{% include 'Admin/header.html' %}
 
-
-          <!-- Content wrapper -->
-          <div class="content-wrapper">
-            <!-- Content -->
-
-            <div class="container-xxl flex-grow-1 container-p-y" style="margin-left:400px;width:800px;">
-              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Forms/</span> Horizontal Layouts</h4>
-              <a href="{% url 'view_districts' %}" class="btn btn-info" style="margin-bottom:20px;">View Districts</a>
-
-
-              <!-- Basic Layout & Basic with Icons -->
-              <div class="row">
-                <!-- Basic Layout -->
-                <div class="col-xxl">
-                  <div class="card mb-4">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                      
-                <!-- Basic with Icons -->
-                <div class="col-xxl">
-                  <div class="card mb-4">
-                   
-                    <div class="card-body">
-                     <form action="{% url 'district_insert' %}" method="POST" class="pt-3">
-
-
-                        {% csrf_token %}
-                        <div class="row mb-3">
-                          <label class="col-sm-2 col-form-label" for="basic-icon-default-company">District Name</label>
-                          <div class="col-sm-10">
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="basic-icon-default-fullname"
-                                placeholder="enter district"
-                                 name="district_name"  
-                                aria-label="John Doe"
-                                aria-describedby="basic-icon-default-fullname2"
-                             
-                              />
-                          </div>
-                        </div>
-                        <div class="row justify-content-end">
-                          <div class="col-sm-10">
-                            <button type="submit" class="btn btn-primary">REGISTER</button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
+<!-- Content wrapper -->
+<div class="content-wrapper d-flex align-items-center" style="min-height: calc(100vh - 60px); background: #f8fafc;">
+    <!-- Content -->
+    <div class="container" style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <!-- Simple header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1" style="color: #1e293b;">Add New District</h4>
+                <p class="text-muted small mb-0">Enter district details below</p>
             </div>
-            <!-- / Content -->
+            <a href="{% url 'view_districts' %}" class="btn btn-outline-primary btn-sm" style="border-radius: 30px; padding: 0.5rem 1.2rem;">
+                <i class="bx bx-list-ul me-1"></i> View Districts
+            </a>
+        </div>
 
-      {% include 'Admin/footer.html'  %}
-   
+        <!-- Simple Form Card -->
+        <div class="card border-0 shadow-sm" style="border-radius: 20px; background: white;">
+            <div class="card-body p-4">
+                <form action="{% url 'district_insert' %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- District Name Field -->
+                    <div class="mb-4">
+                        <label class="form-label text-secondary mb-2" style="font-size: 0.9rem; font-weight: 500; letter-spacing: 0.3px;">
+                            DISTRICT NAME <span class="text-danger">*</span>
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="district_name"
+                               name="district_name"
+                               placeholder="e.g., Mumbai, Delhi, Bangalore"
+                               required
+                               pattern="[A-Za-z ]{2,50}"
+                               title="District name must contain only letters and spaces (2-50 characters)"
+                               style="padding: 0.8rem 1rem; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; background: #f8fafc;"
+                               oninvalid="this.setCustomValidity('Please enter a district name')"
+                               oninput="this.setCustomValidity('')">
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-muted">
+                                <i class="bx bx-info-circle me-1"></i>
+                                Only letters and spaces (2-50 characters)
+                            </small>
+                            <small class="text-muted" id="charCount">0/50</small>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex gap-3 mt-4 pt-2">
+                        <button type="submit" class="btn btn-primary px-4" style="background: #0d6efd; border: none; border-radius: 10px; padding: 0.7rem 2rem; font-weight: 500;">
+                            <i class="bx bx-save me-2"></i>Register
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary px-4" style="border-radius: 10px; padding: 0.7rem 2rem; border: 1px solid #dee2e6; background: white;">
+                            <i class="bx bx-reset me-2"></i>Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Simple quick tip -->
+        <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 12px; border-left: 3px solid #ffc107;">
+            <div class="d-flex align-items-center">
+                <i class="bx bx-bulb text-warning me-2 fs-5"></i>
+                <small class="text-secondary">Enter district names in proper case (e.g., "New Delhi" instead of "new delhi")</small>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- / Content -->
+
+<style>
+    /* Minimal, clean styling */
+    body {
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .content-wrapper {
+        background: #f8fafc;
+    }
+    
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        background: white;
+    }
+    
+    .btn-outline-primary {
+        color: #0d6efd;
+        border-color: #0d6efd;
+        transition: all 0.2s;
+    }
+    
+    .btn-outline-primary:hover {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    /* Simple character counter */
+    #charCount {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+    
+    /* Ensure full height */
+    html, body {
+        height: 100%;
+    }
+</style>
+
+<script>
+    // Auto-capitalize first letter of each word
+    document.getElementById('district_name').addEventListener('blur', function(e) {
+        let value = e.target.value;
+        if (value.length > 0) {
+            value = value.toLowerCase().replace(/\b\w/g, function(l) {
+                return l.toUpperCase();
+            });
+            e.target.value = value;
+        }
+    });
+    
+    // Character counter
+    document.getElementById('district_name').addEventListener('input', function(e) {
+        const length = e.target.value.length;
+        document.getElementById('charCount').textContent = length + '/50';
+        
+        // Simple color indicator
+        if (length < 2) {
+            document.getElementById('charCount').style.color = '#dc3545';
+        } else {
+            document.getElementById('charCount').style.color = '#94a3b8';
+        }
+    });
+    
+    // Clear custom validity on input
+    document.getElementById('district_name').addEventListener('input', function() {
+        this.setCustomValidity('');
+    });
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": '{{csrf_token}}' }
+    });
+</script>
+
+{% include 'Admin/footer.html' %}

@@ -1,114 +1,364 @@
 {% load static %}
 {% include 'company/header.html' %}
 
-<div class="site-wrap">
+<style>
+    /* Minimal professional enhancements */
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #f8fafc;
+    }
+    
+    /* Hero section enhancement */
+    .section-hero {
+        position: relative;
+        padding-top: 100px;
+        padding-bottom: 60px;
+        overflow: hidden;
+    }
+    
+    .section-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+    }
+    
+    .section-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .section-hero h1 {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .custom-breadcrumbs a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .custom-breadcrumbs a:hover {
+        color: white;
+    }
+    
+    /* Page header */
+    .page-header {
+        margin: 2rem 0 1.5rem 0;
+    }
+    
+    .page-header h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+    
+    .btn-outline-custom {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .btn-outline-custom:hover {
+        background: #f8fafc;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .btn-primary-custom:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102,126,234,0.3);
+    }
+    
+    /* Form container */
+    .form-container {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        margin-bottom: 2rem;
+    }
+    
+    .form-section {
+        padding: 2rem;
+    }
+    
+    .form-section-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-section-header h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .form-section-header i {
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+    
+    /* Form groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    /* File upload */
+    .file-upload-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .file-upload-btn {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .file-upload-btn:hover {
+        background: #f8fafc;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    .file-upload-btn i {
+        color: #667eea;
+    }
+    
+    .file-name {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+    
+    /* Form footer */
+    .form-footer {
+        padding: 1.5rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #eef2f6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .section-hero h1 {
+            font-size: 1.8rem;
+        }
+        
+        .action-buttons {
+            margin-top: 1rem;
+            justify-content: flex-start;
+        }
+        
+        .form-footer {
+            flex-direction: column;
+        }
+        
+        .form-footer .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
 
-    <div class="site-mobile-menu site-navbar-target">
-      <div class="site-mobile-menu-header">
-        <div class="site-mobile-menu-close mt-3">
-          <span class="icon-close2 js-menu-toggle"></span>
-        </div>
-      </div>
-      <div class="site-mobile-menu-body"></div>
-    </div> <!-- .site-mobile-menu -->
-
-    <!-- HOME -->
-    <section class="section-hero overlay inner-page bg-image" style="background-image: url('images/hero_1.jpg');" id="home-section">
-      <div class="container">
+<!-- HOME -->
+<section class="section-hero overlay inner-page" style="background-image: url('{% static "company/assets/images/sq_img_5.jpg" %}');" id="home-section">
+    <div class="container">
         <div class="row">
-          <div class="col-md-7">
-            <h1 class="text-white font-weight-bold">Post A Job</h1>
-            <div class="custom-breadcrumbs">
-              <a href="#">Home</a> <span class="mx-2 slash">/</span>
-              <a href="#">Job</a> <span class="mx-2 slash">/</span>
-              <span class="text-white"><strong>Post a Job</strong></span>
+            <div class="col-md-7">
+                <h1 class="text-white font-weight-bold">Post A Job</h1>
+                <div class="custom-breadcrumbs">
+                    <a href="#">Home</a> 
+                    <span class="mx-2 slash">/</span>
+                    <a href="#">Job</a> 
+                    <span class="mx-2 slash">/</span>
+                    <span class="text-white"><strong>Post a Job</strong></span>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </section>
+    </div>
+</section>
 
-    <section class="site-section">
-      <div class="container">
-        <div class="row align-items-center mb-5">
-          <div class="col-lg-8 mb-4 mb-lg-0">
-            <div class="d-flex align-items-center">
-              <div>
+<section class="site-section py-5">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="row align-items-center page-header">
+            <div class="col-lg-12">
                 <h2>Post A Job</h2>
-              </div>
             </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="row">
-              <div class="col-6">
-                <a href="#" class="btn btn-block btn-light btn-md"><span class="icon-open_in_new mr-2"></span>Preview</a>
-              </div>
-              <div class="col-6">
-                <a href="#" class="btn btn-block btn-primary btn-md">Save Job</a>
-              </div>
-            </div>
-          </div>
         </div>
         
-        <div class="row mb-5">
-          <div class="col-lg-12">
-            <form action = "{% url 'jobpost_insert' %}" class="p-4 p-md-5 border rounded" method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              <h3 class="text-black mb-5 border-bottom pb-2">Job Details</h3>
-              
-              <!-- Job Position (from model) -->
-              <div class="form-group">
-                <label for="job-title">Job Position</label>
-                <input type="text" class="form-control" id="job-title" name="position" placeholder="e.g. Product Designer" required>
-              </div>
-              <!-- Cutoff Mark (from model) -->
-              <div class="form-group">
-                <label for="cutoff-mark">Cutoff Mark</label>
-                <input type="number" step="0.01" class="form-control" id="cutoff-mark" name="cutoff_mark" placeholder="e.g. 75.5" required>
-              </div>
+        <!-- Form Container -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-container">
+                    <form id="jobForm" action="{% url 'jobpost_insert' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Job Details Section -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <i class="fas fa-briefcase"></i>
+                                <h3>Job Details</h3>
+                            </div>
+                            
+                            <!-- Job Position -->
+                            <div class="form-group">
+                                <label for="job-title" class="form-label">Job Position <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="job-title" name="position" 
+                                       placeholder="e.g. Product Designer, Software Engineer" required>
+                                <small class="text-muted">Enter the title/position for this job</small>
+                            </div>
+                            
+                            <!-- Cutoff Mark -->
+                            <div class="form-group">
+                                <label for="cutoff-mark" class="form-label">Cutoff Mark <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="cutoff-mark" name="cutoff_mark" 
+                                       placeholder="e.g. 75.5" required>
+                                <small class="text-muted">Minimum percentage required for eligibility</small>
+                            </div>
 
-              <!-- Application End Date (from model) -->
-              <div class="form-group">
-                <label for="application-end-date">Application End Date</label>
-                <input type="date" class="form-control" id="application-end-date" name="application_end_date" required>
-              </div>
+                            <!-- Application End Date -->
+                            <div class="form-group">
+                                <label for="application-end-date" class="form-label">Application End Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="application-end-date" name="application_end_date" required>
+                                <small class="text-muted">Last date for students to apply</small>
+                            </div>
 
-            
+                            <!-- Requirements -->
+                            <div class="form-group">
+                                <label for="job-requirements" class="form-label">Job Requirements <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="job-requirements" name="requirement" rows="5" 
+                                          placeholder="Enter job requirements, qualifications, skills needed..." required></textarea>
+                                <small class="text-muted">List all requirements, qualifications, and skills</small>
+                            </div>
 
-              <!-- Requirements (from model) - using textarea -->
-              <div class="form-group">
-                <label for="job-requirements">Job Requirements</label>
-                <textarea class="form-control" id="job-requirements" name="requirement" rows="5" placeholder="Enter job requirements and qualifications..." required></textarea>
-              </div>
-
-              <!-- Photo/Featured Image (from model) -->
-              <div class="form-group">
-                <label for="company-website-tw d-block">Upload Job Photo</label> <br>
-                <label class="btn btn-primary btn-md btn-file">
-                  Browse File<input type="file" name="photo" id="photo" hidden required>
-                </label>
-              </div>
-
-              <!-- Submit buttons -->
-              <div class="row align-items-center mb-5">
-                <div class="col-lg-4 ml-auto">
-                  <div class="row">
-                    <div class="col-6">
-                      <a href="#" class="btn btn-block btn-light btn-md"><span class="icon-open_in_new mr-2"></span>Preview</a>
-                    </div>
-                    <div class="col-6">
-                      <button type="submit" class="btn btn-block btn-primary btn-md">Save Job</button>
-                    </div>
-                  </div>
+                            <!-- Photo Upload -->
+                            <div class="form-group">
+                                <label class="form-label">Job Photo / Featured Image</label>
+                                <div class="file-upload-wrapper">
+                                    <label class="file-upload-btn">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        Choose File
+                                        <input type="file" name="photo" id="photo" hidden onchange="updateFileName(this)">
+                                    </label>
+                                    <span class="file-name" id="file-name">No file chosen</span>
+                                </div>
+                                <small class="text-muted">Upload a photo to feature this job (optional)</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Footer -->
+                        <div class="form-footer">
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-save"></i> Save Job
+                            </button>
+                        </div>
+                    </form>
                 </div>
-              </div>
-            </form>
-          </div>
+            </div>
         </div>
-      </div>
-    </section>
-  </div>
-</body>
-</html>
+    </div>
+</section>
+
+<script>
+// Update file name when file is selected
+function updateFileName(input) {
+    var fileName = input.files[0] ? input.files[0].name : 'No file chosen';
+    document.getElementById('file-name').textContent = fileName;
+}
+
+// Set min date for application end date (today)
+document.addEventListener('DOMContentLoaded', function() {
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('application-end-date').setAttribute('min', today);
+});
+</script>
 
 {% include 'company/footer.html' %}

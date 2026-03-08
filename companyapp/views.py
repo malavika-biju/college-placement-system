@@ -9,44 +9,61 @@ from guestapp.models import tbl_company, tbl_student
 from adminapp.email_utils import send_company_action_email_to_admin  # Added import
 from django.core.mail import send_mail
 from django.conf import settings
+from functools import wraps
+from django.views.decorators.cache import cache_control
+
+
+
+def company_login_required(view_func):
+    @wraps(view_func)
+    @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+    def wrapper(request, *args, **kwargs):
+        logid = request.session.get('login_id')
+        if not logid:
+            return HttpResponse(
+                "<script>alert('Authentication Required. Please login again.');"
+                "window.location='/guestapp/guest_home/';</script>"
+            )
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 def send_interview_email_to_student(student, request, company, stage, schedule_date):
-    """Send interview schedule email to student"""
-    try:
-        subject = f"Interview Scheduled: {company.company_name} - {request.jobpost_id.position}"
-        
-        message = f"""
-        Dear {student.student_name},
-        
-        You have been scheduled for an interview with {company.company_name}.
-        
-        Interview Details:
-        - Position: {request.jobpost_id.position}
-        - Stage: {stage.replace('_', ' ').title()}
-        - Date: {schedule_date}
-        - Company: {company.company_name}
-        
-        Please be prepared and arrive on time.
-        
-        Best regards,
-        Placement Cell
-        """
-        
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[student.email],
-            fail_silently=True,
-        )
-        
-        print(f"[EMAIL] Interview schedule sent to {student.email}")
-        return True
-        
-    except Exception as e:
-        print(f"[EMAIL ERROR] Failed to send to {student.email}: {str(e)}")
-        return False
-
+        """Send interview schedule email to student"""
+        try:
+            subject = f"Interview Scheduled: {company.company_name} - {request.jobpost_id.position}"
+            
+            message = f"""
+            Dear {student.student_name},
+            
+            You have been scheduled for an interview with {company.company_name}.
+            
+            Interview Details:
+            - Position: {request.jobpost_id.position}
+            - Stage: {stage.replace('_', ' ').title()}
+            - Date: {schedule_date}
+            - Company: {company.company_name}
+            
+            Please be prepared and arrive on time.
+            
+            Best regards,
+            Placement Cell
+            """
+            
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[student.email],
+                fail_silently=True,
+            )
+            
+            print(f"[EMAIL] Interview schedule sent to {student.email}")
+            return True
+            
+        except Exception as e:
+            print(f"[EMAIL ERROR] Failed to send to {student.email}: {str(e)}")
+            return False
+       
 def send_placement_email_to_student(student, request, company):
     """Send placement congratulation email to student"""
     try:
@@ -124,14 +141,14 @@ def send_rejection_email_to_student(student, request, company):
         return False
     
 
-
+@company_login_required
 def company_home(request):
     return render(request, 'company/index.html')
-
+@company_login_required
 def company_profile(request):
     company = tbl_company.objects.get(login_id=request.session['login_id'])
     return render(request, 'company/profile.html', {'company': company})
-
+@company_login_required
 def jobpost(request):
     return render(request, 'company/jobpost.html')
 
@@ -150,17 +167,21 @@ def jobpost_insert(request):
         return HttpResponse("<script>alert('Job Posted Successfully');window.location='/companyapp/jobpost/';</script>")
     else:
         return HttpResponse("<script>alert('Invalid Request');window.location='/jobpost/';</script>")
-    
+@company_login_required
+
 def view_jobpost(request):
     company_id = tbl_company.objects.get(login_id=request.session['login_id']) 
     jobposts = tbl_jobpost.objects.filter(company_id=company_id)
     return render(request, 'company/view_jobpost.html', {'jobposts': jobposts})
+    
+@company_login_required
 
 def edit_job(request, jobpost_id):
     try:
         jobpost = tbl_jobpost.objects.get(jobpost_id=jobpost_id)
     except tbl_jobpost.DoesNotExist:
-        return HttpResponse("<script>alert('Job Post Not Found');window.location='/view_jobpost/';</script>")
+        return HttpResponse("<script>alert('Job Post Not Found');window.location='/companyapp/view_jobpost/';</script>")
+    
     
     if request.method == "POST":
         jobpost.requirement = request.POST.get("requirement")
@@ -170,18 +191,18 @@ def edit_job(request, jobpost_id):
         if 'photo' in request.FILES:
             jobpost.photo = request.FILES.get("photo")
         jobpost.save()
-        return HttpResponse("<script>alert('Job Post Updated Successfully');window.location='/view_jobpost/';</script>")
+        return HttpResponse("<script>alert('Job Post Updated Successfully');window.location='/companyapp/view_jobpost/';</script>")
     else:
         return render(request, 'company/edit_job.html', {'jobpost': jobpost})
-    
+@company_login_required   
 def delete_job(request, jobpost_id):
     try:
         jobpost = tbl_jobpost.objects.get(jobpost_id=jobpost_id)
         jobpost.delete()
-        return HttpResponse("<script>alert('Job Post Deleted Successfully');window.location='/view_jobpost/';</script>")
+        return HttpResponse("<script>alert('Job Post Deleted Successfully');window.location='/companyapp/view_jobpost/';</script>")
     except tbl_jobpost.DoesNotExist:
-        return HttpResponse("<script>alert('Job Post Not Found');window.location='/view_jobpost/';</script>")
-
+        return HttpResponse("<script>alert('Job Post Not Found');window.location='/companyapp/view_jobpost/';</script>")
+@company_login_required
 def company_requests(request):
     try:
         login_id = request.session.get('login_id')
@@ -253,7 +274,7 @@ def view_request_details(request, request_id):
         return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='{reverse('company_requests')}';</script>")
 
 view_requests = company_requests
-
+@company_login_required
 def automate_student_selection(request, request_id):
     """Automated student selection based on scoring algorithm"""
     try:
@@ -314,7 +335,7 @@ def automate_student_selection(request, request_id):
         
     except Exception as e:
         return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='{reverse('company_requests')}';</script>")
-
+@company_login_required
 def preview_automation_results(request, request_id):
     """Preview automation results without applying them"""
     try:
@@ -334,7 +355,7 @@ def preview_automation_results(request, request_id):
         
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
-
+@company_login_required
 def approve_request(request, request_id):
     try:
         login_id = request.session.get('login_id')
@@ -368,7 +389,7 @@ def approve_request(request, request_id):
         return HttpResponse(f"<script>alert('Request not found');window.location='{reverse('company_requests')}';</script>")
     except Exception as e:
         return HttpResponse(f"<script>alert('Error: {str(e)}');window.location='{reverse('company_requests')}';</script>")
-
+@company_login_required
 def reject_request(request, request_id):
     try:
         login_id = request.session.get('login_id')
@@ -429,10 +450,6 @@ def schedule_job(request, request_id):
                     "<script>alert('Please select at least one student');window.history.back();</script>"
                 )
 
-            if len(selected_students) > req.student_count:
-                return HttpResponse(
-                    f"<script>alert('You can select only {req.student_count} students');window.history.back();</script>"
-                )
 
             interview_schedule, _ = tbl_interview_schedule.objects.get_or_create(
                 request_id=req,

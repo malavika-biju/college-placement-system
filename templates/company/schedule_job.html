@@ -1,6 +1,426 @@
 {% load static %}
 {% include 'company/header.html' %}
 
+<style>
+    /* Minimal professional enhancements matching your project */
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #f8fafc;
+    }
+    
+    /* Hero section enhancement */
+    .section-hero {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .section-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+    }
+    
+    .section-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .section-hero h1 {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .custom-breadcrumbs a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .custom-breadcrumbs a:hover {
+        color: white;
+    }
+    
+    /* Page header */
+    .page-header {
+        margin: 2rem 0 1.5rem 0;
+    }
+    
+    .page-header h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    /* Info card */
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .info-content h6 {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 0.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .info-content p {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0;
+    }
+    
+    .badge-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.3rem;
+    }
+    
+    /* Badge styling */
+    .badge-custom {
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-info-custom {
+        background: #cff4fc;
+        color: #055160;
+    }
+    
+    .badge-success-custom {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .badge-warning-custom {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    /* Section cards */
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        height: 100%;
+    }
+    
+    .section-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eef2f6;
+        background: #f8fafc;
+    }
+    
+    .section-header h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-header h3 i {
+        color: #667eea;
+    }
+    
+    .section-body {
+        padding: 1.5rem;
+    }
+    
+    /* Form styling */
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .form-control, .form-select {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        outline: none;
+    }
+    
+    /* Student list */
+    .student-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eef2f6;
+        border-radius: 12px;
+        padding: 0.5rem;
+    }
+    
+    .student-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem;
+        border-bottom: 1px solid #eef2f6;
+    }
+    
+    .student-item:last-child {
+        border-bottom: none;
+    }
+    
+    .student-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    
+    .student-avatar-placeholder {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: #64748b;
+    }
+    
+    .student-info {
+        flex: 1;
+    }
+    
+    .student-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.2rem;
+    }
+    
+    .student-meta {
+        font-size: 0.8rem;
+        color: #64748b;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .percentage-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .percentage-high {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .percentage-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .percentage-low {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    /* Scheduled stages */
+    .stage-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stage-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stage-title {
+        font-weight: 600;
+        color: #667eea;
+    }
+    
+    .stage-date {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+    
+    .stage-students {
+        margin-top: 0.5rem;
+    }
+    
+    .student-row {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border-bottom: 1px solid #eef2f6;
+    }
+    
+    .student-row:last-child {
+        border-bottom: none;
+    }
+    
+    /* Status badges */
+    .status-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .status-interviewed {
+        background: #cff4fc;
+        color: #055160;
+    }
+    
+    .status-selected {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-rejected {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .status-pending {
+        background: #e2e8f0;
+        color: #475569;
+    }
+    
+    /* Action buttons */
+    .btn-back {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-back:hover {
+        background: #f8fafc;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .btn-primary-custom:hover:not(:disabled) {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    
+    .btn-primary-custom:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* Important note */
+    .note-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        padding: 1rem 1.5rem;
+        margin-top: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .note-card h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.2rem;
+    }
+    
+    .note-card p {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <script src="{% static 'admin/jquery-3.7.1.min.js' %}"></script>
 <script>
 $(document).ready(function () {
@@ -42,17 +462,18 @@ $(document).ready(function () {
 </script>
 
 <div class="site-wrap">
-    <section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'company/assets/images/hero_1.jpg' %}');" id="home-section">
+    <!-- HOME -->
+    <section class="section-hero overlay inner-page" style="background-image: url('{% static 'company/assets/images/hero_1.jpg' %}');" id="home-section">
         <div class="container">
             <div class="row">
                 <div class="col-md-12 text-center">
                     <h1 class="text-white font-weight-bold">Schedule Students</h1>
                     <div class="custom-breadcrumbs justify-content-center">
-                        <a href="{% url 'company_home' %}" class="text-white">Home</a>
+                        <a href="{% url 'company_home' %}" class="text-white">Dashboard</a>
                         <span class="mx-2 slash text-white">/</span>
                         <a href="{% url 'company_requests' %}" class="text-white">Requests</a>
                         <span class="mx-2 slash text-white">/</span>
-                        <span class="text-white"><strong>Schedule Students</strong></span>
+                        <span class="text-white"><strong>Schedule</strong></span>
                     </div>
                     <p class="text-white lead mt-3">Schedule interview stages for {{ request.jobpost_id.position }}</p>
                 </div>
@@ -60,68 +481,52 @@ $(document).ready(function () {
         </div>
     </section>
 
-    <section class="site-section">
+    <section class="site-section py-5">
         <div class="container">
-            <div class="row align-items-center mb-5">
-                <div class="col-lg-8 mb-4 mb-lg-0">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <h2>Schedule Interview Stages</h2>
-                            <p class="text-muted">Request #{{ request.request_id }} - {{ request.jobpost_id.position }}</p>
-                        </div>
-                    </div>
+            <!-- Page Header -->
+            <div class="row align-items-center mb-4">
+                <div class="col-lg-8">
+                    <h2 class="mb-1">Schedule Interview Stages</h2>
+                    <p class="text-muted mb-0">Request #{{ request.request_id }} - {{ request.jobpost_id.position }}</p>
                 </div>
-                <div class="col-lg-4">
-                    <div class="row">
-                        <div class="col-12">
-                            <a href="{% url 'view_request_details' request.request_id %}" class="btn btn-block btn-light btn-md">
-                                <span class="icon-arrow-left mr-2"></span>Back to Request
-                            </a>
-                        </div>
-                    </div>
+                <div class="col-lg-4 text-right">
+                    <a href="{% url 'view_request_details' request.request_id %}" class="btn-back">
+                        <span class="icon-arrow-left mr-2"></span>Back to Request
+                    </a>
                 </div>
             </div>
             
-            <div class="row mb-5">
-                <div class="col-md-12">
-                    <div class="border rounded bg-white p-4">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="mr-3">
-                                        <span class="icon-briefcase text-primary" style="font-size: 2rem;"></span>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">Job Position</h6>
-                                        <p class="mb-0"><strong>{{ request.jobpost_id.position }}</strong></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="mr-3">
-                                        <span class="icon-graduation-cap text-primary" style="font-size: 2rem;"></span>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">Batch</h6>
-                                        <p class="mb-0"><strong>{{ request.batch_id.batch_year }}</strong></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="mr-3">
-                                        <span class="icon-users text-primary" style="font-size: 2rem;"></span>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">Student Status</h6>
-                                        <p class="mb-0">
-                                            <span class="badge badge-info">{{ total_assigned }} Total</span>
-                                            <span class="badge badge-success ml-2">{{ available_count }} Available</span>
-                                            <span class="badge badge-warning ml-2">{{ scheduled_count }} Scheduled</span>
-                                        </p>
-                                    </div>
-                                </div>
+            <!-- Info Card -->
+            <div class="info-card">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="icon-briefcase"></i>
+                        </div>
+                        <div class="info-content">
+                            <h6>Job Position</h6>
+                            <p>{{ request.jobpost_id.position }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="icon-graduation-cap"></i>
+                        </div>
+                        <div class="info-content">
+                            <h6>Batch</h6>
+                            <p>{{ request.batch_id.batch_year }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="icon-users"></i>
+                        </div>
+                        <div class="info-content">
+                            <h6>Student Status</h6>
+                            <div class="badge-group">
+                                <span class="badge-custom badge-info-custom">{{ total_assigned }} Total</span>
+                                <span class="badge-custom badge-success-custom">{{ available_count }} Available</span>
+                                <span class="badge-custom badge-warning-custom">{{ scheduled_count }} Scheduled</span>
                             </div>
                         </div>
                     </div>
@@ -129,22 +534,22 @@ $(document).ready(function () {
             </div>
 
             <div class="row">
+                <!-- Schedule New Stage -->
                 <div class="col-lg-6 mb-4">
-                    <div class="border rounded bg-white">
-                        <div class="p-4 border-bottom bg-light">
-                            <h3 class="text-black mb-0">
-                                <span class="icon-calendar-check mr-2"></span>
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3>
+                                <i class="icon-calendar-check"></i>
                                 Schedule New Interview Stage
                             </h3>
-                            <p class="text-muted mb-0">Select stage, date, and students to schedule</p>
                         </div>
                         
-                        <div class="p-4">
+                        <div class="section-body">
                             <form action="{% url 'schedule_job' request.request_id %}" method="POST">
                                 {% csrf_token %}
                                 
                                 <div class="form-group mb-4">
-                                    <label for="stage" class="text-black">Interview Stage</label>
+                                    <label class="form-label">Interview Stage</label>
                                     <select class="form-control" name="stage" id="stage" required>
                                         <option value="">-- Select Interview Stage --</option>
                                         {% for key, value in options.items %}
@@ -153,57 +558,57 @@ $(document).ready(function () {
                                             {% endif %}
                                         {% endfor %}
                                     </select>
-                                    <small class="form-text text-muted">Select a stage that hasn't been scheduled yet</small>
+                                    <small class="text-muted">Select a stage that hasn't been scheduled yet</small>
                                 </div>
                                 
                                 <div class="form-group mb-4">
-                                    <label for="schedule_date" class="text-black">Schedule Date</label>
+                                    <label class="form-label">Schedule Date</label>
                                     <input type="date" name="schedule_date" id="schedule_date" class="form-control" required 
                                            min="{% now 'Y-m-d' %}">
-                                    <small class="form-text text-muted">Select today or a future date</small>
+                                    <small class="text-muted">Select today or a future date</small>
                                 </div>
                                 
                                 <div class="form-group mb-4">
-                                    <label class="text-black">Available Students ({{ available_count }})</label>
+                                    <label class="form-label">Available Students ({{ available_count }})</label>
                                     {% if available_students %}
-                                    <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
-                                        <div class="form-check mb-3">
+                                    <div class="student-list">
+                                        <div class="form-check mb-3 px-2">
                                             <input type="checkbox" class="form-check-input" id="checkAll">
                                             <label class="form-check-label font-weight-bold" for="checkAll">
                                                 Select All Available Students
                                             </label>
                                         </div>
-                                        <div class="border-top pt-3">
+                                        <div class="border-top pt-2">
                                             {% for student in available_students %}
-                                            <div class="form-check mb-3">
+                                            <div class="student-item">
                                                 <input type="checkbox" 
                                                        name="selected_students[]" 
                                                        value="{{ student.student_id }}" 
-                                                       class="form-check-input student-checkbox" 
+                                                       class="form-check-input student-checkbox mr-3" 
                                                        id="student_{{ student.student_id }}"
                                                        {% if student.student_id in scheduled_student_ids %}checked{% endif %}>
-                                                <label class="form-check-label d-flex align-items-center" for="student_{{ student.student_id }}">
-                                                    {% if student.images %}
-                                                    <img src="/media/{{ student.images }}" class="rounded-circle mr-3" width="45" alt="{{ student.student_name }}">
-                                                    {% else %}
-                                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px;">
-                                                        <span class="icon-user"></span>
+                                                {% if student.photo %}
+                                                <img src="/images/{{ student.photo }}" class="student-avatar">
+                                                {% else %}
+                                                <div class="student-avatar-placeholder">
+                                                    <i class="icon-user"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div class="student-info">
+                                                    <div class="student-name">{{ student.student_name }}</div>
+                                                    <div class="student-meta">
+                                                        <span>{{ student.email }}</span>
+                                                        <span class="percentage-badge 
+                                                            {% if student.percentage >= 80 %}percentage-high
+                                                            {% elif student.percentage >= 60 %}percentage-medium
+                                                            {% else %}percentage-low{% endif %}">
+                                                            {{ student.percentage }}%
+                                                        </span>
+                                                        {% if student.student_id in scheduled_student_ids %}
+                                                        <span class="badge-custom badge-success-custom">Scheduled</span>
+                                                        {% endif %}
                                                     </div>
-                                                    {% endif %}
-                                                    <div>
-                                                        <div class="font-weight-bold">{{ student.student_name }}
-                                                            {% if student.student_id in scheduled_student_ids %}
-                                                            <span class="badge badge-success ml-2">Already Scheduled</span>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div class="small text-muted">
-                                                            {{ student.email }} | 
-                                                            <span class="badge {% if student.percentage >= 80 %}badge-success{% elif student.percentage >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
-                                                                {{ student.percentage }}%
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </label>
+                                                </div>
                                             </div>
                                             {% endfor %}
                                         </div>
@@ -211,7 +616,7 @@ $(document).ready(function () {
                                     {% else %}
                                     <div class="alert alert-warning">
                                         <div class="d-flex align-items-center">
-                                            <span class="icon-info-circle mr-3" style="font-size: 1.5rem;"></span>
+                                            <i class="icon-info-circle mr-3" style="font-size: 1.5rem;"></i>
                                             <div>
                                                 <strong>No Available Students</strong>
                                                 <p class="mb-0">All students have already been scheduled for interviews.</p>
@@ -221,9 +626,9 @@ $(document).ready(function () {
                                     {% endif %}
                                 </div>
                                 
-                                <div class="form-group text-center">
-                                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3" {% if not available_students %}disabled{% endif %}>
-                                        <span class="icon-send mr-2"></span>
+                                <div class="text-center">
+                                    <button type="submit" class="btn-primary-custom" {% if not available_students %}disabled{% endif %}>
+                                        <i class="icon-send mr-2"></i>
                                         Schedule Selected Students
                                     </button>
                                 </div>
@@ -232,78 +637,61 @@ $(document).ready(function () {
                     </div>
                 </div>
                 
+                <!-- Already Scheduled -->
                 <div class="col-lg-6 mb-4">
-                    <div class="border rounded bg-white h-100">
-                        <div class="p-4 border-bottom bg-light">
-                            <h3 class="text-black mb-0">
-                                <span class="icon-list-check mr-2"></span>
+                    <div class="section-card h-100">
+                        <div class="section-header">
+                            <h3>
+                                <i class="icon-list-check"></i>
                                 Already Scheduled Students
                             </h3>
-                            <p class="text-muted mb-0">View students scheduled for interview stages</p>
                         </div>
                         
-                        <div class="p-4">
+                        <div class="section-body">
                             {% if details %}
-                            <div style="max-height: 400px; overflow-y: auto;">
+                            <div style="max-height: 500px; overflow-y: auto;">
                                 {% for detail in details %}
                                     {% with scheduled_students=detail.tbl_student_schedule_set.all %}
                                         {% if scheduled_students %}
-                                        <div class="mb-4">
-                                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <h5 class="mb-0 text-primary">
-                                                    <span class="icon-calendar mr-2"></span>
+                                        <div class="stage-card">
+                                            <div class="stage-header">
+                                                <span class="stage-title">
+                                                    <i class="icon-calendar mr-1"></i>
                                                     {{ detail.stage|title }}
-                                                </h5>
-                                                <span class="badge badge-light">{{ scheduled_students|length }} students</span>
+                                                </span>
+                                                <span class="badge-custom badge-info-custom">{{ scheduled_students|length }} students</span>
                                             </div>
-                                            <p class="text-muted mb-3">
-                                                <span class="icon-clock mr-1"></span>
-                                                Scheduled for {{ detail.schedule_date|date:"F d, Y" }}
+                                            <p class="stage-date">
+                                                <i class="icon-clock mr-1"></i>
+                                                {{ detail.schedule_date|date:"F d, Y" }}
                                             </p>
                                             
-                                            <div class="list-group">
+                                            <div class="stage-students">
                                                 {% for schedule in scheduled_students %}
-                                                <div class="list-group-item">
-                                                    <div class="d-flex align-items-center">
-                                                        {% if schedule.student_id.photo %}
-                                                        <img src="/media/{{ schedule.student_id.photo }}" class="rounded-circle mr-3" width="50" alt="{{ schedule.student_id.student_name }}">
-                                                        {% else %}
-                                                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
-                                                            <span class="icon-user"></span>
-                                                        </div>
-                                                        {% endif %}
-                                                        <div class="flex-grow-1">
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                <div>
-                                                                    <h6 class="mb-1">{{ schedule.student_id.student_name }}</h6>
-                                                                    <p class="mb-1 small text-muted">
-                                                                        {{ schedule.student_id.email }}
-                                                                    </p>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <span class="badge {% if schedule.student_id.percentage >= 80 %}badge-success{% elif schedule.student_id.percentage >= 60 %}badge-warning{% else %}badge-danger{% endif %} mr-2">
-                                                                            {{ schedule.student_id.percentage }}%
-                                                                        </span>
-                                                                       <span class="badge 
-                                                            {% if schedule.status == 'interviewed' %}
-                                                                badge-warning
-                                      {% elif schedule.status == 'selected' %}
-                                 badge-success
-                         {% elif schedule.status == 'rejected' %}
-                         badge-danger
-                    {% else %}
-    badge-secondary
-{% endif %}">
-    {{ schedule.status|title }}
-</span>
-
-                                                                    </div>
-                                                                </div>
-                                                                <div class="text-right">
-                                                                    <small class="text-muted d-block">
-                                                                        {{ schedule.assigned_date|date:"M d" }}
-                                                                    </small>
-                                                                </div>
-                                                            </div>
+                                                <div class="student-row">
+                                                    {% if schedule.student_id.photo %}
+                                                    <img src="/images/{{ schedule.student_id.photo }}" class="rounded-circle mr-2" width="40" height="40" style="object-fit: cover;">
+                                                    {% else %}
+                                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mr-2" style="width: 40px; height: 40px;">
+                                                        <i class="icon-user"></i>
+                                                    </div>
+                                                    {% endif %}
+                                                    <div class="student-info">
+                                                        <div class="student-name small">{{ schedule.student_id.student_name }}</div>
+                                                        <div class="student-meta">
+                                                            <span class="percentage-badge 
+                                                                {% if schedule.student_id.percentage >= 80 %}percentage-high
+                                                                {% elif schedule.student_id.percentage >= 60 %}percentage-medium
+                                                                {% else %}percentage-low{% endif %}">
+                                                                {{ schedule.student_id.percentage }}%
+                                                            </span>
+                                                            <span class="status-badge 
+                                                                {% if schedule.status == 'interviewed' %}status-interviewed
+                                                                {% elif schedule.status == 'selected' %}status-selected
+                                                                {% elif schedule.status == 'rejected' %}status-rejected
+                                                                {% else %}status-pending{% endif %}">
+                                                                {{ schedule.status|title }}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -317,10 +705,10 @@ $(document).ready(function () {
                             {% else %}
                             <div class="text-center py-5">
                                 <div class="mb-4">
-                                    <span class="icon-calendar-times display-1 text-muted"></span>
+                                    <i class="icon-calendar-times display-1 text-muted"></i>
                                 </div>
                                 <h4 class="text-muted mb-3">No Students Scheduled Yet</h4>
-                                <p class="text-muted mb-4">No interview stages have been scheduled for this request yet.</p>
+                                <p class="text-muted mb-0">No interview stages have been scheduled for this request yet.</p>
                             </div>
                             {% endif %}
                         </div>
@@ -328,27 +716,17 @@ $(document).ready(function () {
                 </div>
             </div>
             
-            <div class="row mt-5">
-                <div class="col-md-12">
-                    <div class="border rounded bg-light p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h5 class="mb-0">Important Note</h5>
-                                <p class="mb-0 text-muted">
-                                    <small>
-                                        <span class="icon-info-circle mr-1"></span>
-                                        When scheduling a new stage, students NOT selected will be marked as rejected and won't appear for future stages.
-                                    </small>
-                                </p>
-                            </div>
-                            <div class="col-md-4 text-right">
-                                <a href="{% url 'view_request_details' request.request_id %}" class="btn btn-outline-primary">
-                                    <span class="icon-eye mr-2"></span>View Full Request Details
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Important Note -->
+            <div class="note-card">
+                <div>
+                    <h5><i class="icon-info-circle mr-2"></i>Important Note</h5>
+                    <p class="mb-0">
+                        When scheduling a new stage, students NOT selected will be marked as rejected and won't appear for future stages.
+                    </p>
                 </div>
+                <a href="{% url 'view_request_details' request.request_id %}" class="btn-back">
+                    <i class="icon-eye mr-2"></i>View Full Request Details
+                </a>
             </div>
             
         </div>

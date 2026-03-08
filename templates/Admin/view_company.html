@@ -1,77 +1,426 @@
 {% load static %}
 {% include 'Admin/header.html' %}
-<section class="section">
-    <div class="row">
-        <div class="col-12">
-            <div class="card"style="margin-left:350px;">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Company List</h4>
-                   
+
+<style>
+    /* Consistent with your project's minimal style */
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    #main {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+    
+    /* Simple header matching other forms */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .page-header .text-muted {
+        color: #64748b !important;
+        font-size: 0.95rem;
+    }
+    
+    /* Clean breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-item.active {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    /* Main container - centered */
+    .content-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    /* Simple card - no left margin */
+    .card-custom {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .card-header-custom {
+        padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .card-title-custom {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .card-title-custom i {
+        color: #0d6efd;
+        font-size: 1.5rem;
+    }
+    
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+    
+    /* Stats badge */
+    .stats-badge {
+        background: #e2e8f0;
+        color: #334155;
+        padding: 0.25rem 1rem;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-left: 1rem;
+    }
+    
+    /* Clean table */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin: 0;
+        min-width: 1200px;
+    }
+    
+    .table thead th {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border: none;
+        white-space: nowrap;
+    }
+    
+    .table thead th:first-child {
+        border-radius: 10px 0 0 10px;
+    }
+    
+    .table thead th:last-child {
+        border-radius: 0 10px 10px 0;
+    }
+    
+    .table tbody tr {
+        background: white;
+        border-radius: 12px;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .table tbody tr:hover {
+        background: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    
+    .table tbody td {
+        padding: 1rem;
+        font-size: 0.95rem;
+        color: #1e293b;
+        border: none;
+        vertical-align: middle;
+    }
+    
+    .table tbody td:first-child {
+        border-radius: 12px 0 0 12px;
+    }
+    
+    .table tbody td:last-child {
+        border-radius: 0 12px 12px 0;
+    }
+    
+    /* Company logo */
+    .company-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+    
+    /* View button */
+    .btn-view {
+        background: #e2e8f0;
+        color: #334155;
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-view:hover {
+        background: #cbd5e1;
+        color: #1e293b;
+    }
+    
+    /* Action buttons */
+    .btn-action {
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s;
+        border: none;
+        margin: 0 0.2rem;
+    }
+    
+    .btn-accept {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .btn-accept:hover {
+        background: #badbcc;
+        color: #0f5132;
+    }
+    
+    .btn-reject {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .btn-reject:hover {
+        background: #f5c2c7;
+        color: #842029;
+    }
+    
+    /* Location badge */
+    .location-badge {
+        background: #e2e8f0;
+        color: #475569;
+        padding: 0.25rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        display: inline-block;
+    }
+    
+    /* Date format */
+    .date-text {
+        font-size: 0.85rem;
+        color: #64748b;
+        white-space: nowrap;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #94a3b8;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .empty-state p {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+    
+    /* Quick tip */
+    .quick-tip {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 10px;
+        border-left: 3px solid #0d6efd;
+        max-width: 100%;
+    }
+    
+    .quick-tip i {
+        color: #0d6efd;
+        margin-right: 0.5rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        #main {
+            padding: 1rem;
+        }
+        
+        .content-container {
+            padding: 1rem 0.5rem;
+        }
+    }
+</style>
+
+<div id="main">
+    <!-- Simple header matching other forms -->
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Company Management</h3>
+                    <p class="text-subtitle text-muted">View and manage registered companies</p>
                 </div>
-
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Company Name</th>
-                                    <th>Logo</th>
-                                    <th>Contact</th>
-                                    <th>Email</th>
-                                    <th>id</th>
-                                    <th>Registration</th>
-                                    <th>Location</th>
-                                    <th>Actions</th>
-                    
-                
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% if companies %}
-                                    {% for company in companies %}
-                                    <tr>
-                                        <td>{{ company.company_name }}</td>
-                                        <td><img src="{{ company.company_logo.url }}" alt="Logo" width="50"></td>
-                                        <td>{{ company.contact_number }}</td>
-                                        <td>{{ company.contact_email }}</td>
-                                        <td>
-                                                    <a href="{{ company.id_proof.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-file-pdf"></i> View
-                                                    </a>
-                                                </td>
-                                
-                                        <td>{{ company.reg_date }}</td>
-                                        <td>{{ company.location_id }}</td>
-
-                                        <td>
-                                            <a href="{% url 'accept_company' loginid=company.login_id_id %}"
-                                               class="btn btn-sm btn-warning">
-                                                <i class="bi bi-pencil-square"></i> Accept
-                                            </a>
-
-                                            <a href="{% url 'reject_company' loginid=company.login_id_id %}"
-                                               class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Are you sure you want to reject this company?');">
-                                                <i class="bi bi-trash"></i> Reject
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">No batches found</td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-
-                        </table>
-                    </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'admin_dashboard' %}">
+                                    <i class="bi bi-house-door me-1"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">
+                                <i class="bi bi-building me-1"></i>Companies
+                            </li>
+                        </ol>
+                    </nav>
                 </div>
-
             </div>
         </div>
     </div>
-</section>
+
+    <!-- Main Content - Centered -->
+    <div class="content-container">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <div class="card-title-custom">
+                    <i class="bi bi-building"></i>
+                    Registered Companies
+                    <span class="stats-badge">{{ companies|length }} Total</span>
+                </div>
+            </div>
+
+            <div class="card-body-custom">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Logo</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>ID Proof</th>
+                                <th>Reg. Date</th>
+                                <th>Location</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% if companies %}
+                                {% for company in companies %}
+                                <tr>
+                                    <td>
+                                        <span style="font-weight: 500;">{{ company.company_name }}</span>
+                                    </td>
+                                    <td>
+                                        {% if company.company_logo %}
+                                        <img src="{{ company.company_logo.url }}" alt="{{ company.company_name }}" class="company-logo">
+                                        {% else %}
+                                        <div class="company-logo" style="display: flex; align-items: center; justify-content: center; background: #e2e8f0;">
+                                            <i class="bi bi-building" style="color: #94a3b8;"></i>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ company.contact_number }}</td>
+                                    <td>{{ company.contact_email }}</td>
+                                    <td>
+                                        {% if company.id_proof %}
+                                        <a href="{{ company.id_proof.url }}" target="_blank" class="btn-view">
+                                            <i class="bi bi-file-pdf"></i> View ID
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted small">No file</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="date-text">
+                                            <i class="bi bi-calendar me-1"></i>{{ company.reg_date }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="location-badge">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ company.location_id }}
+                                        </span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a href="{% url 'accept_company' loginid=company.login_id_id %}"
+                                           class="btn-action btn-accept"
+                                           onclick="return confirm('Accept this company?');">
+                                            <i class="bi bi-check-circle"></i> Accept
+                                        </a>
+                                        <a href="{% url 'reject_company' loginid=company.login_id_id %}"
+                                           class="btn-action btn-reject"
+                                           onclick="return confirm('Are you sure you want to reject this company?');">
+                                            <i class="bi bi-x-circle"></i> Reject
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <i class="bi bi-building"></i>
+                                            <p>No companies found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick tip -->
+        <div class="quick-tip">
+            <i class="bi bi-lightbulb"></i>
+            <strong>Quick tip:</strong> Review company details and ID proofs before accepting. Accepted companies will be able to post jobs and access the platform.
+        </div>
+    </div>
+</div>
 
 {% include 'Admin/footer.html' %}

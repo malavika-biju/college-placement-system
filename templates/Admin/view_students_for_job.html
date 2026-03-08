@@ -1,203 +1,595 @@
 {% load static %}
 {% include 'Admin/header.html' %}
-<br><br>
-<br><br>
-
-<div class="container" style="margin-left:300px;">
-  <div class="table_section padding_infor_info">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="mb-0">Student Selection for: {{ jobpost.position }}</h3>
-      <div>
-        <a href="{% url 'view_job_posts' %}" class="btn btn-secondary btn-sm">
-          <i class="fas fa-arrow-left mr-1"></i> Back to Jobs
-        </a>
-      </div>
-    </div>
-
-    <!-- Job Information -->
-    <div class="card mb-4">
-      <div class="card-header bg-light">
-        <h5 class="mb-0">Job Information</h5>
-      </div>
-      <div class="card-body">
-        <table class="table table-bordered">
-          <tr>
-            <th width="200">Position</th>
-            <td>{{ jobpost.position }}</td>
-          </tr>
-          <tr>
-            <th>Company</th>
-            <td>{{ company.company_name }}</td>
-          </tr>
-          <tr>
-            <th>Cutoff Mark</th>
-            <td>{{ jobpost.cutoff_mark }}%</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- Form Section for Student Applications -->
-    <div class="card mb-4">
-      <div class="card-header bg-light">
-        <h5 class="mb-0">Filter & Select Students</h5>
-      </div>
-      <div class="card-body">
-        <form method="GET" action="">
-          <input type="hidden" name="jobpost_id" value="{{ jobpost.jobpost_id }}">
-          <div class="row">
-            <!-- Students Count -->
-            <div class="col-md-6 mb-3">
-              <label for="student_count" class="form-label fw-bold">Students Count</label>
-              <input type="text" class="form-control" name="student_count" id="student_count" 
-                     value="{{ meets_cutoff_count }}" readonly>
-            </div>
-
-            <!-- Batch Dropdown -->
-            <div class="col-md-6 mb-3">
-              <label for="batch" class="form-label fw-bold">Batch</label>
-              <select class="form-control" name="batch" id="batch">
-                <option value="">--All Batches--</option>
-                {% for b in batch %}
-                <option value="{{ b.batch_id }}" {% if selected_batch == b.batch_id|stringformat:"i" %}selected{% endif %}>
-                  {{ b.batch_year }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Department Dropdown -->
-            <div class="col-md-6 mb-3">
-              <label for="department" class="form-label fw-bold">Department</label>
-              <select class="form-control" name="department" id="department">
-                <option value="">--All Departments--</option>
-                {% for d in department %}
-                <option value="{{ d.department_id }}" {% if selected_department == d.department_id|stringformat:"i" %}selected{% endif %}>
-                  {{ d.department_name }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Course Dropdown -->
-            <div class="col-md-6 mb-3">
-              <label for="course" class="form-label fw-bold">Course</label>
-              <select name="course" id="course" class="form-control">
-                <option value="">--All Courses--</option>
-                {% for c in courses %}
-                <option value="{{ c.course_id }}" {% if selected_course == c.course_id|stringformat:"i" %}selected{% endif %}>
-                  {{ c.course_name }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12 text-center">
-              <button type="submit" class="btn btn-primary px-4">
-                <i class="fas fa-filter"></i> Apply Filters
-              </button>
-              <a href="{% url 'view_students_for_job' jobpost.jobpost_id %}" class="btn btn-secondary px-4">
-                <i class="fas fa-redo"></i> Reset
-              </a>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Statistics -->
-    <div class="row mb-4">
-      <div class="col-md-4">
-        <div class="card text-white bg-primary">
-          <div class="card-body text-center">
-            <h6 class="card-title">Total Students</h6>
-            <p class="card-text display-6">{{ total_students }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-success">
-          <div class="card-body text-center">
-            <h6 class="card-title">Meets Cutoff</h6>
-            <p class="card-text display-6">{{ meets_cutoff_count }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-warning">
-          <div class="card-body text-center">
-            <h6 class="card-title">Below Cutoff</h6>
-            <p class="card-text display-6">{{ below_cutoff_count }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Simple Send Form - No student table -->
-    <div class="card">
-      <div class="card-header bg-light">
-        <h5 class="mb-0">Send to Company</h5>
-      </div>
-      <div class="card-body text-center">
-        <form id="studentForm" method="POST" action="{% url 'request_company' %}">
-          {% csrf_token %}
-          <input type="hidden" name="jobpost_id" value="{{ jobpost.jobpost_id }}">
-          <input type="hidden" name="batch_id" value="{% if selected_batch %}{{ selected_batch }}{% else %}{% firstof batch.0.batch_id '' %}{% endif %}">
-          <input type="hidden" name="course_id" value="{% if selected_course %}{{ selected_course }}{% else %}{% firstof courses.0.course_id '' %}{% endif %}">
-          <input type="hidden" name="student_count" value="{{ meets_cutoff_count }}">
-          <input type="hidden" name="send_all" value="true">
-          
-          <div class="alert alert-info mb-4">
-            <i class="fas fa-info-circle"></i> 
-            <strong>{{ meets_cutoff_count }} student(s)</strong> meet the cutoff criteria and will be sent to the company.
-          </div>
-          
-          <button type="submit" id="submitBtn" class="btn btn-success btn-lg px-5" {% if meets_cutoff_count == 0 %}disabled{% endif %}>
-            <i class="fas fa-paper-plane mr-2"></i> Send to Company for Approval
-          </button>
-          
-          <p class="text-muted mt-3">
-            This will create a request to {{ company.company_name }} for {{ meets_cutoff_count }} eligible student(s).
-          </p>
-          
-          {% if meets_cutoff_count == 0 %}
-          <div class="alert alert-warning mt-3">
-            <i class="fas fa-exclamation-triangle"></i> No eligible students to send. Try adjusting your filters.
-          </div>
-          {% endif %}
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
 <style>
-  .table_section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    width: 1200px;
-  }
-  
-  .card {
-    margin-bottom: 20px;
-    border: 1px solid #dee2e6;
-  }
-  
-  .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    font-weight: bold;
-  }
-  
-  .display-6 {
-    font-size: 2rem;
-    font-weight: bold;
-  }
+    /* Consistent with your project's minimal style */
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    #main {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+    
+    /* Simple header */
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .page-header h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.2rem;
+    }
+    
+    .page-header .text-muted {
+        color: #64748b !important;
+        font-size: 0.9rem;
+    }
+    
+    /* Clean breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: #0d6efd;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+    
+    .breadcrumb-item.active {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    /* Main container - centered */
+    .content-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 0.5rem;
+    }
+    
+    /* Enhanced table section */
+    .table_section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        border: 1px solid #f1f5f9;
+        width: 100%;
+    }
+    
+    /* Header with gradient */
+    .section-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .section-header h3 {
+        color: white;
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-header h3 i {
+        font-size: 1.2rem;
+    }
+    
+    .btn-back {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 30px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-back:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+    }
+    
+    /* Card styling */
+    .card {
+        margin-bottom: 1.5rem;
+        border: 1px solid #eef2f6;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e9ecef 100%);
+        border-bottom: 1px solid #eef2f6;
+        padding: 0.8rem 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .card-header h5 {
+        margin: 0;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .card-header h5 i {
+        color: #667eea;
+    }
+    
+    .card-body {
+        padding: 1.2rem;
+    }
+    
+    /* Table styling */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+    
+    .table th {
+        width: 200px;
+        padding: 0.8rem 1rem;
+        background: #f8fafc;
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+        border: 1px solid #eef2f6;
+    }
+    
+    .table td {
+        padding: 0.8rem 1rem;
+        color: #1e293b;
+        font-size: 0.95rem;
+        border: 1px solid #eef2f6;
+    }
+    
+    /* Form controls */
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.85rem;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background: white;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.05);
+    }
+    
+    .form-control[readonly] {
+        background: #f8fafc;
+        cursor: not-allowed;
+    }
+    
+    select.form-control {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 14px;
+        padding-right: 2.5rem;
+    }
+    
+    /* Button styling */
+    .btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 8px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5a67d8;
+        transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #475569;
+    }
+    
+    .btn-secondary:hover {
+        background: #cbd5e1;
+    }
+    
+    .btn-success {
+        background: #48bb78;
+        color: white;
+    }
+    
+    .btn-success:hover {
+        background: #38a169;
+        transform: translateY(-1px);
+    }
+    
+    .btn-success:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-lg {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+    
+    /* Statistics cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+        border-radius: 12px;
+        padding: 1.2rem;
+        color: white;
+        text-align: center;
+    }
+    
+    .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stat-card.success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+    .stat-card.warning { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+    
+    .stat-card h6 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+    }
+    
+    .stat-card p {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    /* Alert styling */
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .alert-info {
+        background: #cff4fc;
+        color: #055160;
+        border: 1px solid #b6effb;
+    }
+    
+    .alert-warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffe69c;
+    }
+    
+    .alert i {
+        font-size: 1rem;
+    }
+    
+    /* Company name highlight */
+    .company-highlight {
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    /* Badge styling */
+    .badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-success {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .badge-warning {
+        background: #ffeaa7;
+        color: #000;
+    }
+    
+    .badge-danger {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        #main {
+            padding: 1rem;
+        }
+        
+        .content-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .row .col-md-6 {
+            margin-bottom: 0.5rem;
+        }
+    }
 </style>
+
+<div id="main">
+    <!-- Simple header -->
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Student Selection</h3>
+                    <p class="text-subtitle text-muted">Select and send eligible students to company</p>
+                </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'admin_dashboard' %}">
+                                    <i class="bi bi-house-door me-1"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'view_job_posts' %}">
+                                    <i class="bi bi-briefcase me-1"></i>Job Posts
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">
+                                <i class="bi bi-person-check me-1"></i>Student Selection
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content - Centered -->
+    <div class="content-container">
+        <div class="table_section padding_infor_info">
+            
+            <!-- Section Header with Gradient -->
+            <div class="section-header">
+                <h3>
+                    <i class="fas fa-user-graduate"></i>
+                    Student Selection for: {{ jobpost.position }}
+                </h3>
+                <a href="{% url 'view_job_posts' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Jobs
+                </a>
+            </div>
+
+            <!-- Job Information Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-briefcase"></i>
+                        Job Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="200">Position</th>
+                            <td><strong>{{ jobpost.position }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Company</th>
+                            <td><span class="company-highlight">{{ company.company_name }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Cutoff Mark</th>
+                            <td>
+                                <span class="badge {% if jobpost.cutoff_mark >= 70 %}badge-success{% elif jobpost.cutoff_mark >= 50 %}badge-warning{% else %}badge-danger{% endif %}">
+                                    {{ jobpost.cutoff_mark }}%
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter"></i>
+                        Filter & Select Students
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="">
+                        <input type="hidden" name="jobpost_id" value="{{ jobpost.jobpost_id }}">
+                        <div class="row">
+                            <!-- Students Count -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Students Count</label>
+                                <input type="text" class="form-control" name="student_count" id="student_count" 
+                                       value="{{ meets_cutoff_count }}" readonly>
+                                <small class="text-muted">Total eligible students</small>
+                            </div>
+
+                            <!-- Batch Dropdown -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Batch</label>
+                                <select class="form-control" name="batch" id="batch">
+                                    <option value="">All Batches</option>
+                                    {% for b in batch %}
+                                    <option value="{{ b.batch_id }}" {% if selected_batch == b.batch_id|stringformat:"i" %}selected{% endif %}>
+                                        {{ b.batch_year }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Department Dropdown -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Department</label>
+                                <select class="form-control" name="department" id="department">
+                                    <option value="">All Departments</option>
+                                    {% for d in department %}
+                                    <option value="{{ d.department_id }}" {% if selected_department == d.department_id|stringformat:"i" %}selected{% endif %}>
+                                        {{ d.department_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Course Dropdown -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Course</label>
+                                <select name="course" id="course" class="form-control">
+                                    <option value="">All Courses</option>
+                                    {% for c in courses %}
+                                    <option value="{{ c.course_id }}" {% if selected_course == c.course_id|stringformat:"i" %}selected{% endif %}>
+                                        {{ c.course_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12 text-center">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i> Apply Filters
+                                </button>
+                                <a href="{% url 'view_students_for_job' jobpost.jobpost_id %}" class="btn btn-secondary">
+                                    <i class="fas fa-redo"></i> Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <h6><i class="fas fa-users me-1"></i> Total Students</h6>
+                    <p>{{ total_students }}</p>
+                </div>
+                <div class="stat-card success">
+                    <h6><i class="fas fa-check-circle me-1"></i> Meets Cutoff</h6>
+                    <p>{{ meets_cutoff_count }}</p>
+                </div>
+                <div class="stat-card warning">
+                    <h6><i class="fas fa-exclamation-triangle me-1"></i> Below Cutoff</h6>
+                    <p>{{ below_cutoff_count }}</p>
+                </div>
+            </div>
+
+            <!-- Send to Company Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-paper-plane"></i>
+                        Send to Company
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <form id="studentForm" method="POST" action="{% url 'request_company' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="jobpost_id" value="{{ jobpost.jobpost_id }}">
+                        <input type="hidden" name="batch_id" value="{% if selected_batch %}{{ selected_batch }}{% else %}{% firstof batch.0.batch_id '' %}{% endif %}">
+                        <input type="hidden" name="course_id" value="{% if selected_course %}{{ selected_course }}{% else %}{% firstof courses.0.course_id '' %}{% endif %}">
+                        <input type="hidden" name="student_count" value="{{ meets_cutoff_count }}">
+                        <input type="hidden" name="send_all" value="true">
+                        
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>{{ meets_cutoff_count }} student(s)</strong> meet the cutoff criteria and will be sent to 
+                            <span class="company-highlight">{{ company.company_name }}</span>.
+                        </div>
+                        
+                        <button type="submit" id="submitBtn" class="btn btn-success btn-lg" {% if meets_cutoff_count == 0 %}disabled{% endif %}>
+                            <i class="fas fa-paper-plane"></i> Send to Company for Approval
+                        </button>
+                        
+                        <p class="text-muted mt-3 small">
+                            This will create a request to {{ company.company_name }} for {{ meets_cutoff_count }} eligible student(s).
+                        </p>
+                        
+                        {% if meets_cutoff_count == 0 %}
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle"></i> No eligible students to send. Try adjusting your filters.
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="{% static 'jquery-3.7.1.min.js' %}"></script>
 <script>
@@ -244,7 +636,7 @@ $(document).ready(function() {
     
     function updateCourseDropdown(data) {
         $("#course").empty();
-        $("#course").append("<option value=''>--All Courses--</option>");
+        $("#course").append("<option value=''>All Courses</option>");
         
         $.each(data, function(key, val) {
             var value = val.course_id || val.id;

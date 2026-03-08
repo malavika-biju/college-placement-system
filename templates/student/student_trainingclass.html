@@ -1,287 +1,668 @@
 {% include "student/header.html" %}
 {% load static %}
 
+<style>
+    /* Minimal professional enhancements */
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #f8fafc;
+    }
+    
+    /* Hero section enhancement */
+    .section-hero {
+        position: relative;
+        margin-top: -20px;
+        padding-top: 80px;
+        padding-bottom: 40px;
+        overflow: hidden;
+    }
+    
+    .section-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+    }
+    
+    .section-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .section-hero h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .custom-breadcrumbs a {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+    }
+    
+    .custom-breadcrumbs a:hover {
+        color: white;
+    }
+    
+    /* Statistics Cards */
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .stat-card h2 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    
+    .stat-card h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+    
+    .stat-card p {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    /* Filters */
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1.2rem;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .filter-btn-active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .filter-btn-inactive {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .filter-btn-inactive:hover {
+        background: #f8fafc;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    .search-box {
+        display: flex;
+    }
+    
+    .search-box .form-control {
+        border-radius: 30px 0 0 30px;
+        border: 1px solid #e2e8f0;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .search-box .btn {
+        border-radius: 0 30px 30px 0;
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.2rem;
+    }
+    
+    .search-box .btn:hover {
+        background: #5a67d8;
+    }
+    
+    /* Student Info Card */
+    .student-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    
+    .student-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .student-avatar-placeholder {
+        width: 90px;
+        height: 90px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .student-avatar-placeholder i {
+        font-size: 2rem;
+        color: #64748b;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    
+    .info-item i {
+        width: 18px;
+        color: #667eea;
+    }
+    
+    /* Class Cards */
+    .class-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        transition: all 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .class-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+    
+    .class-header {
+        padding: 1rem;
+        color: white;
+    }
+    
+    .class-header.upcoming {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    }
+    
+    .class-header.completed {
+        background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    }
+    
+    .class-header h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .class-body {
+        padding: 1.2rem;
+        flex-grow: 1;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.3rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .status-upcoming {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+    
+    .status-completed {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    
+    .detail-row i {
+        width: 18px;
+        color: #667eea;
+    }
+    
+    .class-footer {
+        padding: 1rem;
+        background: #f8fafc;
+        border-top: 1px solid #eef2f6;
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-class {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-join {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+    
+    .btn-join:hover {
+        background: linear-gradient(135deg, #3ca368 0%, #2f855a 100%);
+    }
+    
+    .btn-details {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .btn-details:hover {
+        background: #f8fafc;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    /* Modal */
+    .modal-content {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-bottom: none;
+    }
+    
+    .modal-header .close {
+        color: white;
+        opacity: 0.8;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #eef2f6;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h4 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #64748b;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-reset {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 0.5rem 1.5rem;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .btn-reset:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%);
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .student-avatar {
+            width: 70px;
+            height: 70px;
+        }
+    }
+</style>
+
 <!-- Page Content -->
-<section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'guest/assets/images/hero_1.jpg' %}'); margin-top: -20px; padding-top: 100px; padding-bottom: 50px;">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h1 class="text-white font-weight-bold">My Training Classes</h1>
-        <div class="custom-breadcrumbs">
-          <a href="{% url 'student_home' %}">Dashboard</a> <span class="mx-2 slash">/</span>
-          <span class="text-white"><strong>Training Classes</strong></span>
+<section class="section-hero overlay inner-page" style="background-image: url('{% static 'guest/assets/images/hero_1.jpg' %}');">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-white font-weight-bold">My Training Classes</h1>
+                <div class="custom-breadcrumbs">
+                    <a href="{% url 'student_home' %}">Dashboard</a> 
+                    <span class="mx-2 slash">/</span>
+                    <span class="text-white"><strong>Training Classes</strong></span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
 
-<section class="site-section">
-  <div class="container">
-    <!-- Statistics Cards -->
-    <div class="row mb-5">
-      <div class="col-md-4 mb-4">
-        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-          <div class="card-body py-4">
-            <h2 class="display-4 mb-2">{{ total_classes }}</h2>
-            <h5 class="card-title">Total Classes</h5>
-            <p class="mb-0">All scheduled classes</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4 mb-4">
-        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%); color: white;">
-          <div class="card-body py-4">
-            <h2 class="display-4 mb-2">{{ upcoming_count }}</h2>
-            <h5 class="card-title">Upcoming</h5>
-            <p class="mb-0">Future classes</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4 mb-4">
-        <div class="card text-center border-0 shadow-lg" style="background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); color: white;">
-          <div class="card-body py-4">
-            <h2 class="display-4 mb-2">{{ completed_count }}</h2>
-            <h5 class="card-title">Completed</h5>
-            <p class="mb-0">Past classes</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Filters and Search -->
-    <div class="row mb-4">
-      <div class="col-md-8">
-        <div class="btn-group" role="group">
-          <a href="?status=all" class="btn {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-            <i class="fas fa-list"></i> All Classes
-          </a>
-          <a href="?status=upcoming" class="btn {% if status_filter == 'upcoming' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-            <i class="fas fa-clock"></i> Upcoming
-          </a>
-          <a href="?status=past" class="btn {% if status_filter == 'past' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-            <i class="fas fa-history"></i> Completed
-          </a>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <form method="GET" class="form-inline">
-          <div class="input-group">
-            <input type="text" class="form-control" name="search" placeholder="Search classes..." value="{{ search_query }}">
-            <div class="input-group-append">
-              <button class="btn btn-primary" type="submit">
-                <i class="fas fa-search"></i>
-              </button>
+<section class="site-section py-4">
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <h2>{{ total_classes }}</h2>
+                    <h5>Total Classes</h5>
+                    <p>All scheduled classes</p>
+                </div>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-    
-    <!-- Student Info -->
-    <div class="row mb-5">
-      <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <div class="row align-items-center">
-              <div class="col-md-8">
-                <h4 class="card-title mb-3">
-                  <i class="fas fa-user-graduate text-primary mr-2"></i>
-                  {{ student.student_name }}
-                </h4>
-                <div class="row">
-                  <div class="col-md-6">
-                    <p class="mb-1"><strong>Course:</strong> {{ student.course_id.course_name }}</p>
-                    <p class="mb-1"><strong>Batch:</strong> {{ student.batch_id.batch_year }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <p class="mb-1"><strong>Email:</strong> {{ student.email }}</p>
-                    <p class="mb-0"><strong>Contact:</strong> {{ student.contact_number }}</p>
-                  </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                    <h2>{{ upcoming_count|default:"0" }}</h2>
+                    <h5>Upcoming Classes</h5>
+                    <p>Scheduled ahead</p>
                 </div>
-              </div>
-              <div class="col-md-4 text-right">
-                {% if student.photo %}
-                  <img src="{{ student.photo.url }}" alt="Profile" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #2c98f0;">
-                {% else %}
-                  <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border: 3px solid #2c98f0;">
-                    <i class="fas fa-user fa-3x text-muted"></i>
-                  </div>
-                {% endif %}
-              </div>
             </div>
-          </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);">
+                    <h2>{{ completed_count|default:"0" }}</h2>
+                    <h5>Completed</h5>
+                    <p>Past classes</p>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    
-    <!-- Training Classes -->
-    <div class="row">
-      {% if training_classes %}
-        {% for class in training_classes %}
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm border-{% if class.date >= today %}success{% else %}secondary{% endif %}">
-              <div class="card-header bg-{% if class.date >= today %}success{% else %}secondary{% endif %} text-white">
-                <h5 class="card-title mb-0">
-                  <i class="fas fa-chalkboard-teacher mr-2"></i>
-                  {{ class.trainingclass_name }}
-                </h5>
-              </div>
-              
-              <div class="card-body">
-                <div class="mb-3">
-                  {% if class.date >= today %}
-                    <span class="badge badge-success p-2">
-                      <i class="fas fa-clock mr-1"></i> Upcoming
-                    </span>
-                  {% else %}
-                    <span class="badge badge-secondary p-2">
-                      <i class="fas fa-check-circle mr-1"></i> Completed
-                    </span>
-                  {% endif %}
+
+        <!-- Filters and Search -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8 mb-3 mb-md-0">
+                <div class="filter-group">
+                    <a href="?status=all" class="filter-btn {% if status_filter == 'all' %}filter-btn-active{% else %}filter-btn-inactive{% endif %}">
+                        <i class="fas fa-list"></i> All Classes
+                    </a>
+                    <a href="?status=upcoming" class="filter-btn {% if status_filter == 'upcoming' %}filter-btn-active{% else %}filter-btn-inactive{% endif %}">
+                        <i class="fas fa-clock"></i> Upcoming
+                    </a>
+                    <a href="?status=past" class="filter-btn {% if status_filter == 'past' %}filter-btn-active{% else %}filter-btn-inactive{% endif %}">
+                        <i class="fas fa-history"></i> Completed
+                    </a>
                 </div>
-                
-                <div class="class-details">
-                  <div class="mb-2">
-                    <strong><i class="far fa-calendar text-primary mr-2"></i>Date:</strong>
-                    {{ class.date|date:"F d, Y" }}
-                  </div>
-                  
-                  <div class="mb-2">
-                    <strong><i class="far fa-clock text-primary mr-2"></i>Time:</strong>
-                    {{ class.start_time|time:"h:i A" }}
-                  </div>
-                  
-                  <div class="mb-2">
-                    <strong><i class="fas fa-book text-primary mr-2"></i>Course:</strong>
-                    {{ class.course_id.course_name }}
-                  </div>
-                  
-                  <div class="mb-2">
-                    <strong><i class="fas fa-chalkboard text-primary mr-2"></i>Type:</strong>
-                    {{ class.classtype_id.classtype_name }}
-                  </div>
-                  
-                  <div class="mb-3">
-                    <strong><i class="fas fa-users text-primary mr-2"></i>Batch:</strong>
-                    {{ class.batch_id.batch_year }}
-                  </div>
-                  
-                  {% if class.description %}
-                    <div class="class-description mt-3 pt-3 border-top">
-                      <strong><i class="fas fa-info-circle text-primary mr-2"></i>Description:</strong>
-                      <p class="mt-2 mb-0 text-muted">{{ class.description|truncatechars:100 }}</p>
-                    </div>
-                  {% endif %}
-                </div>
-              </div>
-              
-              <div class="card-footer bg-white">
-                {% if class.date >= today %}
-                  <button class="btn btn-success btn-sm">
-                    <i class="fas fa-calendar-check mr-1"></i> Join Class
-                  </button>
-                {% endif %}
-                <button class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#classModal{{ class.trainingclass_id }}">
-                  <i class="fas fa-eye mr-1"></i> View Details
-                </button>
-              </div>
             </div>
-          </div>
-          
-          <!-- Modal for Class Details -->
-          <div class="modal fade" id="classModal{{ class.trainingclass_id }}" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                  <h5 class="modal-title">{{ class.trainingclass_name }}</h5>
-                  <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p><strong><i class="far fa-calendar mr-2"></i>Date:</strong> {{ class.date|date:"F d, Y" }}</p>
-                      <p><strong><i class="far fa-clock mr-2"></i>Time:</strong> {{ class.start_time|time:"h:i A" }}</p>
-                      <p><strong><i class="fas fa-book mr-2"></i>Course:</strong> {{ class.course_id.course_name }}</p>
-                    </div>
-                    <div class="col-md-6">
-                      <p><strong><i class="fas fa-chalkboard mr-2"></i>Class Type:</strong> {{ class.classtype_id.classtype_name }}</p>
-                      <p><strong><i class="fas fa-users mr-2"></i>Batch:</strong> {{ class.batch_id.batch_year }}</p>
-                      <p>
-                        <strong><i class="fas fa-info-circle mr-2"></i>Status:</strong>
-                        {% if class.date >= today %}
-                          <span class="badge badge-success">Upcoming</span>
-                        {% else %}
-                          <span class="badge badge-secondary">Completed</span>
-                        {% endif %}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {% if class.description %}
-                    <div class="mt-4">
-                      <h6><i class="fas fa-align-left mr-2"></i>Description</h6>
-                      <div class="p-3 bg-light rounded">
-                        {{ class.description|linebreaks }}
-                      </div>
-                    </div>
-                  {% endif %}
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  {% if class.date >= today %}
-                    <button class="btn btn-primary">
-                      <i class="fas fa-calendar-check mr-1"></i> Add to Calendar
+
+            <div class="col-md-4">
+                <form method="GET" class="search-box">
+                    <input type="text" class="form-control" name="search" placeholder="Search classes..." value="{{ search_query }}">
+                    <button class="btn" type="submit">
+                        <i class="fas fa-search"></i>
                     </button>
-                  {% endif %}
-                </div>
-              </div>
+                </form>
             </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="col-12">
-          <div class="card shadow-sm">
-            <div class="card-body text-center py-5">
-              <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
-              <h4 class="text-muted mb-3">
-                {% if status_filter == 'upcoming' %}
-                  No Upcoming Classes
-                {% elif status_filter == 'past' %}
-                  No Completed Classes
-                {% elif search_query %}
-                  No classes found for "{{ search_query }}"
-                {% else %}
-                  No Training Classes Found
-                {% endif %}
-              </h4>
-              <p class="text-muted mb-4">
-                {% if status_filter == 'upcoming' %}
-                  You don't have any upcoming training classes scheduled.
-                {% elif status_filter == 'past' %}
-                  You haven't completed any training classes yet.
-                {% elif search_query %}
-                  Try adjusting your search terms.
-                {% else %}
-                  No training classes have been scheduled for your course and batch yet.
-                {% endif %}
-              </p>
-              {% if search_query or status_filter != 'all' %}
-                <a href="?status=all" class="btn btn-primary">
-                  <i class="fas fa-redo mr-1"></i> View All Classes
-                </a>
-              {% endif %}
-            </div>
-          </div>
         </div>
-      {% endif %}
+
+        <!-- Student Info -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="student-card">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-user-graduate text-primary mr-2"></i>
+                                    {{ student.student_name }}
+                                </h5>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <i class="fas fa-book"></i>
+                                        <span><strong>Course:</strong> {{ student.course_id.course_name }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span><strong>Batch:</strong> {{ student.batch_id.batch_year }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>{{ student.email }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>{{ student.contact_number }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                {% if student.photo %}
+                                    <img src="{{ student.photo.url }}" alt="Profile" class="student-avatar">
+                                {% else %}
+                                    <div class="student-avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Classes -->
+        <div class="row">
+            {% if training_classes %}
+                {% for class in training_classes %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="class-card">
+                            <div class="class-header {% if class.date >= today %}upcoming{% else %}completed{% endif %}">
+                                <h5>
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    {{ class.trainingclass_name }}
+                                </h5>
+                            </div>
+
+                            <div class="class-body">
+                                <div class="status-badge {% if class.date >= today %}status-upcoming{% else %}status-completed{% endif %}">
+                                    <i class="fas {% if class.date >= today %}fa-clock{% else %}fa-check-circle{% endif %} mr-1"></i>
+                                    {% if class.date >= today %}Upcoming{% else %}Completed{% endif %}
+                                </div>
+
+                                <div class="detail-row">
+                                    <i class="far fa-calendar"></i>
+                                    <span><strong>Date:</strong> {{ class.date|date:"M d, Y" }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <i class="far fa-clock"></i>
+                                    <span><strong>Time:</strong> {{ class.start_time|time:"h:i A" }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <i class="fas fa-book"></i>
+                                    <span><strong>Course:</strong> {{ class.course_id.course_name|truncatechars:20 }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <i class="fas fa-chalkboard"></i>
+                                    <span><strong>Type:</strong> {{ class.classtype_id.classtype_name }}</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <i class="fas fa-users"></i>
+                                    <span><strong>Batch:</strong> {{ class.batch_id.batch_year }}</span>
+                                </div>
+
+                                {% if class.description %}
+                                    <div class="detail-row border-top pt-2 mt-2">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span class="small text-muted">{{ class.description|truncatechars:50 }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="class-footer">
+                                {% if class.date >= today %}
+                                    <button class="btn-class btn-join">
+                                        <i class="fas fa-video"></i> Join
+                                    </button>
+                                {% endif %}
+                                <button class="btn-class btn-details" data-toggle="modal" data-target="#classModal{{ class.trainingclass_id }}">
+                                    <i class="fas fa-eye"></i> Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for Class Details -->
+                    <div class="modal fade" id="classModal{{ class.trainingclass_id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ class.trainingclass_name }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong><i class="far fa-calendar mr-2"></i>Date:</strong> {{ class.date|date:"F d, Y" }}</p>
+                                            <p><strong><i class="far fa-clock mr-2"></i>Time:</strong> {{ class.start_time|time:"h:i A" }}</p>
+                                            <p><strong><i class="fas fa-book mr-2"></i>Course:</strong> {{ class.course_id.course_name }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong><i class="fas fa-chalkboard mr-2"></i>Type:</strong> {{ class.classtype_id.classtype_name }}</p>
+                                            <p><strong><i class="fas fa-users mr-2"></i>Batch:</strong> {{ class.batch_id.batch_year }}</p>
+                                            <p>
+                                                <strong><i class="fas fa-info-circle mr-2"></i>Status:</strong>
+                                                {% if class.date >= today %}
+                                                    <span class="badge badge-success">Upcoming</span>
+                                                {% else %}
+                                                    <span class="badge badge-secondary">Completed</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {% if class.description %}
+                                        <div class="mt-3">
+                                            <h6 class="mb-2"><i class="fas fa-align-left mr-2"></i>Description</h6>
+                                            <div class="p-3 bg-light rounded small">
+                                                {{ class.description|linebreaks }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    {% if class.date >= today %}
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-calendar-check mr-1"></i> Add to Calendar
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="student-card p-4">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h4>
+                                {% if status_filter == 'upcoming' %}
+                                    No Upcoming Classes
+                                {% elif status_filter == 'past' %}
+                                    No Completed Classes
+                                {% elif search_query %}
+                                    No classes found for "{{ search_query }}"
+                                {% else %}
+                                    No Training Classes Found
+                                {% endif %}
+                            </h4>
+                            <p>
+                                {% if status_filter == 'upcoming' %}
+                                    You don't have any upcoming training classes scheduled.
+                                {% elif status_filter == 'past' %}
+                                    You haven't completed any training classes yet.
+                                {% elif search_query %}
+                                    Try adjusting your search terms.
+                                {% else %}
+                                    No training classes have been scheduled for your course and batch yet.
+                                {% endif %}
+                            </p>
+                            {% if search_query or status_filter != 'all' %}
+                                <a href="?status=all" class="btn-reset">
+                                    <i class="fas fa-redo mr-1"></i> View All Classes
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
-  </div>
 </section>
 
 {% include "student/footer.html" %}

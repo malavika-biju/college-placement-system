@@ -1,5 +1,5 @@
  {% load static %}
- <footer class="site-footer">
+<footer class="site-footer">
 
       <a href="#top" class="smoothscroll scroll-top">
         <span class="icon-keyboard_arrow_up"></span>
@@ -8,40 +8,47 @@
       <div class="container">
         <div class="row mb-5">
           <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Search Trending</h3>
+            <h3>Get Started</h3>
             <ul class="list-unstyled">
-              <li><a href="#">Web Design</a></li>
-              <li><a href="#">Graphic Design</a></li>
-              <li><a href="#">Web Developers</a></li>
-              <li><a href="#">Python</a></li>
-              <li><a href="#">HTML5</a></li>
-              <li><a href="#">CSS3</a></li>
+              <li><a href="{% url 'guest_home' %}">Home</a></li>
+              <li><a href="{% url 'login' %}">Login</a></li>
+              <li><a href="{% url 'student_register' %}">Student Register</a></li>
+              <li><a href="{% url 'register' %}">Company Register</a></li>
+              <li><a href="#">Browse Jobs</a></li>
             </ul>
           </div>
           <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Company</h3>
+            <h3>For Students</h3>
             <ul class="list-unstyled">
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Career</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Resources</a></li>
+              <li><a href="#">How It Works</a></li>
+              <li><a href="#">Career Guidance</a></li>
+              <li><a href="#">Success Stories</a></li>
+              <li><a href="#">Training Programs</a></li>
+              <li><a href="#">Placement Statistics</a></li>
             </ul>
           </div>
           <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Support</h3>
+            <h3>For Companies</h3>
             <ul class="list-unstyled">
-              <li><a href="#">Support</a></li>
-              <li><a href="#">Privacy</a></li>
-              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Recruitment Process</a></li>
+              <li><a href="#">Why Choose Us</a></li>
+              <li><a href="#">Partner Benefits</a></li>
+              <li><a href="#">Campus Visits</a></li>
+              <li><a href="#">Contact Placement Cell</a></li>
             </ul>
           </div>
           <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Contact Us</h3>
+            <h3>Connect With Us</h3>
             <div class="footer-social">
-              <a href="#"><span class="icon-facebook"></span></a>
-              <a href="#"><span class="icon-twitter"></span></a>
-              <a href="#"><span class="icon-instagram"></span></a>
-              <a href="#"><span class="icon-linkedin"></span></a>
+              <a href="https://facebook.com" target="_blank"><span class="icon-facebook"></span></a>
+              <a href="https://twitter.com" target="_blank"><span class="icon-twitter"></span></a>
+              <a href="https://linkedin.com" target="_blank"><span class="icon-linkedin"></span></a>
+              <a href="https://instagram.com" target="_blank"><span class="icon-instagram"></span></a>
+            </div>
+            <div class="mt-3">
+              <h5>Catalyst Placement Platform</h5>
+              <p class="text-muted">Email: placement@catalyst.edu</p>
+              <p class="text-muted">Phone: +91-XXXX-XXXX-XXXX</p>
             </div>
           </div>
         </div>
@@ -49,12 +56,13 @@
         <div class="row text-center">
           <div class="col-12">
             <p class="copyright"><small>
-              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-            Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart text-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank" >Colorlib</a>
-            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></small></p>
+            Copyright &copy;<script>document.write(new Date().getFullYear());</script> Catalyst - College Placement Management System. All rights reserved | Connecting Talent with Opportunity
+            </small></p>
+            <p class="text-muted"><small>
+              Bridging Academia • Industry • Innovation
+            </small></p>
           </div>
         </div>
       </div>
     </footer>
     </html>
-    
