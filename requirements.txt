@@ -1,6 +1,7 @@
 Django
-mysqlclient
+mysql-connector-python
 python-dotenv
 gunicorn
 whitenoise
 Pillow
+openpyxl
