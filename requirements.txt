@@ -1,6 +1,0 @@
-﻿Django
-mysqlclient
-python-dotenv
-gunicorn
-whitenoise
-Pillow
